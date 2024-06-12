@@ -1,0 +1,42 @@
+
+<header class="flex gap-3 pb-6">
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
+	<h2 class="flex-grow text-2xl font-bold text-center">Tableros</h2>
+	<a class="inline-block text-2xl whitespace-nowrap" href="/dominios">❌</a>
+</header>
+<header class="mb-4 space-y-1">
+	
+</header>
+
+<main id="actividades" class="flex items-start flex-grow gap-4 pb-2 overflow-x-auto">
+	{{ range .Tableros -}}
+	<article gk-dominio="{{ .Contexto.ID }}" class="relative flex flex-col max-h-full p-1 bg-cyan-900 rounded-md shadow-lg min-w-64 max-w-96">
+		<header class="p-1">
+			<!-- Mantener el orden de estos 5 elementos para showEditActividad -->
+			<span class="mr-1 cursor-pointer handle">⣿</span>
+			<span tipo="actividad_text" class="font-medium text-center">{{ .Contexto.Persona }}</span>
+			<button type="button" onclick="showEditActividad(this)" class="float-right text-sm"><i class="px-2 py-1 fa fa-pen"></i></button>
+			<a href="/historias/{{ .Contexto.ID }}" class="float-right text-sm"><i class="px-2 py-1 fa fa-eye"></i></a>
+			<span class="absolute top-0 right-0 px-1 text-xs bg-black opacity-40 rounded-tr-md rounded-bl-md">A</span>
+		</header>
+
+		<div tipo="tareas"  class="flex flex-col flex-grow gap-3 p-1 overflow-x-hidden overflow-y-auto">
+			{{ range .Historias -}}
+			<div tipo="tarea" class="relative p-3 bg-slate-800 rounded-md shadow-lg">
+				<span class="mr-1 cursor-pointer handle1">⣿</span>
+				<span class="text-center">{{ .Titulo }}</span>
+
+				<div class="hidden gap-3">
+					
+				</div>
+			</div>
+			{{ end }}
+		</div>
+
+		<footer class="p-1 pt-2">
+			<input name="tarea_nueva" placeholder="Agregar tarea..." type="text" class="block w-full p-3 bg-slate-800 rounded-md shadow-lg opacity-50 focus:opacity-100">
+		</footer>
+	</article>
+	{{ end }}
+</main>
+

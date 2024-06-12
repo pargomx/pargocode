@@ -1,0 +1,182 @@
+<form {{ if .CampoID }} hx-put="/campos/{{ .CampoID }}" {{ else }} hx-post="/tablas/{{ .TablaID }}/campos" {{ end }} hx-trigger="submit,cmdGuardar" hx-target="#campoGuardadoText" class="grid items-start gap-6 p-4 sm:grid-cols-2 lg:grid-cols-3">
+
+	<fieldset class="flex flex-col gap-3 p-2 border-2 border-sky-950 rounded-md">
+		<legend class="px-2">SQL</legend>
+
+		<div>
+			<label for="cc01">Nombre columna</label>
+			<input id="cc01" name="nombre_sql" placeholder="ejemplo_id" value="{{ .NombreColumna }}" class="form-control" type="text">
+		</div>
+		
+		<div>
+			<label for="cc02">Tipo SQL</label>
+			<select id="cc02" name="tipo_sql" {{ if .NombreColumna }}autofocus {{ end -}} class="form-control">
+	
+				{{ if .TipoSQL }}
+				<optgroup label="Actual">
+					<option value="{{ .TipoSQL }}">{{ .TipoSQL }}</option>
+				</optgroup>
+				{{ else }}
+				<option value=""></option>
+				{{ end }}
+	
+				<optgroup label="Número entero">
+					<option value="tinyint" {{ if eq .TipoSQL "tinyint"}}selected{{ end }}>TINYINT (1 byte)</option>
+					<option value="smallint" {{ if eq .TipoSQL "smallint"}}selected{{ end }}>SMALLINT (2 bytes)</option>
+					<option value="mediumint" {{ if eq .TipoSQL "mediumint"}}selected{{ end }}>MEDIUMINT (3 bytes)</option>
+					<option value="int" {{ if eq .TipoSQL "int"}}selected{{ end }}>INT (4 bytes)</option>
+					<option value="bigint" {{ if eq .TipoSQL "bigint"}}selected{{ end }}>BIGINT (8 bytes)</option>
+				</optgroup>
+				
+				<optgroup label="Texto">
+					<option value="char" {{ if eq .TipoSQL "char"}}selected{{ end }}>CHAR</option>
+					<option value="varchar" {{ if eq .TipoSQL "varchar"}}selected{{ end }}>VARCHAR</option>
+					<option value="tinytext" {{ if eq .TipoSQL "tinytext"}}selected{{ end }}>TINYTEXT (+256 bytes)</option>
+					<option value="text" {{ if eq .TipoSQL "text"}}selected{{ end }}>TEXT (2^16 bytes)</option>
+					<option value="mediumtext" {{ if eq .TipoSQL "mediumtext"}}selected{{ end }}>MEDIUMTEXT (2^24 bytes)</option>
+					<option value="longtext" {{ if eq .TipoSQL "longtext"}}selected{{ end }}>LONGTEXT (2^32 bytes)</option>
+				</optgroup>
+	
+				<optgroup label="Tiempo">
+					<option value="timestamp" {{ if eq .TipoSQL "timestamp"}}selected{{ end }}>Timestamp</option>
+					<option value="datetime" {{ if eq .TipoSQL "datetime"}}selected{{ end }}>Datetime</option>
+					<option value="date" {{ if eq .TipoSQL "date"}}selected{{ end }}>DATE</option>
+					<option value="time" {{ if eq .TipoSQL "time"}}selected{{ end }}>TIME</option>
+					<option value="year" {{ if eq .TipoSQL "year"}}selected{{ end }}>YEAR</option>
+				</optgroup>
+	
+				<optgroup label="Especial">
+					<option value="enum_45">Enum 45</option>
+				</optgroup>
+			</select>
+		</div>
+
+		<div>
+			<label for="cc03">Default SQL</label>
+			<input id="cc03" name="default_sql" type="text" value="{{ .DefaultSQL }}" onfocus="this.select()" class="form-control">
+		</div>
+
+		<div>
+			<label for="cc04">Expresión SQL</label>
+			<input id="cc04" name="expresion" type="text" value="{{ .Expresion }}" class="form-control">
+		</div>
+
+		<div>
+			<input id="cc05" name="unsinged" type="checkbox" {{ if .Unsigned }}checked{{ end }}>
+			<label for="cc05">Unsigned (positivo)</label>
+		</div>
+		
+		<div>
+			<label for="cc06">Max lenght</label>
+			<input id="cc06" name="maxlenght" type="number" value="{{ .MaxLenght }}" class="form-control">
+		</div>
+		
+	</fieldset>
+
+	<fieldset class="flex flex-col gap-3 p-2 border-2 border-sky-950 rounded-md">
+		<legend class="px-2">Go</legend>
+		
+		<div>
+			<label for="cc11">Nombre Campo</label>
+			<input id="cc11" name="nombre_go" type="text" value="{{ .NombreCampo }}" placeholder="Auto" class="form-control">
+		</div>
+		
+		<div>
+			<label for="cc12">Tipo Go</label>
+			<input id="cc12" name="tipo_go" type="text" value="{{ .TipoGo }}" placeholder="auto" class="form-control">
+		</div>
+
+		<div>
+			<label for="cc13">Scan setter</label>
+			<input id="cc13" name="setter" type="text" value="{{ .Setter }}" placeholder="" class="form-control">
+		</div>
+
+		<div>
+			<input id="cc14" name="especial" type="checkbox" {{ if .Especial }}checked{{ end }}>
+			<label for="cc14">Campo especial (ENUM)</label>
+		</div>
+	
+	</fieldset>
+
+
+	<fieldset class="flex flex-col gap-3 p-2 border-2 border-sky-950 rounded-md">
+		<legend class="px-2">UI</legend>
+
+		<div>
+			<label for="cc21">Nombre humano</label>
+			<input id="cc21" name="nombre_ui" type="text" value="{{ .NombreHumano }}" placeholder="Ejemplo ID" class="form-control">
+		</div>
+		<div>
+			<input id="cc22" name="es_femenino" type="checkbox" {{ if .EsFemenino }}checked{{ end }}>
+			<label for="cc22">Nombre femenino</label>
+		</div>
+		<div>
+			<label for="cc23">Descripción</label>
+			<!-- <input name="descripcion" type="text" value="{{ .Descripcion }}" class="form-control"> -->
+			<textarea id="cc23" name="descripcion" cols="30" rows="3" class="form-control">{{- .Descripcion -}}</textarea>
+		</div>
+
+	</fieldset>
+	
+	<fieldset class="flex flex-col gap-3 p-2 border-2 border-sky-950 rounded-md">
+		<legend class="px-2">General</legend>
+		
+		<div>
+			<input id="cc31" name="not_null" type="checkbox" {{ if not .Null }}checked{{ end }}>
+			<label for="cc31">Not null</label>
+		</div>
+
+		<div>
+			<input id="cc32" name="pk" type="checkbox" {{ if .PrimaryKey }}checked{{ end }}>
+			<label for="cc32">Primary Key 🔑</label>
+		</div>
+		<div>
+			<input id="cc33" name="fk" type="checkbox" {{ if .ForeignKey }}checked{{ end }}>
+			<label for="cc33">Foreign Key 🗝️</label>
+		</div>
+		
+		<div>
+			<input id="cc34" name="unique" type="checkbox" {{ if .Unique }}checked{{ end }}>
+			<label for="cc34">Unique</label>
+		</div>
+		<div>
+			<input id="cc35" name="required" type="checkbox" {{ if .Required }}checked{{ end }}>
+			<label for="cc35">Required</label>
+		</div>
+		<div>
+			<input id="cc36" name="readonly" type="checkbox" {{ if .ReadOnly }}checked{{ end }}>
+			<label for="cc36">Read only</label>
+		</div>
+		<div>
+			<input id="cc37" name="filtro" type="checkbox" {{ if .Filtro }}checked{{ end }}>
+			<label for="cc37">Filtrar por este campo</label>
+		</div>
+		
+	</fieldset>
+
+	<fieldset class="flex flex-col gap-3 p-2 border-2 border-sky-950 rounded-md">
+		<legend class="px-2">Clave foránea</legend>
+		<div>
+			<label for="cc42">Campo origen de FK</label>
+			<input id="cc42" name="campo_fk" type="text" value="{{ if .ReferenciaCampo }}{{ .ReferenciaCampo }}{{ end }}" placeholder="" class="form-control">
+		</div>
+
+	</fieldset>
+
+	<fieldset class="flex flex-col gap-3 p-2 border-2 border-sky-950 rounded-md">
+		<legend class="px-2">Acciones</legend>
+
+		<button type="button" hx-delete="/campos/{{ .CampoID }}" hx-confirm="¿Eliminar este campo?" class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-red-700 rounded shadow-md hover:bg-red-600">
+			Eliminar
+		</button>
+		{{ if .CampoID }}
+		<button type="button" hx-get="/campos/{{ .CampoID }}/form" hx-target="#campoEditForm" class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-gray-700 rounded shadow-md hover:bg-gray-600">
+			Reload
+		</button>
+		{{ end }}
+
+		<button type="submit" class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+			Guardar
+		</button>
+	</fieldset>
+</form>

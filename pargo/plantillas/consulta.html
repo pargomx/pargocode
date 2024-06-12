@@ -1,0 +1,391 @@
+{{ template "app/nav" . }}
+
+{{ if .Consulta }}
+<main class="container mx-auto space-y-6">
+
+	{{ with .Consulta }}
+	<section id="nombre" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				<span class="p-1 font-mono text-white bg-violet-700 rounded">consulta</span>
+				{{ .NombrePaquete }}.{{ .NombreEnCodigo }}
+			</h3>
+			<p id="status_nombre"></p>
+		</header>
+		<form hx-put="/v1/consultas/{{ .Nombre.Clave }}/nombre" hx-target="#status_nombre" hx-trigger="submit,cmdGuardar,change delay:1s" class="grid items-end grid-cols-4 p-4 gap-x-4 gap-y-2">
+			<div>
+				<label for="txt_paquete_parent_dir">URL de repositorio*</label>
+				<input class="form-control" name="paquete_parent_dir" id="txt_paquete_parent_dir" type="text" placeholder="Ejemplo: monorepo" value="{{ .PaqueteParentDir }}" />
+			</div>
+			<div>
+				<label for="NombrePaquete">Nombre del paquete*</label>
+				<input class="form-control" name="nombre_paquete" id="NombrePaquete" type="text" value="{{ .NombrePaquete }}" placeholder="Ej. usuario" />
+			</div>
+			<div>
+				<label for="NombreEnCodigo">Nombre en código*</label>
+				<input class="form-control" name="nombre_struct" id="NombreEnCodigo" type="text" value="{{ .NombreEnCodigo }}" placeholder="Ej. Item" />
+			</div>
+			<div>
+				<label for="TablaOrigenID">Tabla origen (from)* {{ if .TablaOrigenID }}<a href="/v1/tablas/{{ .TablaOrigenID }}">🔗</a>{{ end }}</label>
+				<input class="form-control" name="tabla_origen" id="TablaOrigenID" type="text" value="{{ .TablaOrigenID }}" placeholder="Ej. usuarios" />
+			</div>
+
+			<div>
+				<label for="txt_nombre_humano">Humano singular*</label>
+				<input class="form-control" name="nombre_humano" id="txt_nombre_humano" type="text" placeholder="Ejemplo" value="{{ .Nombre.Humano }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_humano_plural">Humano plural</label>
+				<input class="form-control" name="nombre_humano_plural" id="txt_nombre_humano_plural" type="text" placeholder="Ejemplos" value="{{ .Nombre.HumanoPlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_clave">Clave singular*</label>
+				<input class="form-control" name="nombre_clave" id="txt_nombre_clave" type="text" placeholder="entejemp" value="{{ .Nombre.Clave }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_clave_plural">Clave plural</label>
+				<input class="form-control" name="nombre_clave_plural" id="txt_nombre_clave_plural" type="text" placeholder="entejemps" value="{{ .Nombre.ClavePlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_kebab">Kebab singular</label>
+				<input class="form-control" name="nombre_kebab" id="txt_nombre_kebab" type="text" placeholder="ent-ejemplo" value="{{ .Nombre.Kebab }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_kebab_plural">Kebab plural</label>
+				<input class="form-control" name="nombre_kebab_plural" id="txt_nombre_kebab_plural" type="text" placeholder="ents-ejemplo" value="{{ .Nombre.KebabPlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_abrev">Abreviatura*</label>
+				<input class="form-control" name="nombre_abrev" id="txt_nombre_abrev" type="text" placeholder="ejm" value="{{ .Nombre.Abrev }}" />
+			</div>
+			<div>
+				<label for="sel_nombre_femenino">Género</label>
+				<select class="form-control" name="nombre_femenino" id="sel_nombre_femenino">
+					<option value="false">Masculino</option>
+					<option value="true"{{ if .Nombre.EsFemenino }} selected{{ end }}>Femenino</option>
+				</select>
+			</div>
+			<div class="col-span-4">
+				<label for="txt_nombre_descripcion">Descripción</label>
+				<input class="form-control" name="nombre_descripcion" id="txt_nombre_descripcion" type="text" placeholder="Representa..." value="{{ .Nombre.Descripcion }}" />
+			</div>
+			<div class="col-span-4">
+				<label for="directrices_mysql">Directrices para generar código MySQL</label>
+				<textarea class="form-control" name="directrices_mysql" id="directrices_mysql" cols="30" rows="5">
+				{{- range .Directrices.MySQL -}}
+					{{ .String }}{{ br }}
+				{{- end -}}
+				</textarea>
+			</div>
+		</form>
+	</section>
+	{{ end }}
+
+
+	<section id="campos" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				Campos
+			</h3>
+			<button type="button" onclick="generarCodigoDialog.showModal(); generarCodigo();" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+				Generar código
+			</button>
+			<button type="button" hx-post="/v1/consultas/{{ .Consulta.Nombre.Clave }}/generar-archivos/mysql" hx-target="#status_nombre" hx-trigger="click, keyup[ctrlKey&&key=='Enter'] from:body" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+				MySQL
+			</button>
+			<button type="button" hx-post="/v1/consultas/{{ .Consulta.Nombre.Clave }}/generar-archivos/sqlite" hx-target="#status_nombre" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+				Sqlite
+			</button>
+			<button type="button" hx-post="/v1/consultas/{{ .Consulta.Nombre.Clave }}/generar-archivos/entidad" hx-target="#status_nombre" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+				Entidad
+			</button>
+			<button type="button" onclick="guardarCampos()" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+				Guardar campos
+			</button>
+		</header>
+		<div class="overflow-x-auto">
+			<table class="w-full p-4 text-center border-separate table-auto border-spacing-y-1">
+				<thead>
+					<tr class="bg-slate-400 dark:bg-slate-900">
+						<th></th>
+						<th title="">Tabla</th>
+						<th title="">Campo</th>
+						<th title="">Alias</th>
+						<th title="">PK</th>
+						<th title="">Filtro</th>
+						<th title="">GroupBy</th>
+						<th title="">Expresion</th>
+						<th title="">ListBy</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ range .Consulta.ListaCampos -}}
+					<tr draggable="true" ondragstart="dragStart()" ondragover="dragover()" class="bg-slate-800/25 hover:bg-slate-800/50">
+						<td class="cursor-move">⣿</td>
+						<td>
+							<input class="w-40 form-control" type="text" name="tabla" value="{{ .Tabla }}" placeholder="">
+						</td>
+						<td>
+							<input class="w-40 form-control" type="text" name="campo" value="{{ .Campo }}" placeholder="">
+						</td>
+						<td>
+							<input class="w-40 form-control" type="text" name="alias" value="{{ .Alias }}" placeholder="">
+						</td>
+						<td>
+							<input type="checkbox" name="pk" {{ if .EsPK }} checked{{ end }} title="Primary key">
+						</td>
+						<td>
+							<input type="checkbox" name="filtro" {{ if .EsFiltro }} checked{{ end }} title="Es filtro">
+						</td>
+						<td>
+							<input type="checkbox" name="group_by" {{ if .GroupBy }} checked{{ end }} title="Group by">
+						</td>
+						<td class="w-11/12">
+							<input class="form-control" type="text" name="expresion" value="{{ .Expresion }}" placeholder="">
+						</td>
+						<td>
+							<input type="checkbox" name="by" value="{{ .Campo }}" title="List by">
+						</td>
+					</tr>
+					{{ end }}
+					
+					<tr draggable="true" ondragstart="dragStart()" ondragover="dragover()" class="bg-slate-800/25 hover:bg-slate-800/50">
+						<td class="cursor-move">⣿</td>
+						<td>
+							<input class="w-40 form-control" type="text" name="tabla" value="" placeholder="">
+						</td>
+						<td>
+							<input class="w-40 form-control" type="text" name="campo" value="" placeholder="">
+						</td>
+						<td>
+							<input class="w-40 form-control" type="text" name="alias" value="" placeholder="">
+						</td>
+						<td>
+							<input type="checkbox" name="pk" title="Primary key">
+						</td>
+						<td>
+							<input type="checkbox" name="filtro" title="Es filtro">
+						</td>
+						<td>
+							<input type="checkbox" name="group_by" title="Group by">
+						</td>
+						<td class="w-11/12">
+							<input class="form-control" type="text" name="expresion" value="" placeholder="">
+						</td>
+						<td>
+							<input type="checkbox" name="by" value="" title="List by">
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
+	
+	<section id="relaciones" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				Relaciones
+			</h3>
+			<button type="button" onclick="guardarCampos()" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+				Guardar
+			</button>
+		</header>
+		<div class="overflow-x-auto">
+			<table class="w-full p-4 text-center border-separate table-auto border-spacing-y-1">
+				<thead>
+					<tr class="bg-slate-400 dark:bg-slate-900">
+						<th></th>
+						<th title="">Join table*</th>
+						<th title="">Join as</th>
+						<th title="">Join on</th>
+						<th title="">Join from*</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ range .Consulta.ListaRelaciones -}}
+					<tr draggable="true" ondragstart="dragStart()" ondragover="dragover()" class="bg-slate-800/25 hover:bg-slate-800/50">
+						<td class="cursor-move">⣿</td>
+						<td>
+							<input class="form-control" type="text" name="join" value="{{ .JoinTbl }}" placeholder="">
+						</td>
+						<td>
+							<input class="form-control" type="text" name="join_as" value="{{ .JoinAs }}" placeholder="default">
+						</td>
+						<td>
+							<input class="form-control" type="text" name="join_on" value="{{ .JoinOn }}" placeholder="default">
+						</td>
+						<td>
+							<input class="form-control" type="text" name="from" value="{{ .JoinFrom }}" placeholder="">
+						</td>
+					</tr>
+					{{ end }}
+
+					<tr draggable="true" ondragstart="dragStart()" ondragover="dragover()" class="bg-slate-800/25 hover:bg-slate-800/50">
+						<td class="cursor-move">⣿</td>
+						<td>
+							<input class="form-control" type="text" name="join" value="" placeholder="">
+						</td>
+						<td>
+							<input class="form-control" type="text" name="join_as" value="" placeholder="default">
+						</td>
+						<td>
+							<input class="form-control" type="text" name="join_on" value="" placeholder="default">
+						</td>
+						<td>
+							<input class="form-control" type="text" name="from" value="" placeholder="">
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+</main>
+
+<div style="height: 20vh;"></div>
+
+<dialog id="generarCodigoDialog" class="p-3 rounded-lg md:w-[600px] lg:w-[800px] xl:w-[1100px] ">
+	<header class="flex items-center gap-3 pb-2 flex-nowrap">
+		<select id="selectGenerarCodigo" class="form-control" name="tipo" onchange="generarCodigo()">
+			<option value="">¿Qué generar?</option>
+			<option value="mysql/query">Query</option>
+			
+			<option value="go/qry_struct">Go Struct</option>
+			
+			<option value="mysql-directriz">MySQL Directrices</option>
+			<option value="mysql/servicio">MySQL Servicio</option>
+			<option value="mysql/constantes">MySQL Constantes</option>
+			<option value="mysql/scan-row">MySQL Scan Row</option>
+			<option value="mysql/scan-rows">MySQL Scan Rows</option>
+
+			<option value="mysql/get">Mysql Get</option>
+			<option value="mysql/fetch">Mysql Fetch</option>
+			<option value="mysql/qry-filtros">Mysql Filtros</option>
+			<option value="mysql/list">Mysql List</option>
+			<option value="mysql/list_by">Mysql List By</option>
+			<option value="mysql/get_by">MySQL Get By</option>
+		</select>
+
+		<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="copiarCodigo()" title="Copiar al portapapeles">📋</button>
+		<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="generarCodigo()" title="Volver a generar">🔄</button>
+		<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="generarCodigoDialog.close()" title="Cerrar">✖️</button>
+	</header>
+	<pre id="codigoGenerado" hx-get="/v1/consultas/{{ .Consulta.Nombre.Clave }}/generar" hx-include="#selectGenerarCodigo, input[name='by']" hx-target="#codigoGenerado" hx-swap="innerHTML" hx-trigger="deseaGenerarCodigo" class="p-4 overflow-auto text-lime-300 bg-slate-950">...
+
+	</pre>
+	<script>
+		function generarCodigo() {
+			document.getElementById("codigoGenerado").innerHTML = "\t...\n\n\n\n\n\n\n\n"
+			if (document.getElementById("selectGenerarCodigo").value == "") {
+				return
+			}
+			console.log("Se generará código")
+			document.getElementById("codigoGenerado").dispatchEvent(new Event("deseaGenerarCodigo"));
+		}
+		function copiarCodigo() {
+			navigator.clipboard.writeText(document.getElementById("codigoGenerado").innerText).then(() => {
+				console.log("Código copiado al portapapeles");
+			},() => {
+				console.error("No se pudo copiar el código al portapapeles");
+			});
+		}
+	</script>
+</dialog>
+
+<script>
+	function guardarCampos() {
+		var campos = new Array();
+		var relaciones = new Array();
+		var abortar = false;
+
+		document.getElementById("relaciones").querySelectorAll("tbody > tr").forEach((fila) => {
+			let relacion = {
+				join: fila.querySelector('input[name="join"]').value,
+				join_as: fila.querySelector('input[name="join_as"]').value,
+				join_on: fila.querySelector('input[name="join_on"]').value,
+				from: fila.querySelector('input[name="from"]').value,
+			}
+			if (relacion.join == "" && relacion.join_as == "" && relacion.join_on == "" && relacion.from == "") {
+				return; // ignorar filas en blanco
+			}
+			if (relacion.join == "") {
+				abortar = true;
+				alert("Falta join table");
+			}
+			if (relacion.from == "") {
+				abortar = true;
+				alert("Falta from table");
+			}
+			relaciones.push(relacion);
+		});
+
+		document.getElementById("campos").querySelectorAll("tbody > tr").forEach((fila) => {
+			let campo = {
+				tabla: fila.querySelector('input[name="tabla"]').value,
+				campo: fila.querySelector('input[name="campo"]').value,
+				alias: fila.querySelector('input[name="alias"]').value,
+				pk: fila.querySelector('input[name="pk"]').checked,
+				filtro: fila.querySelector('input[name="filtro"]').checked,
+				group_by: fila.querySelector('input[name="group_by"]').checked,
+				expresion: fila.querySelector('input[name="expresion"]').value,
+			}
+			if (campo.tabla == "" && campo.campo == "" && campo.campo == "" && campo.campo == "") {
+				return; // ignorar filas en blanco
+			}
+			if (campo.tabla == "") {
+				abortar = true;
+				alert("Falta tabla del campo "+campo.nombre);
+			} else if (campo.nombre == "") {
+				abortar = true;
+				alert("Falta nombre de un campo "+campo.tabla);
+			}
+			campos.push(campo);
+		});
+
+		if (abortar){
+			return
+		}
+		var body = {
+			relaciones: relaciones,
+			campos: campos,
+		}
+		const reqOptions = {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(body),
+		};
+		fetch("/v1/consultas/{{ .Consulta.Nombre.Clave }}/campos", reqOptions).then(response => {
+			response.text().then((msg) => {
+				if (response.status != 200) {
+					alert(msg)
+				} else {
+					alert(msg)
+				}
+	    	})
+		});
+	}
+
+	// ================================================================ //
+	
+	// Reordenar filas
+	var draggedRow;
+	function dragStart(){
+		draggedRow = event.target;
+		// event.target.classList.remove("cursor-pointer")
+		// event.target.classList.add("cursor-move")
+	}
+	function dragover(){
+		event.preventDefault();
+		if (event.target.nodeName != "TD"){
+			return // el elemento target puede ser td, input y generar error.
+		}
+		var targetRow = event.target.parentNode; // se debe comparar solo entre <tr> hermanos
+		let filas = Array.from(document.getElementById("campos").querySelectorAll("tbody > tr"));
+		if ( filas.indexOf(targetRow) > filas.indexOf(draggedRow) ) {
+			targetRow.after(draggedRow);
+		} else {
+			targetRow.before(draggedRow);
+		}
+	}
+</script>
+{{ end }}

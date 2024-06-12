@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+	.form-control {
+	  @apply w-full px-2 py-1 text-base font-medium text-white border rounded-md outline-none bg-cyan-950/50 border-cyan-700/50 focus:border-blue-400 focus:shadow-md;
+	}
+	.form-control-white {
+	  @apply w-full px-2 py-1 text-base font-medium text-gray-800 bg-white border border-slate-300 rounded-md outline-none focus:border-blue-800 focus:shadow-md;
+	}
+}
+
+/* Orden de tablas por columnas. Ver JS. */
+.th-sort-asc::after {
+	content: "\25b4";
+	margin-left: 5px;
+}
+.th-sort-desc::after {
+	content: "\25be";
+	margin-left: 5px;
+}
+
+table > tbody > tr > td {
+	@apply px-2 py-1
+}
+table > thead > tr > th {
+	@apply px-2 py-1
+}
+
+dialog {
+	@apply bg-cyan-600
+}
+
+select option {
+	@apply text-black bg-cyan-100/50
+}
+
+select optgroup {
+	@apply text-white bg-cyan-950/70
+}
+
+/* Scrollbar agradable */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background: #61616473;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #ffffff92;
+    border-radius: 10px;
+}
+
+.scrollbar-stable {
+	scrollbar-gutter: stable both-edges;
+}

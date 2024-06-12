@@ -1,0 +1,90 @@
+<header class="flex gap-4 p-2 pb-4">
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
+	<h2 class="flex-grow text-2xl font-bold text-center">{{ $.Tabla.Nombre.Humano }} - Relaciones</h2>
+	<button type="submit" form="main">Generar consulta SQL</button>
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">❌</a>
+</header>
+
+<form id="main" hx-post="/v1/tablas/{{ $.Tabla.Nombre.Clave }}/nueva-consulta" class="flex flex-wrap items-start content-around justify-center gap-6 p-4 mx-auto">
+
+	<section id="nombre" class="container mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				Nombre y propiedades de la consulta
+			</h3>
+		</header>
+		<div class="grid items-end grid-cols-4 p-4 gap-x-4 gap-y-2">
+			<div>
+				<label for="txt_paquete_parent_dir">URL de repositorio*</label>
+				<input class="form-control" name="paquete_parent_dir" id="txt_paquete_parent_dir" type="text" placeholder="Ejemplo: monorepo" value="{{ .Consulta.PaqueteParentDir }}" />
+			</div>
+			<div>
+				<label for="NombrePaquete">Nombre del paquete*</label>
+				<input class="form-control" name="nombre_paquete" id="NombrePaquete" type="text" value="{{ .Consulta.NombrePaquete }}" placeholder="Ej. usuario" />
+			</div>
+			<div>
+				<label for="NombreEnCodigo">Nombre en código*</label>
+				<input class="form-control" name="nombre_struct" id="NombreEnCodigo" type="text" value="{{ .Consulta.NombreEnCodigo }}" placeholder="Ej. Item" />
+			</div>
+			<div>
+				<label for="TablaOrigenID">Tabla origen (from)*</label>
+				<input class="form-control" name="tabla_origen" id="TablaOrigenID" type="text" value="{{ .Consulta.TablaOrigenID }}" placeholder="Ej. usuarios" />
+			</div>
+
+			<div>
+				<label for="txt_nombre_humano">Humano singular*</label>
+				<input class="form-control" name="nombre_humano" id="txt_nombre_humano" type="text" placeholder="Ejemplo" value="{{ .Consulta.Nombre.Humano }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_humano_plural">Humano plural</label>
+				<input class="form-control" name="nombre_humano_plural" id="txt_nombre_humano_plural" type="text" placeholder="Ejemplos" value="{{ .Consulta.Nombre.HumanoPlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_clave">Clave singular*</label>
+				<input class="form-control" name="nombre_clave" id="txt_nombre_clave" type="text" placeholder="entejemp" value="{{ .Consulta.Nombre.Clave }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_clave_plural">Clave plural</label>
+				<input class="form-control" name="nombre_clave_plural" id="txt_nombre_clave_plural" type="text" placeholder="entejemps" value="{{ .Consulta.Nombre.ClavePlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_kebab">Kebab singular</label>
+				<input class="form-control" name="nombre_kebab" id="txt_nombre_kebab" type="text" placeholder="ent-ejemplo" value="{{ .Consulta.Nombre.Kebab }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_kebab_plural">Kebab plural</label>
+				<input class="form-control" name="nombre_kebab_plural" id="txt_nombre_kebab_plural" type="text" placeholder="ents-ejemplo" value="{{ .Consulta.Nombre.KebabPlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_abrev">Abreviatura*</label>
+				<input class="form-control" name="nombre_abrev" id="txt_nombre_abrev" type="text" placeholder="ejm" value="{{ .Consulta.Nombre.Abrev }}" />
+			</div>
+			<div>
+				<label for="sel_nombre_femenino">Género</label>
+				<select class="form-control" name="nombre_femenino" id="sel_nombre_femenino">
+					<option value="false">Masculino</option>
+					<option value="true"{{ if .Consulta.Nombre.EsFemenino }} selected{{ end }}>Femenino</option>
+				</select>
+			</div>
+
+			<div class="col-span-4">
+				<label for="txt_nombre_descripcion">Descripción</label>
+				<input class="form-control" name="nombre_descripcion" id="txt_nombre_descripcion" type="text" placeholder="Representa..." value="{{ .Consulta.Nombre.Descripcion }}" />
+			</div>
+		</div>
+	</section>
+
+	{{ template "tabla-card-consulta" $.Tabla }}
+	
+	<div class="pt-2">
+		<button type="submit" class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+			Enviar
+		</button>
+	</div>
+</form>
+
+<div style="height: 20vh;"></div>
+
+<dialog id="selectEntidad" class="p-3 rounded-lg">
+	{{ template "tabla-relacionadas-select" . }}	
+</dialog>

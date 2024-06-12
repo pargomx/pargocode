@@ -1,0 +1,413 @@
+{{ template "app/nav" . }}
+
+{{ with .Agregado -}}
+<main class="w-full px-2 mx-auto xl:px-6">
+
+	<section id="nombre" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				<span class="p-1 font-mono text-white bg-teal-700 rounded">tabla</span>
+				{{ .Paquete.Nombre }}.{{ .Tabla.NombreItem }}
+			</h3>
+		</header>
+		<form id="tablaForm" hx-put="/tablas/{{ .Tabla.TablaID }}" hx-target="#status_nombre" hx-trigger="submit,cmdGuardar,change delay:1s" class="grid items-start gap-6 p-4 sm:grid-cols-2 lg:grid-cols-4">
+
+			<div>
+				<div class="">
+					<label for="sel_paquete_id">Paquete (bounded context)</label>
+					<select class="form-control" name="paquete_id" id="sel_paquete_id">
+						{{ range $.Paquetes -}}
+						<option value="{{ .PaqueteID }}" {{- if eq .PaqueteID $.Agregado.Tabla.PaqueteID }} selected {{ end }}>{{ .Nombre }}</option>
+						{{ end }}
+					</select>
+				</div>
+				<div>
+					<label for="txt_nombre_humano">Etiqueta singular</label>
+					<input class="form-control" name="etiqueta" id="txt_nombre_humano" type="text" placeholder="Ejemplo" value="{{ .Tabla.Humano }}" />
+				</div>
+				<div>
+					<label for="txt_nombre_humano_plural">Etiqueta plural</label>
+					<input class="form-control" name="etiqueta_plural" id="txt_nombre_humano_plural" type="text" placeholder="Ejemplos" value="{{ .Tabla.HumanoPlural }}" />
+				</div>
+			</div>
+
+			<div>
+				<div>
+					<label for="NombreEnRepo">Tabla (SQL)</label>
+					<input class="form-control" name="nombre_tabla" id="NombreEnRepo" type="text" value="{{ .Tabla.NombreRepo }}" placeholder="Ej. usuarios" />
+				</div>
+				<div>
+					<label for="NombreItem">Item (Go)</label>
+					<input class="form-control" name="nombre_item" id="NombreItem" type="text" value="{{ .Tabla.NombreItem }}" placeholder="Ej. Item" />
+				</div>
+				<div>
+					<label for="NombreItems">Items (Go)</label>
+					<input class="form-control" name="nombre_items" id="NombreItems" type="text" value="{{ .Tabla.NombreItems }}" placeholder="Ej. Item" />
+				</div>
+			</div>
+
+			<div>
+				<div>
+					<label for="txt_nombre_kebab">Kebab singular</label>
+					<input class="form-control" name="kebab" id="txt_nombre_kebab" type="text" placeholder="ent-ejemplo" value="{{ .Tabla.Kebab }}" />
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label for="txt_nombre_abrev">Abreviatura</label>
+						<input class="form-control" name="abrev" id="txt_nombre_abrev" type="text" placeholder="ejm" value="{{ .Tabla.Abrev }}" />
+					</div>
+					<div>
+						<label for="sel_nombre_femenino">Género</label>
+						<select class="form-control" name="nombre_femenino" id="sel_nombre_femenino">
+							<option value="false">Masculino</option>
+							<option value="true"{{ if .Tabla.EsFemenino }} selected{{ end }}>Femenino</option>
+						</select>
+					</div>
+				</div>
+				<div class="text-right">
+					<p id="status_nombre"></p>
+				</div>
+			</div>
+
+			<div>
+				<div class="">
+					<label for="txt_descripcion">Descripción</label>
+					<textarea class="form-control" name="descripcion" id="txt_descripcion" cols="30" rows="3">{{- .Tabla.Descripcion -}}</textarea>
+				</div>
+				<button type="submit" class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+					Guardar
+				</button>
+			</div>
+			
+		</form>
+	</section>
+
+	<section id="tabla" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				Campos
+			</h3>
+
+			<p id="campoGuardadoText"></p>
+			
+		</header>
+		<div class="overflow-x-auto">
+			<table class="w-full p-4 text-center border-separate table-auto border-spacing-y-1">
+				<thead>
+					<tr class="bg-slate-400 dark:bg-slate-900">
+						<th>#</th>
+						<th title="Nombre clave">Columna</th>
+						<th title="Tipo de dato">TipoSQL</th>
+						<th title="Not null">NN</th>
+						<th title="Unsigned (positivo)">UN</th>
+						<th title="Valor/longitud máxima">Max</th>
+						
+						<th title="Acciones"></th>
+						<th title="Tipo de dato">Campo</th>
+						<th title="Tipo de dato">TipoGo</th>
+			
+						<th title="Nombre humano">Etiqueta</th>
+						<th title="Primary Key">PK</th>
+						<th title="Foreign Key">FK</th>
+						<th title="Unique">UQ</th>
+						<th title="Required">RE</th>
+						<th title="Read only">RO</th>
+						<th title="Filtrar por este campo">FL</th>
+						<th title="Campo especial (enum)">ES</th>
+						<th title="Default: autoincrement, timestamp, etc">Default</th>
+						<th title="Descripción">Desc.</th>
+					</tr>
+				</thead>
+				<tbody id="campos_tbody" hx-get="/tablas/{{ .Tabla.TablaID }}" hx-trigger="recargarCampos" hx-target="this" hx-swap="innerHTML" hx-select="#campos_tbody > *" hx-disinherit="*" class="text-nowrap">
+					{{ range .Campos -}}
+					<tr id="{{ .CampoID }}" class="bg-slate-400/25 hover:bg-slate-400/50 dark:bg-slate-800/50 dark:hover:bg-slate-800">
+						<td tipo="handle" class="cursor-pointer">⣿ {{ .Posicion }}</td>
+						
+						<!-- SQL -->
+						<td>
+							<b>{{ .NombreColumna }}</b>
+						</td>
+						<td>
+							{{ .TipoSql }}
+						</td>
+						<td>
+							{{ if not .Nullable }}<code>NN</code>{{ else }}--{{ end }}
+						</td>
+						<td>
+							{{ if .Unsigned }}<code>UN</code>{{ else -}}
+								{{ if .EsSqlInt }}/{{ else }}--{{ end }}
+							{{- end }}
+						</td>
+						<td width="80px">
+							{{- if .MaxLenght }}
+								{{- .MaxLenght }}
+							{{- else if or .EsSqlChar .EsSqlVarchar }}
+								/
+							{{- else }}
+								--
+							{{- end }}
+						</td>
+						
+						<td>
+							<button type="button" hx-get="/campos/{{ .CampoID }}/form" hx-target="#campoEditForm" onclick="campoEditDialog.showModal()">✏️</button>
+						</td>
+
+						<!-- Golang -->
+						<td>
+							<b>{{ .NombreCampo }}</b>
+						</td>
+						<td style="width: 100px;">
+							{{ .TipoGo }}
+						</td>
+						<td>
+							{{ .NombreHumano }}
+						</td>
+						
+						<!-- Flags -->
+						<td>
+							{{ if .PrimaryKey }}<span title="Clave primaria">🔑</span>{{ end }}
+						</td>
+						<td>
+							{{ if .CampoFK }}<a href="/campos/{{ .ReferenciaCampo }}/tabla" title="Clave foránea {{ .TablaFK.NombreRepo }}.{{ .CampoFK.NombreColumna }}">🗝️</a>{{ end }}
+						</td>
+						<td>
+							{{ if .Unique }}<code>UQ</code>{{ else }}--{{ end }}
+						</td>
+						<td>
+							{{ if .Required }}<code>RQ</code>{{ else }}--{{ end }}
+						</td>
+						<td>
+							{{ if .ReadOnly }}<code>RO</code>{{ else }}--{{ end }}
+						</td>
+						<td>
+							{{ if .Filtro }}<code>FL</code>{{ else }}--{{ end }}
+						</td>
+						<td>
+							{{ if .Especial }}<button type="button" hx-get="/campos/{{ .CampoID }}/enum" hx-target="#campoEspecialDialog" hx-swap="innerHTML" onclick="campoEspecialDialog.showModal()" title="Editar ENUM" {{ if not 0 }}class="text-red-500"{{ end }}>ES</button>{{ else }}--{{ end }}
+						</td>
+					
+						<!-- DEFAULT -->
+						<td style="font-size: small; max-width: 120px; text-overflow: clip; overflow: hidden; white-space: nowrap;">
+							<span title="{{ .DefaultSQL }}">{{ .DefaultSQL }}</span>
+						</td>
+						<!-- Descripción -->
+						<td style="font-size: small; max-width: 120px; text-overflow: clip; overflow: hidden; white-space: nowrap;">
+							<span title="{{ .Descripcion }}">{{ .Descripcion }}</span>
+						</td>
+					</tr>
+					{{ end }}
+				</tbody>
+			</table>
+		</div>
+		<form hx-put="/tablas/{{ .Tabla.TablaID }}/campos" hx-target="#campoGuardadoText" class="flex gap-4 p-4 pt-0">
+			<input id="input_nueva_columna" name="nombre_columna" type="text" placeholder="ejemplo_id" class="form-control">
+			<button type="submit" class="inline-block px-6 py-2 text-sm text-slate-100 transition-colors bg-cyan-700 rounded shadow-md hover:bg-cyan-600">
+				Agregar
+			</button>
+		</form>
+	</section>
+
+	<section id="generar" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				Generar código
+			</h3>
+		</header>
+		<div class="grid p-4 md:grid-cols-2">
+			
+			<div hx-put="/tablas/{{ .Tabla.TablaID }}" hx-include="#tablaForm" hx-target="#status_nombre" hx-trigger="submit,cmdGuardar,change delay:1s">
+				<label for="directrices">Directrices para generar código</label>
+				<textarea class="form-control" form="tablaForm" name="directrices" id="directrices" cols="30" rows="5">{{- .Tabla.Directrices -}}</textarea>
+			</div>
+			
+			<div class="flex flex-wrap items-center justify-center gap-4">
+				<button type="button" hx-put="/tablas/{{ .Tabla.TablaID }}/generar/mysql" hx-target="#status_nombre" hx-trigger="click, keyup[ctrlKey&&key=='Enter'] from:body" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+					MySQL
+				</button>
+				<button type="button" hx-put="/tablas/{{ .Tabla.TablaID }}/generar/sqlite" hx-target="#status_nombre" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+					Sqlite
+				</button>
+				<button type="button" hx-put="/tablas/{{ .Tabla.TablaID }}/generar/entidad" hx-target="#status_nombre" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+					Entidad
+				</button>
+				<button type="button" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600" onclick="generarCodigoDialog.showModal(); generarCodigo();">
+					Generar
+				</button>
+			</div>
+		</div>
+	</section>
+
+	<dialog id="campoEditDialog" class="p-3 rounded-lg">
+		<header class="flex flex-wrap items-center gap-3 pb-2">
+			<h2 class="flex-grow w-full text-xl text-center sm:w-auto sm:text-left">Modificar campo</h2>
+			<button type="button" class="w-10 py-1 text-xl text-slate-200 bg-slate-600 rounded-lg" onclick="this.parentNode.parentNode.close()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+		</header>
+		<div id="campoEditForm">
+			...
+		</div>
+	</dialog>
+
+	
+	<dialog id="campoEspecialDialog" hx-target="#campoEspecialDialog" hx-swap="innerHTML" class="p-3 text-white bg-cyan-950 rounded-lg ring-2 ring-white">
+		...
+	</dialog>
+
+
+	<dialog id="generarCodigoDialog" class="p-3 rounded-lg md:w-[600px] lg:w-[800px] xl:w-[1100px]">
+		<header class="flex items-center gap-3 pb-2 flex-nowrap">
+			<select id="selectGenerarCodigo" class="form-control" name="tipo" onchange="generarCodigo()">
+				<option value="">¿Qué generar?</option>
+				<optgroup label="Tabla">
+					<option value="entidad">Go entidad</option>
+					<option value="go/tbl_struct">Go struct</option>
+					<option value="go/tbl_propiedades">Go propiedades</option>
+					<option value="go/tbl_errores">Go errores</option>
+				</optgroup>
+
+				<optgroup label="SQLite">
+					<option value="sqlite/create_table">CREATE TABLE Sqlite</option>
+				</optgroup>
+				
+				<optgroup label="MySQL">
+					<option value="mysql/create_table">CREATE TABLE MySQL</option>
+					<option value="mysql-directriz">MySQL Directrices</option>
+					<option value="mysql-simple">MySQL Simple</option>
+					<option value="mysql-compacto">MySQL Compacto</option>
+					<option value="mysql-all">MySQL Todo</option>
+				</optgroup>
+				<optgroup label="MySQL granular">
+					<option value="mysql/servicio">MySQL Servicio</option>
+					<option value="mysql/constantes">MySQL Constantes</option>
+					<option value="mysql/scan-row">MySQL Scan Row</option>
+					<option value="mysql/scan-rows">MySQL Scan Rows</option>
+					<option value="mysql/tbl-filtros">MySQL Filtros</option>
+					<option value="mysql/get">MySQL Get</option>
+					<option value="mysql/fetch">MySQL Fetch</option>
+					<option value="mysql/tbl-insert">MySQL Insert</option>
+					<option value="mysql/tbl-update">MySQL Update</option>
+					<option value="mysql/tbl-insert_update">MySQL Insert Update</option>
+					<option value="mysql/tbl-delete">MySQL Delete</option>
+					<option value="mysql/list">MySQL List</option>
+					<option value="mysql/list_by">MySQL List By</option>
+					<option value="mysql/get_by">MySQL Get By</option>
+				</optgroup>
+
+
+
+				<optgroup label="HTML Includes">
+					<option value="html/form">HTML form</option>
+					<option value="html/detalles">HTML detalles</option>
+					<option value="html/tabla">HTML tabla</option>
+				</optgroup>
+				<optgroup label="HTML Layouts">
+					<option value="html/desglose">HTML desglose</option>
+					<option value="html/nuevo">HTML nuevo</option>
+					<option value="html/editar">HTML editar</option>
+					<option value="html/lista">HTML lista</option>
+				</optgroup>
+				<optgroup label="Gecko">
+					<option value="gk/servicio">Gecko servicio</option>
+					<option value="gk/detalles">Gecko detalles</option>
+					<option value="gk/form">Gecko form</option>
+					<option value="gk/insert_update">Gecko insert-update</option>
+				</optgroup>
+			</select>
+
+			<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="copiarCodigo()" title="Copiar al portapapeles">📋</button>
+			<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="generarCodigo()" title="Volver a generar">🔄</button>
+			<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="generarCodigoDialog.close()" title="Cerrar">✖️</button>
+		</header>
+		<pre id="codigoGenerado" hx-get="/tablas/{{ .Tabla.TablaID }}/generar" hx-include="#selectGenerarCodigo, input[name='by']" hx-target="#codigoGenerado" hx-swap="innerHTML" hx-trigger="deseaGenerarCodigo" class="p-4 overflow-auto text-lime-300 bg-slate-950">...
+
+		</pre>
+		<script>
+			function generarCodigo() {
+				document.getElementById("codigoGenerado").innerHTML = "\t...\n\n\n\n\n\n\n\n"
+				if (document.getElementById("selectGenerarCodigo").value == "") {
+					return
+				}
+				console.log("Se generará código")
+				document.getElementById("codigoGenerado").dispatchEvent(new Event("deseaGenerarCodigo"));
+			}
+			function copiarCodigo() {
+				navigator.clipboard.writeText(document.getElementById("codigoGenerado").innerText).then(() => {
+					console.log("Código copiado al portapapeles");
+				},() => {
+					console.error("No se pudo copiar el código al portapapeles");
+				});
+			}
+		</script>
+	</dialog>
+
+</main>
+
+<script src="/assets/js/Sortable.min.js"></script>
+
+<script>
+
+	function handleResponse(response) {
+		response.text().then((msg) => {
+			if (response.status >= 200 && response.status < 300) {
+				console.log(msg)
+			} else {
+				alert(msg)
+			}
+			// Recargar
+			document.getElementById("campos_tbody").dispatchEvent(new Event("recargarCampos"))
+		})
+	}
+
+	document.getElementById("campoGuardadoText").addEventListener("htmx:afterSwap", event => {
+		campoEditDialog.close();
+		document.getElementById("campos_tbody").dispatchEvent(new Event("recargarCampos"))
+		document.getElementById("input_nueva_columna").value = ""
+	});
+
+	// ================================================================ //
+	// ========== Reordenar columnas ================================== //
+
+	function reordenarCampo(campoID, newPosicion) {
+		console.debug(`reordenarCampo(campoID:${campoID})`)
+		if (campoID == null) {
+			return console.error("campoID null")
+		}
+		if (newPosicion == null) {
+			return console.error("newPosicion null")
+		}
+		let formData = new FormData();
+		formData.append("newPosicion", newPosicion);
+		fetch(`/campos/${campoID}/reordenar`, { method: 'PUT', body: formData }).then(response => handleResponse(response));
+	}
+
+	function setupSortableCampos() {
+		var zonaCarriles = new Sortable(document.querySelector("#campos_tbody"), {
+			group: "columnas", animation: 150, swapThreshold: 0.50,
+			draggable: "tr",
+			handle: "[tipo='handle']",
+
+			onStart: function(event) {
+				event.item.classList.add("opacity-50")
+			},
+			
+			onEnd: function(event) {
+				event.item.classList.remove("opacity-50")
+
+				// Parámetros
+				let campoID = event.item.id
+				if (campoID == null) { return console.error("campoID null") }
+				
+				// Reordenar
+				if (event.oldIndex != event.newIndex){
+					console.log("reordenando",campoID, event.newIndex + 1)
+					return reordenarCampo(campoID, event.newIndex + 1)
+				}
+			},
+		});
+	}
+
+	setupSortableCampos();
+
+
+</script>
+
+{{ end }}

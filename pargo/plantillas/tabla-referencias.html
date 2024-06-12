@@ -1,0 +1,16 @@
+<header class="flex gap-4 p-2 pb-4">
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
+	<h2 class="flex-grow text-2xl font-bold text-center">Tablas que referencian {{ $.Tabla.Nombre.Humano }}</h2>
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">❌</a>
+</header>
+
+<main class="flex flex-wrap items-start content-around justify-center gap-6 p-4 mx-auto">
+
+	{{ template "tabla-card" $.Tabla }}
+
+	{{ range $.TablasRelacionadas }}
+	{{ template "tabla-card" . }}
+	{{ end }}
+
+</main>
+<div style="height: 20vh;"></div>

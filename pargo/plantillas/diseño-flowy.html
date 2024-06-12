@@ -1,0 +1,53 @@
+{{ with $.Diseño }}
+<header class="flex gap-3 pb-6">
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
+	<h2 class="flex-grow text-2xl font-bold text-center">Diseño</h2>
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">❌</a>
+</header>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.css"> 
+
+<main class="container flex flex-col gap-4 mx-auto">
+
+	<div id="canvas" class="rounded-md ring-2 ring-white" style="height: 500px;">
+		
+	</div>
+
+	<div class="flex gap-3">
+		{{ range .Dominios }}
+		<div class="p-3 bg-cyan-900 rounded-md shadow-lg create-flowy">
+			{{ .Persona }}
+		</div>
+		{{ end }}
+	</div>
+
+</main>
+<div style="height: 20vh;"></div>
+{{ end }}
+
+<script src="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.js"></script>
+<script>
+	var spacing_x = 40;
+	var spacing_y = 30;
+	// Initialize Flowy
+	flowy(document.getElementById("canvas"), onGrab, onRelease, onSnap, onRearrange, spacing_x, spacing_y);
+	
+	function onGrab(block){ // When the user grabs a block
+		// console.log("grabbed: ", block)
+	}
+	
+	function onRelease(){ // When the user releases a block
+		// console.log("released")
+	}
+	
+	function onSnap(block, first, parent){ // When a block snaps with another one
+		block.classList.remove("space-y-3")
+		console.log("snapped", block, "\nfirst" ,first, "\nparent", parent)
+		return true;
+	}
+	
+	function onRearrange(block, parent){ // When a block is rearranged
+		console.log("rearrange", block, parent)
+		return true;
+	}
+</script>

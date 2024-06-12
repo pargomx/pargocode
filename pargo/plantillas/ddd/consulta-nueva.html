@@ -1,0 +1,82 @@
+{{ template "app/nav" . }}
+
+{{ with .Consulta }}
+<main class="container mx-auto space-y-6">
+
+	<section id="nombre" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				<span class="p-1 font-mono text-white bg-teal-700 rounded">consulta</span>
+				Nueva
+			</h3>
+		</header>
+		<form hx-post="/consultas" class="grid items-end gap-6 p-4 sm:grid-cols-2 lg:grid-cols-4">
+
+			<div>
+				<div>
+					<label for="sel_paquete_id">Paquete (bounded context)</label>
+					<select class="form-control" name="paquete_id" id="sel_paquete_id">
+						{{ range $.Paquetes -}}
+						<option value="{{ .PaqueteID }}"{{ if eq .PaqueteID $.Consulta.PaqueteID }} selected{{ end }}>{{ .Nombre }}</option>
+						{{ end }}
+					</select>
+				</div>
+				<div>
+					<label for="sel_tabla_id">Tabla FROM</label>
+					<select class="form-control" name="tabla_id" id="sel_tabla_id">
+						<option value=""></option>
+						{{ range $.Tablas -}}
+						<option value="{{ .TablaID }}"{{ if eq .TablaID $.Consulta.TablaID }} selected{{ end }}>{{ .NombreRepo }}</option>
+						{{ end }}
+					</select>
+				</div>
+			</div>
+
+			<div>
+				<div>
+					<label for="nombreItem">Item (singular)</label>
+					<input class="form-control" name="nombre_item" id="nombreItem" type="text" value="{{ .NombreItem }}" placeholder="Ej. Item" />
+				</div>
+				<div>
+					<label for="nombreItems">Items (plural)</label>
+					<input class="form-control" name="nombre_items" id="nombreItems" type="text" value="{{ .NombreItems }}" placeholder="Ej. Items" />
+				</div>
+			</div>
+
+			<div>
+				<div>
+					<label for="txt_nombre_abrev">Abreviatura</label>
+					<input class="form-control" name="abrev" id="txt_nombre_abrev" type="text" placeholder="ejm" value="{{ .Abrev }}" />
+				</div>
+				<div>
+					<label for="sel_nombre_femenino">Género</label>
+					<select class="form-control" name="es_femenino" id="sel_nombre_femenino">
+						<option value="false">Masculino</option>
+						<option value="true"{{ if .EsFemenino }} selected{{ end }}>Femenino</option>
+					</select>
+				</div>
+			</div>
+
+			<div>
+				<div class="">
+					<label for="txt_descripcion">Descripción</label>
+					<textarea class="form-control" name="descripcion" id="txt_descripcion" cols="30" rows="3">{{- .Descripcion -}}</textarea>
+				</div>
+			</div>
+
+			<div class="lg:col-span-3">
+				<div class="text-right">
+					<p id="status_nombre"></p>
+				</div>
+			</div>
+			<div>
+				<button type="submit" class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+					Guardar
+				</button>
+			</div>
+
+		</form>
+	</section>
+
+</main>
+{{ end }}

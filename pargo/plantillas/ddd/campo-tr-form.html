@@ -1,0 +1,123 @@
+<tr class="bg-slate-400/25 hover:bg-slate-400/50 dark:bg-slate-800/50 dark:hover:bg-slate-800">
+	<td>
+		{{ if .CampoID }}<button type="button" hx-delete="/campos/{{ .CampoID }}" hx-confirm="¿Eliminar este campo?">🚮</button>{{ end }}
+	</td>
+	
+	<td>
+		<input class="form-control" type="text" name="nombre_sql" value="{{ .NombreColumna }}" placeholder="ejemplo_id">
+	</td>
+
+	<!-- TIPO SQL -->
+	<td>
+		<select class="form-control" name="tipo_sql" {{ if .NombreColumna }}autofocus{{ end }} width="140px">
+
+			{{ if .TipoSQL }}
+			<optgroup label="Actual">
+				<option value="{{ .TipoSQL }}">{{ .TipoSQL }}</option>
+			</optgroup>
+			{{ else }}
+			<option value=""></option>
+			{{ end }}
+
+			<optgroup label="Número entero">
+				<option value="tinyint" {{ if eq .TipoSQL "tinyint"}}selected{{ end }}>TINYINT (1 byte)</option>
+				<option value="smallint" {{ if eq .TipoSQL "smallint"}}selected{{ end }}>SMALLINT (2 bytes)</option>
+				<option value="mediumint" {{ if eq .TipoSQL "mediumint"}}selected{{ end }}>MEDIUMINT (3 bytes)</option>
+				<option value="int" {{ if eq .TipoSQL "int"}}selected{{ end }}>INT (4 bytes)</option>
+				<option value="bigint" {{ if eq .TipoSQL "bigint"}}selected{{ end }}>BIGINT (8 bytes)</option>
+			</optgroup>
+			
+			<optgroup label="Texto">
+				<option value="char" {{ if eq .TipoSQL "char"}}selected{{ end }}>CHAR</option>
+				<option value="varchar" {{ if eq .TipoSQL "varchar"}}selected{{ end }}>VARCHAR</option>
+				<option value="tinytext" {{ if eq .TipoSQL "tinytext"}}selected{{ end }}>TINYTEXT (+256 bytes)</option>
+				<option value="text" {{ if eq .TipoSQL "text"}}selected{{ end }}>TEXT (2^16 bytes)</option>
+				<option value="mediumtext" {{ if eq .TipoSQL "mediumtext"}}selected{{ end }}>MEDIUMTEXT (2^24 bytes)</option>
+				<option value="longtext" {{ if eq .TipoSQL "longtext"}}selected{{ end }}>LONGTEXT (2^32 bytes)</option>
+			</optgroup>
+
+			<optgroup label="Tiempo">
+				<option value="timestamp" {{ if eq .TipoSQL "timestamp"}}selected{{ end }}>Timestamp</option>
+				<option value="datetime" {{ if eq .TipoSQL "datetime"}}selected{{ end }}>Datetime</option>
+				<option value="date" {{ if eq .TipoSQL "date"}}selected{{ end }}>DATE</option>
+				<option value="time" {{ if eq .TipoSQL "time"}}selected{{ end }}>TIME</option>
+				<option value="year" {{ if eq .TipoSQL "year"}}selected{{ end }}>YEAR</option>
+			</optgroup>
+
+			<optgroup label="Especial">
+				<option value="enum_45">Enum 45</option>
+			</optgroup>
+
+		</select>
+	</td>
+
+	<!-- NOT NULL -->
+	<td>
+		<input type="checkbox" name="not_null" {{ if not .Null }} checked{{ end }} title="Not null">
+	</td>
+	
+	<!-- UNSIGNED -->
+	<td>
+		<input type="checkbox" name="unsinged" {{ if .Unsigned }} checked{{ end }} title="Unsigned (positivo)">
+	</td>
+
+	<!-- MAX LENGHT -->
+	<td width="80px">
+		<input class="form-control" type="number" name="maxlenght" value="{{ .MaxLenght }}">
+	</td>
+
+	<td>
+		<input class="form-control" type="text" name="nombre_go" value="{{ .NombreCampo }}" placeholder="Auto">
+	</td>
+
+	<!-- TIPO Go -->
+	<td style="width: 100px;">
+		<input class="form-control" type="text" name="tipo_go" value="{{ .TipoGo }}" placeholder="auto">
+	</td>
+
+	<!-- NOMBRE HUMANO -->
+	<td>
+		<input class="form-control" type="text" name="nombre_ui" value="{{ .NombreHumano }}" placeholder="Ejemplo ID">
+	</td>
+
+	<td>
+		<input type="checkbox" name="pk" {{ if .PrimaryKey }} checked{{ end }} title="Primary Key">
+	</td>
+	<td>
+		<input type="checkbox" name="fk" {{ if .ForeignKey }} checked{{ end }} title="Foreign Key">
+	</td>
+	<td>
+		<input type="checkbox" name="unique" {{ if .Unique }} checked{{ end }} title="Unique">
+	</td>
+	<td>
+		<input type="checkbox" name="required" {{ if .Required }} checked{{ end }} title="Required">
+	</td>
+	<td>
+		<input type="checkbox" name="readonly" {{ if .ReadOnly }} checked{{ end }} title="Read only">
+	</td>
+	<td>
+		<input type="checkbox" name="filtro" {{ if .Filtro }} checked{{ end }} title="Filtrar por este campo">
+	</td>
+	<td>
+		<input type="checkbox" name="especial" {{ if .Especial }} checked{{ end }} title="Campo especial (ENUM)">
+	</td>
+	
+	<!-- DEFAULT -->
+	<td style="font-size: small; max-width: 120px; text-overflow: clip; overflow: hidden; white-space: nowrap;">
+		<input class="form-control" type="text" name="default_sql" value="{{ .DefaultSQL }}" onfocus="this.select()">
+	</td>
+	
+	<!-- DEFAULT -->
+	<td style="font-size: small; max-width: 120px; text-overflow: clip; overflow: hidden; white-space: nowrap;">
+		<input class="form-control" type="text" name="descripcion" value="{{ .Descripcion }}">
+	</td>
+
+	<!-- Acciones -->
+	<td>
+		{{ if .CampoID -}}
+		<button type="button" hx-put="/campos/{{ .CampoID }}" hx-include="closest tr">💾</button>
+		{{ else -}}
+		<button type="button" hx-post="/tablas/{{ .TablaID }}/campos" hx-include="closest tr">💾</button>
+		{{ end }}
+	</td>
+</tr>

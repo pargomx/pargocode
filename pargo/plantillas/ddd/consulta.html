@@ -1,0 +1,454 @@
+{{ template "app/nav" . }}
+
+{{ with .AgregadoConsulta }}
+<main class="w-full px-2 mx-auto xl:px-6">
+
+	<section id="nombre" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				<span class="p-1 font-mono text-white bg-teal-700 rounded">tabla</span>
+				{{ .Paquete.Nombre }}.{{ .Consulta.NombreItem }}
+			</h3>
+		</header>
+		<form id="nombreForm" hx-put="/consultas/{{ .Consulta.ConsultaID }}" hx-target="#status_nombre" hx-trigger="submit,cmdGuardar,change delay:1s" class="grid items-end gap-6 p-4 sm:grid-cols-2 lg:grid-cols-4">
+
+			<div>
+				<div>
+					<label for="sel_paquete_id">Paquete (bounded context)</label>
+					<select class="form-control" name="paquete_id" id="sel_paquete_id">
+						{{ range $.Paquetes -}}
+						<option value="{{ .PaqueteID }}"{{ if eq .PaqueteID $.AgregadoConsulta.Consulta.PaqueteID }} selected{{ end }}>{{ .Nombre }}</option>
+						{{ end }}
+					</select>
+				</div>
+				<div>
+					<label for="sel_tabla_id">Tabla FROM</label>
+					<select class="form-control" name="tabla_id" id="sel_tabla_id">
+						{{ range $.Tablas -}}
+						<option value="{{ .TablaID }}"{{ if eq .TablaID $.AgregadoConsulta.Consulta.TablaID }} selected{{ end }}>{{ .NombreRepo }}</option>
+						{{ end }}
+					</select>
+				</div>
+			</div>
+
+			<div>
+				<div>
+					<label for="nombreItem">Item (singular)</label>
+					<input class="form-control" name="nombre_item" id="nombreItem" type="text" value="{{ .Consulta.NombreItem }}" placeholder="Ej. Item" />
+				</div>
+				<div>
+					<label for="nombreItems">Items (plural)</label>
+					<input class="form-control" name="nombre_items" id="nombreItems" type="text" value="{{ .Consulta.NombreItems }}" placeholder="Ej. Items" />
+				</div>
+			</div>
+
+			<div>
+				<div>
+					<label for="txt_nombre_abrev">Abreviatura</label>
+					<input class="form-control" name="abrev" id="txt_nombre_abrev" type="text" placeholder="ejm" value="{{ .Consulta.Abrev }}" />
+				</div>
+				<div>
+					<label for="sel_nombre_femenino">Género</label>
+					<select class="form-control" name="es_femenino" id="sel_nombre_femenino">
+						<option value="false">Masculino</option>
+						<option value="true"{{ if .Consulta.EsFemenino }} selected{{ end }}>Femenino</option>
+					</select>
+				</div>
+			</div>
+
+			<div>
+				<div class="">
+					<label for="txt_descripcion">Descripción</label>
+					<textarea class="form-control" name="descripcion" id="txt_descripcion" cols="30" rows="3">{{- .Consulta.Descripcion -}}</textarea>
+				</div>
+			</div>
+
+			<div class="lg:col-span-3">
+				<div class="text-right">
+					<p id="status_nombre"></p>
+				</div>
+			</div>
+			<div>
+				<button type="submit" class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+					Guardar
+				</button>
+			</div>
+
+		</form>
+	</section>
+
+	<section id="relaciones" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				Relaciones
+			</h3>
+		</header>
+
+		<div class="p-4">
+			<code class="">
+				<p>FROM {{ .TablaOrigen.NombreRepo }} {{ .TablaOrigen.Abrev }}</p>
+				{{ range .Relaciones }}
+				<p>{{ .TipoJoin.String }} JOIN {{ .Join.Tabla.NombreRepo }} {{ .JoinAs }} ON {{ .JoinOn }}</p>
+				{{ end }}
+				<br>
+			</code>
+
+			<form class="flex items-end gap-4">
+				<div>
+					<label for="sel_tabla_join">Agregar JOIN</label>
+					<select class="form-control" name="join_tabla_id" id="sel_tabla_join">
+						<option value=""></option>
+						{{ range $.Tablas -}}
+						<option value="{{ .TablaID }}">{{ .NombreRepo }}</option>
+						{{ end }}
+					</select>
+				</div>
+				<div>
+					<label for="sel_tabla_from">desde</label>
+					<select class="form-control" name="from_abrev" id="sel_tabla_from">
+						<option value="{{ $.AgregadoConsulta.TablaOrigen.Abrev }}">{{ $.AgregadoConsulta.TablaOrigen.NombreRepo }} - {{ $.AgregadoConsulta.TablaOrigen.Abrev }}</option>
+						{{ range .Relaciones }}
+						<option value="{{ .JoinAs }}">{{ .Join.Tabla.NombreRepo }} - {{ .JoinAs }}</option>
+						{{ end }}
+					</select>
+				</div>
+				<div>
+					<label for="sel_tipo_join">tipo</label>
+					<select class="form-control" name="tipo_join" id="sel_tipo_join">
+						<option value="INNER">INNER</option>
+						<option value="LEFT">LEFT</option>
+						<option value="RIGHT">RIGHT</option>
+					</select>
+				</div>
+				<div>
+					<button type="button" hx-post="/consultas/{{ .Consulta.ConsultaID }}/relaciones" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+						Agregar relación
+					</button>
+				</div>
+			</form>
+		</div>
+
+		<div class="overflow-x-auto">
+			<table class="w-full p-4 text-center border-separate table-auto border-spacing-y-1">
+				<thead>
+					<tr class="bg-slate-400 dark:bg-slate-900">
+						<th></th>
+						<th>Tipo</th>
+						<th title="">Join table*</th>
+						<th title="">Join as</th>
+						<th title="">Join on</th>
+						<th title="">Join from*</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ range .Relaciones -}}
+					<tr class="bg-slate-800/25 hover:bg-slate-800/50">
+						<td tipo="handle" class="cursor-move">⣿</td>
+						<td>
+							<select class="form-control" name="tipo_join">
+								<option value="INNER" {{ if .TipoJoin.EsInner }}selected{{ end}}>INNER</option>
+								<option value="LEFT" {{ if .TipoJoin.EsLeft }}selected{{ end}}>LEFT</option>
+								<option value="RIGHT" {{ if .TipoJoin.EsRight }}selected{{ end}}>RIGHT</option>
+							</select>
+						</td>
+						<td>
+							<input class="form-control" type="text" name="join" value="{{ .Join.Tabla.NombreRepo }}" placeholder="">
+						</td>
+						<td>
+							<input class="form-control" type="text" name="join_as" value="{{ .JoinAs }}" placeholder="default">
+						</td>
+						<td>
+							<input class="form-control" type="text" name="join_on" value="{{ .JoinOn }}" placeholder="default">
+						</td>
+						<td>
+							<input class="form-control" type="text" name="from" value="{{ if .From }}{{ .From.Tabla.NombreRepo }}{{ end }}" placeholder="">
+						</td>
+						<td>
+							<button type="button" hx-put="/consultas/{{ .ConsultaID }}/relaciones/{{ .Posicion }}" hx-include="closest tr">💾</button>
+							<button type="button" hx-delete="/consultas/{{ .ConsultaID }}/relaciones/{{ .Posicion }}" hx-confirm="¿Eliminar esta relación?" title="Quitar esta relación">🚮</button>
+						</td>
+					</tr>
+					{{ end }}
+				</tbody>
+			</table>
+
+		</div>
+	</section>
+
+	<section id="campos" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				Campos
+			</h3>
+		</header>
+		<div class="overflow-x-auto">
+
+			<form tipo="agregarCampo" hx-post="/consultas/{{ .Consulta.ConsultaID }}/campos" class="flex gap-4 p-4">
+				<div>
+					<select class="w-40 form-control" name="from_abrev" onchange="ponerColumnasDropdown(this)">
+						<option value="">Calculado</option>
+						<option value="{{ $.AgregadoConsulta.TablaOrigen.Abrev }}">{{ $.AgregadoConsulta.TablaOrigen.Abrev }} ({{ $.AgregadoConsulta.TablaOrigen.NombreRepo }})</option>
+						{{ range .Relaciones }}
+						<option value="{{ .JoinAs }}">{{ .JoinAs }} ({{ .Join.Tabla.NombreRepo }})</option>
+						{{ end }}
+					</select>
+				</div>
+				<div>
+					<input tipo="expresion" class="form-control" type="text" name="expresion" value="" placeholder="">
+				</div>
+				<div>
+					<button type="submit" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+						Agregar
+					</button>
+				</div>
+			</form>
+
+			{{ if .Campos }}
+			<table class="w-full p-4 text-center border-separate table-auto border-spacing-y-1">
+				<thead>
+					<tr class="bg-slate-400 dark:bg-slate-900">
+						<th></th>
+						<th>Origen</th>
+						<th title="">Columna / Expresión*</th>
+						<th title="">Alias</th>
+						<th title="">Campo Go*</th>
+						<th title="">Tipo Go*</th>
+						<th title="">PK</th>
+						<th title="">Filtro</th>
+						<th title="">GroupBy</th>
+						<th title="">Descripción</th>
+					</tr>
+				</thead>
+				<tbody id="campos_tbody" hx-get="/consultas/{{ .Consulta.ConsultaID }}" hx-trigger="recargarCampos" hx-target="this" hx-swap="innerHTML" hx-select="#campos_tbody > *">
+					{{ range .Campos -}}
+					<tr gk-posicion="{{ .Posicion }}" class="bg-slate-800/25 hover:bg-slate-800/50">
+						<td tipo="handle" class="text-left cursor-move whitespace-nowrap">⣿ {{ .Posicion }}</td>
+						<td>
+							<button type="button" hx-delete="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}" hx-confirm="¿Eliminar este campo de la consulta?">🚮</button>
+							<button type="button" hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}" hx-include="closest tr">💾</button>
+						</td>
+						<td class="w-1/4">
+							<input tipo="expresion" class="form-control" type="text" name="expresion" value="{{ .Expresion }}" placeholder="">
+						</td>
+						<td>
+							<input class="w-40 form-control" type="text" name="alias_sql" value="{{ .AliasSql }}" placeholder="">
+						</td>
+						<td>
+							<input class="w-40 form-control" type="text" name="nombre_campo" value="{{ .NombreCampo }}" placeholder="">
+						</td>
+						<td>
+							<input class="w-40 form-control" type="text" name="tipo_go" value="{{ .TipoGo }}" placeholder="">
+						</td>
+						<td>
+							<input type="checkbox" name="pk" {{ if .Pk }} checked{{ end }} title="Primary key">
+						</td>
+						<td>
+							<input type="checkbox" name="filtro" {{ if .Filtro }} checked{{ end }} title="Es filtro">
+						</td>
+						<td>
+							<input type="checkbox" name="group_by" {{ if .GroupBy }} checked{{ end }} title="Group by">
+						</td>
+						<td>
+							<input class="form-control" type="text" name="descripcion" value="{{ .Descripcion }}" placeholder="">
+						</td>
+					</tr>
+					{{ end }}
+				</tbody>
+			</table>
+			{{ end }}
+		</div>
+	</section>
+
+	<section id="generar" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				Generar código
+			</h3>
+		</header>
+		<div class="grid p-4 md:grid-cols-2">
+
+			<div hx-put="/consultas/{{ .Consulta.ConsultaID }}" hx-include="#nombreForm" hx-target="#status_nombre" hx-trigger="submit,cmdGuardar,change delay:1s">
+				<label for="directrices">Directrices para generar código</label>
+				<textarea class="form-control" form="nombreForm" name="directrices" id="directrices" cols="30" rows="5">{{- .Consulta.Directrices -}}</textarea>
+			</div>
+
+			<div class="flex flex-wrap items-center justify-center gap-4">
+				<button type="button" hx-get="/consultas/{{ .Consulta.ConsultaID }}/generar?modo=archivo&tipo=mysql" hx-target="#status_nombre" hx-trigger="click, keyup[ctrlKey&&key=='Enter'] from:body" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+					MySQL
+				</button>
+				<button type="button" hx-get="/consultas/{{ .Consulta.ConsultaID }}/generar?modo=archivo&tipo=sqlite" hx-target="#status_nombre" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+					Sqlite
+				</button>
+				<button type="button" hx-get="/consultas/{{ .Consulta.ConsultaID }}/generar?modo=archivo&tipo=entidad" hx-target="#status_nombre" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+					Entidad
+				</button>
+				<button type="button" onclick="generarCodigoDialog.showModal(); generarCodigo();" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+					Generar código
+				</button>
+			</div>
+		</div>
+	</section>
+	
+</main>
+
+<div style="height: 20vh;"></div>
+
+<dialog id="generarCodigoDialog" class="p-3 rounded-lg md:w-[600px] lg:w-[800px] xl:w-[1100px] ">
+	<header class="flex items-center gap-3 pb-2 flex-nowrap">
+		<select id="selectGenerarCodigo" class="form-control" name="tipo" onchange="generarCodigo()">
+			<option value="">¿Qué generar?</option>
+			<option value="mysql/query">Query</option>
+			
+			<option value="go/item-consulta">Go Struct</option>
+			
+			<option value="mysql-directriz">MySQL Directrices</option>
+			<option value="mysql/servicio">MySQL Servicio</option>
+			<option value="mysql/constantes">MySQL Constantes</option>
+			<option value="mysql/scan-row">MySQL Scan Row</option>
+			<option value="mysql/scan-rows">MySQL Scan Rows</option>
+
+			<option value="mysql/get">Mysql Get</option>
+			<option value="mysql/fetch">Mysql Fetch</option>
+			<option value="mysql/qry-filtros">Mysql Filtros</option>
+			<option value="mysql/list">Mysql List</option>
+			<option value="mysql/list_by">Mysql List By</option>
+			<option value="mysql/get_by">MySQL Get By</option>
+		</select>
+
+		<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="copiarCodigo()" title="Copiar al portapapeles">📋</button>
+		<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="generarCodigo()" title="Volver a generar">🔄</button>
+		<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="generarCodigoDialog.close()" title="Cerrar">✖️</button>
+	</header>
+	<pre id="codigoGenerado" hx-get="/consultas/{{ .Consulta.ConsultaID }}/generar" hx-include="#selectGenerarCodigo, input[name='by']" hx-target="#codigoGenerado" hx-swap="innerHTML" hx-trigger="deseaGenerarCodigo" class="p-4 overflow-auto text-lime-300 bg-slate-950">...
+
+	</pre>
+	<script>
+		function generarCodigo() {
+			document.getElementById("codigoGenerado").innerHTML = "\t...\n\n\n\n\n\n\n\n"
+			if (document.getElementById("selectGenerarCodigo").value == "") {
+				return
+			}
+			console.log("Se generará código")
+			document.getElementById("codigoGenerado").dispatchEvent(new Event("deseaGenerarCodigo"));
+		}
+		function copiarCodigo() {
+			navigator.clipboard.writeText(document.getElementById("codigoGenerado").innerText).then(() => {
+				console.log("Código copiado al portapapeles");
+			},() => {
+				console.error("No se pudo copiar el código al portapapeles");
+			});
+		}
+	</script>
+</dialog>
+
+<!-- SELECT COLUMNA DE TABLAS RELACIONADAS -->
+<template id="opciones_rel_{{ .From.Tabla.Abrev }}">
+	<select tipo="expresion" class="w-40 form-control" name="expresion">
+		<option value=""></option>
+		<option value="*">*</option>
+		{{ range .From.Campos }}
+		<option value="{{ .NombreColumna }}">{{ .NombreColumna }}</option>
+		{{ end }}
+	</select>
+</template>
+
+<template id="opciones_rel_">
+	<input tipo="expresion" class="form-control" type="text" name="expresion" value="" placeholder="">
+</template>
+
+{{ range .Relaciones }}
+<template id="opciones_rel_{{ .JoinAs }}">
+	<select tipo="expresion" class="w-40 form-control" name="expresion">
+		<option value=""></option>
+		<option value="*">*</option>
+		{{ range .Join.Campos }}
+		<option value="{{ .NombreColumna }}">{{ .NombreColumna }}</option>
+		{{ end }}
+	</select>
+</template>
+{{ end }}
+
+
+<script src="/assets/js/Sortable.min.js"></script>
+
+<script>
+
+	// ================================================================ //
+	// ========== Agregar campo ======================================= //
+	
+	function ponerColumnasDropdown(selectTabla) {
+		// Obtener plantilla para select con las columnas de la relación seleccionada.
+		const plantilla = document.getElementById(`opciones_rel_${selectTabla.value}`);
+		if (plantilla == null) {
+			return console.error(`no existe plantilla para el 'opciones_rel_${selectTabla.value}'`)
+		}
+		// Reemplazar el viejo input o select por el de la relación seleccionada.
+		const viejo = selectTabla.closest("[tipo='agregarCampo']").querySelector("[tipo='expresion']")
+		if (viejo == null) {
+			return console.error(`no se tiene target para reemplazar con 'opciones_rel_${selectTabla.value}'`)
+		}
+		viejo.replaceWith(plantilla.content.cloneNode(true));
+		// Intentar mantener seleccionada la misma columna si no se selecciona orignen "calculado".
+		if (selectTabla.value != ""){
+			selectTabla.closest("[tipo='agregarCampo']").querySelector("[tipo='expresion']").value = viejo.value;
+		}
+	}
+
+	// ================================================================ //
+	// ========== Reordenar campos ==================================== //
+
+	function hdlRespReordenarCampo(response) {
+		response.text().then((msg) => {
+			if (response.status >= 200 && response.status < 300) {
+				console.log(msg)
+			} else {
+				alert(msg)
+			}
+			// Recargar
+			document.getElementById("campos_tbody").dispatchEvent(new Event("recargarCampos"))
+		})
+	}
+
+	function reordenarCampo(consultaID, oldPosicion, newPosicion) {
+		console.debug(`reordenarCampo(oldPosicion:${oldPosicion}, newPosicion:${newPosicion})`)
+		if (consultaID == null) {
+			return console.error("consultaID null")
+		}
+		if (oldPosicion == null) {
+			return console.error("oldPosicion null")
+		}
+		if (newPosicion == null) {
+			return console.error("newPosicion null")
+		}
+		let formData = new FormData();
+		formData.append("oldPosicion", oldPosicion);
+		formData.append("newPosicion", newPosicion);
+		fetch(`/consultas/${consultaID}/reordenar-campo`, { method: 'PUT', body: formData }).then(response => hdlRespReordenarCampo(response));
+	}
+
+	function setupSortableCampos() {
+		var zonaCarriles = new Sortable(document.getElementById("campos_tbody"), {
+			group: "columnas", animation: 150, swapThreshold: 0.50,
+			draggable: "tr",
+			handle: "[tipo='handle']",
+			onStart: function(event) {
+				event.item.classList.add("opacity-50")
+			},
+			onEnd: function(event) {
+				event.item.classList.remove("opacity-50")
+				// Reordenar
+				const oldPosicion = event.item.getAttribute("gk-posicion")
+				const newPosicion = event.newIndex + 1
+				if (event.oldIndex != event.newIndex){
+					return reordenarCampo({{ .Consulta.ConsultaID }}, oldPosicion, newPosicion)
+				}
+			},
+		});
+	}
+
+	setupSortableCampos();
+
+</script>
+
+{{ end }}

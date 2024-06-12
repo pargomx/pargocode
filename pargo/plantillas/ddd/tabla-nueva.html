@@ -1,0 +1,83 @@
+{{ template "app/nav" . -}}
+
+{{ if .Tabla }}
+<main class="w-full px-2 mx-auto xl:px-6">
+	<section id="nombre" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				<span class="p-1 font-mono text-white bg-teal-700 rounded">tabla</span>
+			</h3>
+		</header>
+		<form id="tablaForm" hx-post="/tablas/nueva" hx-target="#status_nombre" hx-trigger="submit,cmdGuardar" class="grid items-start gap-6 p-4 sm:grid-cols-2 lg:grid-cols-4">
+
+			<div>
+				<div class="">
+					<label for="sel_paquete_id">Paquete (bounded context)</label>
+					<select class="form-control" name="paquete_id" id="sel_paquete_id">
+						{{ range $.Paquetes -}}
+						<option value="{{ .PaqueteID }}" {{- if eq .PaqueteID $.Tabla.PaqueteID }} selected {{ end }}>{{ .Nombre }}</option>
+						{{ end }}
+					</select>
+				</div>
+				<div>
+					<label for="txt_nombre_humano">Etiqueta singular</label>
+					<input class="form-control" name="etiqueta" id="txt_nombre_humano" type="text" placeholder="Ejemplo" value="{{ .Tabla.Humano }}" />
+				</div>
+				<div>
+					<label for="txt_nombre_humano_plural">Etiqueta plural</label>
+					<input class="form-control" name="etiqueta_plural" id="txt_nombre_humano_plural" type="text" placeholder="Ejemplos" value="{{ .Tabla.HumanoPlural }}" />
+				</div>
+			</div>
+
+			<div>
+				<div>
+					<label for="NombreEnRepo">Tabla (SQL)</label>
+					<input class="form-control" name="nombre_tabla" id="NombreEnRepo" type="text" value="{{ .Tabla.NombreRepo }}" placeholder="Ej. usuarios" />
+				</div>
+				<div>
+					<label for="NombreItem">Item (Go)</label>
+					<input class="form-control" name="nombre_item" id="NombreItem" type="text" value="{{ .Tabla.NombreItem }}" placeholder="Ej. Item" />
+				</div>
+				<div>
+					<label for="NombreItems">Items (Go)</label>
+					<input class="form-control" name="nombre_items" id="NombreItems" type="text" value="{{ .Tabla.NombreItems }}" placeholder="Ej. Item" />
+				</div>
+			</div>
+
+			<div>
+				<div>
+					<label for="txt_nombre_kebab">Kebab singular</label>
+					<input class="form-control" name="kebab" id="txt_nombre_kebab" type="text" placeholder="ent-ejemplo" value="{{ .Tabla.Kebab }}" />
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label for="txt_nombre_abrev">Abreviatura</label>
+						<input class="form-control" name="abrev" id="txt_nombre_abrev" type="text" placeholder="ejm" value="{{ .Tabla.Abrev }}" />
+					</div>
+					<div>
+						<label for="sel_nombre_femenino">Género</label>
+						<select class="form-control" name="nombre_femenino" id="sel_nombre_femenino">
+							<option value="false">Masculino</option>
+							<option value="true"{{ if .Tabla.EsFemenino }} selected{{ end }}>Femenino</option>
+						</select>
+					</div>
+				</div>
+				<div class="text-right">
+					<p id="status_nombre"></p>
+				</div>
+			</div>
+
+			<div>
+				<div class="">
+					<label for="txt_descripcion">Descripción</label>
+					<textarea class="form-control" name="descripcion" id="txt_descripcion" cols="30" rows="3">{{- .Tabla.Descripcion -}}</textarea>
+				</div>
+				<button type="submit" class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+					Guardar
+				</button>
+			</div>
+
+		</form>
+	</section>
+</main>
+{{ end }}

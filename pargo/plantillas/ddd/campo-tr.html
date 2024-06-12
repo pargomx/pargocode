@@ -1,0 +1,91 @@
+{{ if not .TipoSql }}
+{{ template "ddd/campo-tr-form" . }}
+{{ else }}
+<tr id="{{ .CampoID }}" class="bg-slate-400/25 hover:bg-slate-400/50 dark:bg-slate-800/50 dark:hover:bg-slate-800">
+	<td tipo="handle" class="cursor-pointer">⣿ {{ .Posicion }}</td>
+	
+	<!-- SQL -->
+	<td>
+		<b>{{ .NombreColumna }}</b>
+		{{ if .PrimaryKey }}<span title="Clave primaria">🔑</span> {{ end -}}
+		{{ .CampoID }}
+		{{ if .ForeignKey }}<a title="FK de..."> 🗝️ </a>{{ end -}}
+		{{ if .ReferenciaCampo }}{{ .ReferenciaCampo }}{{ end }}
+		{{ if .CampoFK }}{{ .TablaFK.NombreRepo }}.{{ .CampoFK.NombreColumna }}{{ end }}
+	</td>
+	<td>
+		{{ .TipoSql }}
+	</td>
+	
+	<!-- NOT NULL -->
+	<td>
+		{{ if not .Nullable }}<code>NN</code>{{ else }}--{{ end }}
+	</td>
+	<!-- UNSIGNED -->
+	<td>
+		{{- if .Unsigned -}}
+			<code>UN</code>
+		{{- else -}}
+			{{ if .EsSqlInt }}/{{ else }}--{{ end }}
+		{{- end }}
+	</td>
+	<!-- MAX LENGHT -->
+	<td width="80px">
+		{{- if .MaxLenght }}
+			{{- .MaxLenght }}
+		{{- else if or .EsSqlChar .EsSqlVarchar }}
+			/
+		{{- else }}
+			--
+		{{- end }}
+	</td>
+	
+	<!-- Golang -->
+	<td>
+		{{ .NombreCampo }}
+	</td>
+	<td style="width: 100px;">
+		{{ .TipoGo }}
+	</td>
+	<td>
+		<b>{{ .NombreHumano }}</b>
+	</td>
+	
+	<!-- Flags -->
+	<td>
+		{{ if .PrimaryKey }}<code>PK</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .ForeignKey }}<code>FK</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .Unique }}<code>UQ</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .Required }}<code>RQ</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .ReadOnly }}<code>RO</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .Filtro }}<code>FL</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .Especial }}<button type="button" hx-get="/campos/{{ .CampoID }}/enum" hx-target="#campoEspecialDialog" hx-swap="innerHTML" onclick="campoEspecialDialog.showModal()" title="Editar ENUM" {{ if not 0 }}class="text-red-500"{{ end }}>ES</button>{{ else }}--{{ end }}
+	</td>
+
+	<!-- DEFAULT -->
+	<td style="font-size: small; max-width: 120px; text-overflow: clip; overflow: hidden; white-space: nowrap;">
+		<span title="{{ .DefaultSQL }}">{{ .DefaultSQL }}</span>
+	</td>
+	<!-- Descripción -->
+	<td style="font-size: small; max-width: 120px; text-overflow: clip; overflow: hidden; white-space: nowrap;">
+		<span title="{{ .Descripcion }}">{{ .Descripcion }}</span>
+	</td>
+
+	<!-- Acciones -->
+	<td class="whitespace-nowrap">
+		<button type="button" hx-get="/campos/{{ .CampoID }}/form">✏️</button>
+	</td>
+</tr>
+{{ end }}

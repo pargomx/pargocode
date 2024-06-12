@@ -1,0 +1,24 @@
+<div tipo="tarea" gk-dominio="{{ .DominioID }}" gk-epica="{{ .EpicaID }}" gk-proceso="{{ .ProcesoID }}" gk-actividad="{{ .ActividadID }}" gk-tarea="{{ .TareaID }}" class="relative p-3 bg-slate-800 rounded-md shadow-lg">
+	<span class="mr-1 cursor-pointer handle1">⣿</span>
+	<span class="text-center">{{ .Tarea }}</span>
+	<span class="absolute top-0 right-0 px-1 text-xs bg-black opacity-40 rounded-tr-md rounded-bl-md">{{ if .Unhappy }}🙁{{ else }}T{{ end }}</span>
+	
+	<div class="hidden gap-3">
+
+		{{ range .CasosDeUso }}
+		<div class="p-3 space-y-3 bg-sky-800 rounded-md shadow-lg">
+			<span class="px-2 bg-black bg-opacity-40 rounded-md">Usecase</span> {{ .UI }} <br>
+			<span class="px-2 bg-black bg-opacity-40 rounded-md">Hdl</span> {{ .Hdl }} <br>
+			<span class="px-2 bg-black bg-opacity-40 rounded-md">Ruta</span> {{ .Ruta }} <br>
+			{{ if .Criterios }}
+			<span class="px-2 bg-black bg-opacity-40 rounded-md">Criterios</span>
+			<ol class="pl-6 list-decimal">
+				{{ range .Criterios }}<li>{{ . }}</li>{{ end }}
+			</ol>
+			{{ end }}
+		</div>
+		{{ end }}
+		<!-- END USECASES -->
+		
+	</div>
+</div>

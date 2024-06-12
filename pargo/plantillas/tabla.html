@@ -1,0 +1,260 @@
+{{ template "app/nav" . }}
+
+{{ if .Tabla }}
+<main class="container mx-auto">
+
+	{{ with $.Tabla -}}
+	<section id="nombre" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				<span class="p-1 font-mono text-white bg-teal-700 rounded">tabla</span>
+				{{ .NombrePaquete }}.{{ .NombreEnCodigo }}
+			</h3>
+		</header>
+		<form hx-post="/v1/tablas/{{ .NombreEnRepo }}/nombre" hx-target="#status_nombre" hx-trigger="submit,cmdGuardar,change delay:1s" class="grid items-end grid-cols-4 p-4 gap-x-4 gap-y-2">
+
+			<div>
+				<label for="txt_paquete_parent_dir">URL de repositorio</label>
+				<input class="form-control" name="paquete_parent_dir" id="txt_paquete_parent_dir" type="text" placeholder="Ejemplo: monorepo" value="{{ .PaqueteParentDir }}" />
+			</div>
+			<div>
+				<label for="NombrePaquete">Nombre del paquete</label>
+				<input class="form-control" name="ent_NombrePaquete" id="NombrePaquete" type="text" value="{{ .NombrePaquete }}" placeholder="Ej. usuario" />
+			</div>
+			<div>
+				<label for="NombreEnCodigo">Nombre en código</label>
+				<input class="form-control" name="ent_NombreEnCodigo" id="NombreEnCodigo" type="text" value="{{ .NombreEnCodigo }}" placeholder="Ej. Item" />
+			</div>
+			<div>
+				<label for="NombreEnRepo">Nombre en repositorio</label>
+				<input class="form-control" name="ent_NombreEnRepo" id="NombreEnRepo" type="text" value="{{ .NombreEnRepo }}" placeholder="Ej. usuarios" />
+			</div>
+
+			<div>
+				<label for="txt_nombre_humano">Humano singular</label>
+				<input class="form-control" name="nombre_humano" id="txt_nombre_humano" type="text" placeholder="Ejemplo" value="{{ .Nombre.Humano }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_humano_plural">Humano plural</label>
+				<input class="form-control" name="nombre_humano_plural" id="txt_nombre_humano_plural" type="text" placeholder="Ejemplos" value="{{ .Nombre.HumanoPlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_clave"><del>Clave singular</del></label>
+				<input class="form-control" name="nombre_clave" id="txt_nombre_clave" type="text" placeholder="entejemp" value="{{ .Nombre.Clave }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_clave_plural"><del>Clave plural</del></label>
+				<input class="form-control" name="nombre_clave_plural" id="txt_nombre_clave_plural" type="text" placeholder="entejemps" value="{{ .Nombre.ClavePlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_kebab">Kebab singular</label>
+				<input class="form-control" name="nombre_kebab" id="txt_nombre_kebab" type="text" placeholder="ent-ejemplo" value="{{ .Nombre.Kebab }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_kebab_plural"><del>Kebab plural</del></label>
+				<input class="form-control" name="nombre_kebab_plural" id="txt_nombre_kebab_plural" type="text" placeholder="ents-ejemplo" value="{{ .Nombre.KebabPlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_abrev">Abreviatura</label>
+				<input class="form-control" name="nombre_abrev" id="txt_nombre_abrev" type="text" placeholder="ejm" value="{{ .Nombre.Abrev }}" />
+			</div>
+			<div>
+				<label for="sel_nombre_femenino">Género</label>
+				<select class="form-control" name="nombre_femenino" id="sel_nombre_femenino">
+					<option value="false">Masculino</option>
+					<option value="true"{{ if .Nombre.EsFemenino }} selected{{ end }}>Femenino</option>
+				</select>
+			</div>
+
+			<div class="col-span-4">
+				<label for="txt_nombre_descripcion">Descripción</label>
+				<input class="form-control" name="nombre_descripcion" id="txt_nombre_descripcion" type="text" placeholder="Representa..." value="{{ .Nombre.Descripcion }}" />
+			</div>
+
+			<div class="col-span-4">
+				<label for="directrices_mysql">Directrices para generar código MySQL</label>
+				<textarea class="form-control" name="directrices_mysql" id="directrices_mysql" cols="30" rows="5">
+				{{- range .Directrices.MySQL -}}
+					{{ .String }}{{ br }}
+				{{- end -}}
+				</textarea>
+			</div>
+
+			<div>
+				<a hx-get="/v1/tablas/{{ .NombreEnRepo }}/nueva-consulta" hx-prompt="Nombre humano de la nueva consulta" class="inline-block w-full px-6 py-2 font-medium text-center text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+					Nueva consulta
+				</a>
+			</div>
+			<div>
+				<button type="button" class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600" onclick="generarCodigoDialog.showModal(); generarCodigo();">
+					Generar código
+				</button>
+			</div>
+			<div class="text-right">
+				<p id="status_nombre"></p>
+			</div>
+			<div class="pt-2">
+				<button class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+					Guardar
+				</button>
+			</div>
+		</form>
+	</section>
+	{{ end }}
+
+	<section id="tabla" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				{{ .Tabla.NombreEnCodigo }}
+			</h3>
+			<button type="button" hx-post="/v1/tablas/{{ .Tabla.NombreEnRepo }}/generar-archivos/mysql" hx-target="#status_nombre" hx-trigger="click, keyup[ctrlKey&&key=='Enter'] from:body" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+				MySQL
+			</button>
+			<button type="button" hx-post="/v1/tablas/{{ .Tabla.NombreEnRepo }}/generar-archivos/sqlite" hx-target="#status_nombre" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+				Sqlite
+			</button>
+			<button type="button" hx-post="/v1/tablas/{{ .Tabla.NombreEnRepo }}/generar-archivos/entidad" hx-target="#status_nombre" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
+				Entidad
+			</button>
+			<button type="button" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600" onclick="generarCodigoDialog.showModal(); generarCodigo();">
+				Generar
+			</button>
+		</header>
+		<div class="overflow-x-auto">
+			<table class="w-full p-4 text-center border-separate table-auto border-spacing-y-1">
+				<thead>
+					<tr class="bg-slate-400 dark:bg-slate-900">
+						<th>#</th>
+						<th title="Nombre clave">Campo</th>
+						<th title="Tipo de dato">TipoSQL</th>
+						<th title="Not null">NN</th>
+						<th title="Unsigned (positivo)">UN</th>
+						<th title="Valor/longitud máxima">Max</th>
+						<th title="Tipo de dato">TipoGo</th>
+			
+						<th title="Nombre humano">Etiqueta</th>
+						<th title="Primary Key">PK</th>
+						<th title="Foreign Key">FK</th>
+						<th title="Unique">UQ</th>
+						<th title="Required">RE</th>
+						<th title="Read only">RO</th>
+						<th title="Filtrar por este campo">FL</th>
+						<th title="Campo especial (enum)">ES</th>
+						<th title="Default: autoincrement, timestamp, etc">Default</th>
+						<th title="Descripción">Desc.</th>
+						<th title="Acciones">...</th>
+					</tr>
+				</thead>
+				<tbody id="columnas" hx-target="closest tr" hx-swap="outerHTML" class="text-nowrap">
+					{{ range .Tabla.Campos -}}
+						{{ template "campo-tr" . }}
+					{{ end }}
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+	<div class="flex justify-end gap-4 px-4">
+		<div class="">
+			<a href="/v1/tablas/{{ .Tabla.NombreEnRepo }}/referencias" class="inline-block px-6 py-2 text-sm text-slate-100 transition-colors bg-cyan-700 rounded shadow-md hover:bg-cyan-600">
+				Tablas que referencian {{ .Tabla.Nombre.Humano }}
+			</a>
+		</div>
+		<div class="">
+			<button hx-put="/v1/tablas/{{ .Tabla.NombreEnRepo }}/add-fechas" title="Poner al final los campos fecha_registro y fecha_modif" class="inline-block px-6 py-2 text-sm text-slate-100 transition-colors bg-cyan-700 rounded shadow-md hover:bg-cyan-600">
+				Agregar o acomodar fecha_registro fecha_modif
+			</button>
+		</div>
+	</div>
+	
+	<dialog id="campoEspecialDialog" hx-target="#campoEspecialDialog" hx-swap="innerHTML" class="p-3 rounded-lg">
+		...
+	</dialog>
+
+
+	<dialog id="generarCodigoDialog" class="p-3 rounded-lg md:w-[600px] lg:w-[800px] xl:w-[1100px]">
+		<header class="flex items-center gap-3 pb-2 flex-nowrap">
+			<select id="selectGenerarCodigo" class="form-control" name="tipo" onchange="generarCodigo()">
+				<option value="">¿Qué generar?</option>
+				<optgroup label="Tabla">
+					<option value="entidad">Go entidad</option>
+					<option value="go/tbl_struct">Go struct</option>
+					<option value="go/tbl_propiedades">Go propiedades</option>
+					<option value="go/tbl_errores">Go errores</option>
+				</optgroup>
+				<optgroup label="MySQL">
+					<option value="mysql/create_table">CREATE TABLE</option>
+					<option value="mysql-directriz">MySQL Directrices</option>
+					<option value="mysql-simple">MySQL Simple</option>
+					<option value="mysql-compacto">MySQL Compacto</option>
+					<option value="mysql-all">MySQL Todo</option>
+				</optgroup>
+				<optgroup label="MySQL granular">
+					<option value="mysql/servicio">MySQL Servicio</option>
+					<option value="mysql/constantes">MySQL Constantes</option>
+					<option value="mysql/scan-row">MySQL Scan Row</option>
+					<option value="mysql/scan-rows">MySQL Scan Rows</option>
+					<option value="mysql/tbl-filtros">MySQL Filtros</option>
+					<option value="mysql/get">MySQL Get</option>
+					<option value="mysql/fetch">MySQL Fetch</option>
+					<option value="mysql/tbl-insert">MySQL Insert</option>
+					<option value="mysql/tbl-update">MySQL Update</option>
+					<option value="mysql/tbl-insert_update">MySQL Insert Update</option>
+					<option value="mysql/tbl-delete">MySQL Delete</option>
+					<option value="mysql/list">MySQL List</option>
+					<option value="mysql/list_by">MySQL List By</option>
+					<option value="mysql/get_by">MySQL Get By</option>
+				</optgroup>
+
+				<optgroup label="SQLite">
+					<option value="sqlite/create_table">CREATE TABLE</option>
+				</optgroup>
+
+				<optgroup label="HTML Includes">
+					<option value="html/form">HTML form</option>
+					<option value="html/detalles">HTML detalles</option>
+					<option value="html/tabla">HTML tabla</option>
+				</optgroup>
+				<optgroup label="HTML Layouts">
+					<option value="html/desglose">HTML desglose</option>
+					<option value="html/nuevo">HTML nuevo</option>
+					<option value="html/editar">HTML editar</option>
+					<option value="html/lista">HTML lista</option>
+				</optgroup>
+				<optgroup label="Gecko">
+					<option value="gk/servicio">Gecko servicio</option>
+					<option value="gk/detalles">Gecko detalles</option>
+					<option value="gk/form">Gecko form</option>
+					<option value="gk/insert_update">Gecko insert-update</option>
+				</optgroup>
+			</select>
+
+			<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="copiarCodigo()" title="Copiar al portapapeles">📋</button>
+			<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="generarCodigo()" title="Volver a generar">🔄</button>
+			<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="generarCodigoDialog.close()" title="Cerrar">✖️</button>
+		</header>
+		<pre id="codigoGenerado" hx-get="/v1/tablas/{{ .Tabla.NombreEnRepo }}/generar" hx-include="#selectGenerarCodigo, input[name='by']" hx-target="#codigoGenerado" hx-swap="innerHTML" hx-trigger="deseaGenerarCodigo" class="p-4 overflow-auto text-lime-300 bg-slate-950">...
+
+		</pre>
+		<script>
+			function generarCodigo() {
+				document.getElementById("codigoGenerado").innerHTML = "\t...\n\n\n\n\n\n\n\n"
+				if (document.getElementById("selectGenerarCodigo").value == "") {
+					return
+				}
+				console.log("Se generará código")
+				document.getElementById("codigoGenerado").dispatchEvent(new Event("deseaGenerarCodigo"));
+			}
+			function copiarCodigo() {
+				navigator.clipboard.writeText(document.getElementById("codigoGenerado").innerText).then(() => {
+					console.log("Código copiado al portapapeles");
+				},() => {
+					console.error("No se pudo copiar el código al portapapeles");
+				});
+			}
+		</script>
+	</dialog>
+
+</main>
+<div style="height: 20vh;"></div>
+{{ end }}

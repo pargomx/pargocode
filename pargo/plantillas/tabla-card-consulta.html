@@ -1,0 +1,55 @@
+{{ $Tabla := . }}
+<section class="bg-cyan-900 rounded-lg shadow-lg">
+	<header class="flex justify-between px-4 pt-2 text-lg text-center">
+		<a title="Agregar tablas con PK de {{ .Nombre.Clave }}" href="/v1/tablas/{{ .Nombre.Clave }}/relacionadas-select" hx-boost="true" hx-history="false" hx-push-url="false" hx-swap="innerHTML" hx-target="#selectEntidad" onclick="selectEntidad.showModal()">🔑</a>
+		<h2>{{ .Nombre.Humano }}</h2>
+		<button onclick="this.parentNode.parentNode.remove()">❌</button>
+	</header>
+	<small class="block px-4 text-center opacity-50">{{ .Nombre.Descripcion }}</small>
+	<input type="hidden" name="tablas" value="{{ .Nombre.Clave }}">
+	<input type="text" name="alias_{{ .Nombre.Clave }}" value="" class="px-1 text-black" placeholder="Alias de tabla">
+	<table class="w-full px-1 text-sm text-center border-separate table-auto border-spacing-y-1">
+		<thead>
+			<tr class="bg-slate-400 dark:bg-slate-900">
+				<th>
+					<input title="Seleccionar todas" onchange="[...document.getElementById('tbody_{{ $Tabla.Nombre.Clave }}').querySelectorAll('input[type=checkbox]')].forEach((cbox) => { cbox.checked = this.checked })" type="checkbox">
+				</th>
+				<th>Campo</th>
+				<th>Tipo SQL</th>
+				<th>Tipo Go</th>
+				<th></th>
+				<th>Alias</th>
+			</tr>
+		</thead>
+		<tbody id="tbody_{{ $Tabla.Nombre.Clave }}">
+			{{ range .Campos }}
+			<tr class="bg-slate-400/25 hover:bg-slate-400/50 dark:bg-slate-800/50 dark:hover:bg-slate-800">
+				<td>
+					<input type="checkbox" name="{{ $Tabla.Nombre.Clave }}" value="{{ .Nombre.Snake }}" id="{{ $Tabla.Nombre.Abrev }}--{{ .Nombre.Snake }}" title="Incluir {{ $Tabla.Nombre.Abrev }}.{{ .Nombre.Snake }}">
+				</td>
+				<td class="font-mono text-left{{ if .PrimaryKey }} font-bold{{ end }}">
+					{{ if .PrimaryKey }}
+					<a title="Agregar tablas con PK de {{ if .EntidadFK }}{{ .EntidadFK }}{{ else }}{{ $Tabla.Nombre.Clave }}{{ end }}" href="/v1/tablas/{{ if .EntidadFK }}{{ .EntidadFK }}{{ else }}{{ $Tabla.Nombre.Clave }}{{ end }}/relacionadas-select" hx-boost="true" hx-history="false" hx-push-url="false" hx-swap="innerHTML" hx-target="#selectEntidad" onclick="selectEntidad.showModal()">🔑 {{ .Nombre.Snake }}</a>
+					{{ else }}
+					{{ .Nombre.Snake }}
+					{{ end }}
+				</td>
+				<td>
+					{{ .TipoSQL }}
+				</td>
+				<td>
+					{{ .Tipo }}
+				</td>
+				<td>
+					{{ if .ForeignKey }}<a title="Agregar tabla {{ .EntidadFK }}" href="/v1/tablas/{{ .EntidadFK }}/card-consulta" hx-boost="true" hx-history="false" hx-push-url="false" hx-swap="outerHTML" hx-target="#nueva-tarjeta">🗝️ {{ .EntidadFK }}</a>{{ end }}
+				</td>
+				<td>
+					<input type="text" name="alias_{{ $Tabla.Nombre.Clave }}_{{ .Nombre.Snake }}" value="" class="px-1 text-black">
+				</td>
+			</tr>
+			{{ end }}
+		</tbody>
+	</table>
+</section>
+
+<section id="nueva-tarjeta" class="hidden"></section>

@@ -1,0 +1,99 @@
+{{ if not .TipoSQL }}
+{{ template "campo-tr-form" . }}
+{{ else }}
+<tr class="bg-slate-400/25 hover:bg-slate-400/50 dark:bg-slate-800/50 dark:hover:bg-slate-800">
+	<td class="whitespace-nowrap">
+		<input type="checkbox" name="by" value="{{ .Nombre.Snake }}" title="List by" class="mr-1" id="by{{ .Idx }}">
+		<label for="by{{ .Idx }}">{{ .Idx }}</label>
+	</td>
+
+	<!-- NOMBRE KEBAB -->
+	<td>
+		{{ if .PrimaryKey }}<span title="Clave primaria">🔑</span> {{ end -}}
+		<b>{{ .Nombre.Snake }}</b>
+		{{ if .ForeignKey }}<a title="FK de {{ .EntidadFK }}"> 🗝️ </a>{{ end -}}
+	</td>
+
+	<!-- TIPO SQL -->
+	<td>
+		{{ if .TipoSQL -}}
+			{{ .TipoSQL }}
+		{{ else -}}
+			<a hx-get="/v1/tablas/{{ .Tabla.Nombre.Clave }}/c/{{ .Idx }}/form">✏️</a>
+		{{ end }}
+	</td>
+
+	<!-- NOT NULL -->
+	<td>
+		{{ if not .Null }}<code>NN</code>{{ else }}--{{ end }}
+	</td>
+
+	<!-- UNSIGNED -->
+	<td>
+		{{- if .Unsigned -}}
+			<code>UN</code>
+		{{- else -}}
+			{{ if .EsSqlInt }}/{{ else }}--{{ end }}
+		{{- end }}
+	</td>
+
+	<!-- MAX LENGHT -->
+	<td width="80px">
+		{{- if .MaxLenght }}
+			{{- .MaxLenght }}
+		{{- else if or .EsSqlChar .EsSqlVarchar }}
+			/
+		{{- else }}
+			--
+		{{- end }}
+	</td>
+
+	<!-- TIPO CODE -->
+	<td style="width: 100px;">
+		{{ .Tipo }}
+	</td>
+
+	<!-- NOMBRE HUMANO -->
+	<td>
+		<b>{{ .Nombre.Humano }}</b>
+	</td>
+
+	<td>
+		{{ if .PrimaryKey }}<code>PK</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .ForeignKey }}<code>FK</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .Unique }}<code>UQ</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .Required }}<code>RQ</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .ReadOnly }}<code>RO</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .Filtro }}<code>FL</code>{{ else }}--{{ end }}
+	</td>
+	<td>
+		{{ if .Especial }}<button type="button" hx-get="/v1/tablas/{{ .Tabla.Nombre.Clave }}/c/{{ .Idx }}/especial" hx-target="#campoEspecialDialog" hx-swap="innerHTML" onclick="campoEspecialDialog.showModal()" title="Editar ENUM" {{ if not .ValoresPosibles }}class="text-red-500"{{ end }}>ES</button>{{ else }}--{{ end }}
+	</td>
+	
+	<!-- DEFAULT -->
+	<td style="font-size: small; max-width: 120px; text-overflow: clip; overflow: hidden; white-space: nowrap;">
+		<span title="{{ .DefaultSQL }}">{{ .DefaultSQL }}</span>
+	</td>
+	
+	<!-- DEFAULT -->
+	<td style="font-size: small; max-width: 120px; text-overflow: clip; overflow: hidden; white-space: nowrap;">
+		<span title="{{ .Nombre.Descripcion }}">{{ .Nombre.Descripcion }}</span>
+	</td>
+
+	
+	<!-- Acciones -->
+	<td class="whitespace-nowrap">
+		<button type="button" hx-get="/v1/tablas/{{ .Tabla.Nombre.Clave }}/c/{{ .Idx }}/form">✏️</button>
+	</td>
+</tr>
+{{ end }}

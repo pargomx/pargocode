@@ -1,0 +1,102 @@
+{{ if .Tabla }}
+<header class="flex gap-4 p-2 pb-4">
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
+	<h2 class="flex-grow text-2xl font-bold text-center">Nueva tabla {{ .Tabla.Nombre.Humano }}</h2>
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">❌</a>
+</header>
+
+<main class="container mx-auto">
+
+	<section id="nombre" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		{{ with $.Tabla -}}
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				Nombre y propiedades de la tabla
+			</h3>
+		</header>
+		<form hx-post="/v1/tablas/nueva" hx-target="#nombre" hx-swap="innerHTML" class="grid items-end grid-cols-4 p-4 gap-x-4 gap-y-2">
+
+			<div>
+				<label for="txt_paquete_parent_dir">URL de repositorio</label>
+				<input class="form-control" name="paquete_parent_dir" id="txt_paquete_parent_dir" type="text" placeholder="Ejemplo: monorepo" value="{{ .PaqueteParentDir }}" />
+			</div>
+			<div>
+				<label for="NombrePaquete">Nombre del paquete</label>
+				<input class="form-control" name="ent_NombrePaquete" id="NombrePaquete" type="text" value="{{ .NombrePaquete }}" placeholder="Ej. usuario" />
+			</div>
+			<div>
+				<label for="NombreEnCodigo">Nombre en código</label>
+				<input class="form-control" name="ent_NombreEnCodigo" id="NombreEnCodigo" type="text" value="{{ .NombreEnCodigo }}" placeholder="Ej. Item" />
+			</div>
+			<div>
+				<label for="NombreEnRepo">Nombre en repositorio</label>
+				<input class="form-control" name="ent_NombreEnRepo" id="NombreEnRepo" type="text" value="{{ .NombreEnRepo }}" placeholder="Ej. usuarios" />
+			</div>
+
+			<div>
+				<label for="txt_nombre_humano">Humano singular</label>
+				<input class="form-control" name="nombre_humano" id="txt_nombre_humano" type="text" placeholder="Ejemplo" value="{{ .Nombre.Humano }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_humano_plural">Humano plural</label>
+				<input class="form-control" name="nombre_humano_plural" id="txt_nombre_humano_plural" type="text" placeholder="Ejemplos" value="{{ .Nombre.HumanoPlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_clave">Clave singular</label>
+				<input class="form-control" name="nombre_clave" id="txt_nombre_clave" type="text" placeholder="entejemp" value="{{ .Nombre.Clave }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_clave_plural">Clave plural</label>
+				<input class="form-control" name="nombre_clave_plural" id="txt_nombre_clave_plural" type="text" placeholder="entejemps" value="{{ .Nombre.ClavePlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_kebab">Kebab singular</label>
+				<input class="form-control" name="nombre_kebab" id="txt_nombre_kebab" type="text" placeholder="ent-ejemplo" value="{{ .Nombre.Kebab }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_kebab_plural">Kebab plural</label>
+				<input class="form-control" name="nombre_kebab_plural" id="txt_nombre_kebab_plural" type="text" placeholder="ents-ejemplo" value="{{ .Nombre.KebabPlural }}" />
+			</div>
+			<div>
+				<label for="txt_nombre_abrev">Abreviatura</label>
+				<input class="form-control" name="nombre_abrev" id="txt_nombre_abrev" type="text" placeholder="ejm" value="{{ .Nombre.Abrev }}" />
+			</div>
+			<div>
+				<label for="sel_nombre_femenino">Género</label>
+				<select class="form-control" name="nombre_femenino" id="sel_nombre_femenino">
+					<option value="false">Masculino</option>
+					<option value="true"{{ if .Nombre.EsFemenino }} selected{{ end }}>Femenino</option>
+				</select>
+			</div>
+
+			<div class="col-span-4">
+				<label for="txt_nombre_descripcion">Descripción</label>
+				<input class="form-control" name="nombre_descripcion" id="txt_nombre_descripcion" type="text" placeholder="Representa..." value="{{ .Nombre.Descripcion }}" />
+			</div>
+
+
+			<div>
+				<a hx-get="/v1/tablas/{{ .Nombre.Clave }}/nueva-consulta" hx-prompt="Nombre humano de la nueva consulta" class="inline-block w-full px-6 py-2 font-medium text-center text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+					Nueva consulta
+				</a>
+			</div>
+			<div>
+				<button type="button" class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600" onclick="generarCodigoDialog.showModal(); generarCodigo();">
+					Generar código
+				</button>
+			</div>
+			<div class="text-right">
+				{{ if $.FechaGuardado }}<small>Actualizado: {{ $.FechaGuardado.Format "2006-01-02 15:04:05" }}</small>{{ end }}
+			</div>
+			<div class="pt-2">
+				<button class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+					Guardar nombre
+				</button>
+			</div>
+		</form>
+		{{ end }}
+	</section>
+
+</main>
+<div style="height: 20vh;"></div>
+{{ end }}

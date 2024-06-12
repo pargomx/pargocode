@@ -1,0 +1,111 @@
+{{ template "app/nav" . -}}
+
+<header class="flex gap-4 p-2 pb-4">
+	<input id="filtroEntidades" type="search" class="form-control" oninput="filtrarEntidades(this.value)" placeholder="Buscar entidad...">
+</header>
+
+<main class="flex flex-wrap items-center justify-center flex-grow gap-6">
+	{{ range .PaquetesConEntidades }}
+	<article tipo="paquete" class="p-4 text-center bg-cyan-900 rounded-lg">
+		<h2 class="pb-4 font-bold">
+			<button type="button" hx-delete="/paquetes/{{ .Paquete.PaqueteID }}" hx-confirm="¿Eliminar paquete?" title="Eliminar paquete">🚮</button>
+			<a href="/paquetes/{{ .Paquete.PaqueteID }}">{{ .Paquete.Nombre }}</a>
+			<button type="button" onclick="showDialog('paquete{{ .Paquete.PaqueteID }}')" title="Editar paquete">✏️</button>
+		</h2>
+		<div class="flex flex-col gap-2">
+			{{ range .Tablas -}}
+			<div tipo="entidad" class="flex justify-between gap-2 p-2 bg-cyan-950 rounded-md">
+				<span class="p-1 font-mono text-xs text-white bg-teal-700 rounded">tbl</span>
+				<a href="/tablas/{{ .TablaID }}">{{ .NombreItem }}</a>
+				<button type="button" hx-delete="/tablas/{{ .TablaID }}" hx-confirm="¿Eliminar tabla?">🚮</button>
+			</div>
+			{{ end }}
+
+			{{ range .Consultas -}}
+			<div tipo="entidad" class="flex justify-between gap-2 p-2 bg-cyan-950 rounded-md">
+				<span class="p-1 font-mono text-xs text-white bg-violet-700 rounded">qry</span>
+				<a href="/consultas/{{ .ConsultaID }}">{{ .NombreItem }}</a>
+				<button type="button" hx-delete="/consultas/{{ .ConsultaID }}" hx-confirm="¿Eliminar consulta?">🚮</button>
+			</div>
+			{{ end }}
+			
+			<div class="flex gap-2">
+				<button class="inline-block w-full px-1 border-2 border-teal-700 rounded-full hover:bg-cyan-700" type="button" hx-get="/tablas/nueva?paquete_id={{ .Paquete.PaqueteID }}" hx-prompt="Nombre humano de la nueva tabla" title="Agregar tabla"><i class="fa-solid fa-plus"></i></button>
+				<button class="inline-block w-full px-1 border-2 border-violet-700 rounded-full hover:bg-cyan-700" type="button" hx-get="/consultas/nueva?paquete_id={{ .Paquete.PaqueteID }}" hx-prompt="Nombre humano de la nueva consulta" title="Agregar consulta"><i class="fa-solid fa-plus"></i></button>
+			</div>
+		</div>
+	</article>
+	{{ end }}
+	
+	<button class="px-1 bg-cyan-700 rounded-full" type="button" hx-post="/paquetes" hx-prompt="Nombre del nuevo paquete" title="Agregar paquete"><i class="fa-solid fa-plus"></i></button>
+</main>
+
+<script>
+	function showDialog(id) {
+		document.getElementById(id).showModal();
+	}
+
+	function filtrarEntidades(qryText) {
+		let elementos = document.querySelectorAll("[tipo='entidad']")
+		if (elementos.length < 1) {
+			console.log("no hay elementos para filtrar")
+			return
+		}
+		qryText = normalizar(qryText)
+		elementos.forEach(elem => {
+			let elemText = normalizar( elem.querySelector("a").textContent )
+			if ( elemText.includes(qryText) ) {
+				elem.classList.remove("hidden")
+			} else {
+				elem.classList.add("hidden")
+			}
+		})
+		// Ocultar paquetes si no hay entidades visibles
+		document.querySelectorAll("[tipo='paquete']").forEach(paquete => {
+			let entidades = paquete.querySelectorAll("[tipo='entidad']:not(.hidden)")
+			if (entidades.length < 1) {
+				paquete.classList.add("hidden")
+				// Mostrar paquete vacío si el nombre del paquete coincide con la búsqueda
+				let elemText = normalizar( paquete.querySelector("a").textContent )
+				if ( elemText.includes(qryText) ) {
+					paquete.classList.remove("hidden")
+				}
+			} else {
+				paquete.classList.remove("hidden")
+			}
+		})
+	}
+
+</script>
+
+{{ range .PaquetesConEntidades }}{{ with .Paquete }}
+<dialog id="paquete{{ .PaqueteID }}" class="p-3 rounded-lg">
+	<header class="flex flex-wrap items-center gap-3 pb-2">
+		<h2 class="flex-grow w-full text-xl text-center sm:w-auto sm:text-left">Paquete {{ .Nombre }}</h2>
+		<button type="button" class="w-10 py-1 text-xl text-slate-200 bg-slate-600 rounded-lg" onclick="this.parentNode.parentNode.close()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+	</header>
+	<form hx-put="/paquetes/{{ .PaqueteID }}">
+		<div class="pb-2">
+			<label for="{{ .PaqueteID }}_01">Go module*</label>
+			<input class="form-control" name="go_module" id="{{ .PaqueteID }}_01" type="text" placeholder="revisar go.mod" value="{{ .GoModule }}" />
+		</div>
+		<div class="pb-2">
+			<label for="{{ .PaqueteID }}_02">Directorio</label>
+			<input class="form-control" name="directorio" id="{{ .PaqueteID }}_02" type="text" placeholder="Vacío: en la raíz del proyecto" value="{{ .Directorio }}" />
+		</div>
+		<div class="pb-2">
+			<label for="{{ .PaqueteID }}_03">Nombre*</label>
+			<input class="form-control" name="nombre" id="{{ .PaqueteID }}_03" type="text" placeholder="ejemplo" value="{{ .Nombre }}" />
+		</div>
+		<div class="pb-2">
+			<label for="{{ .PaqueteID }}_04">Descripción</label>
+			<input class="form-control" name="descripcion" id="{{ .PaqueteID }}_04" type="text" placeholder="¿A qué contexto corresponde este paquete?" value="{{ .Descripcion }}" />
+		</div>
+		<div class="pt-2">
+			<button type="submit" class="inline-block w-full px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+				Guardar
+			</button>
+		</div>
+	</form>
+</dialog>
+{{ end }}{{ end }}

@@ -1,0 +1,31 @@
+<header class="flex gap-4 p-2 pb-4">
+	<h1 class="flex-grow text-2xl whitespace-nowrap"><a href="/">Consultas</a></h1>
+	<input type="search" class="form-control" oninput="filtrarArticles(this.value)" placeholder="Buscar consulta...">
+	<button id="showCheckboxsBtn" class="px-4 py-2 bg-cyan-700 rounded-md" type="button" onclick="showCheckboxs()">Filtr.</button>
+	<button id="applyCheckboxsBtn" class="hidden px-4 py-2 bg-cyan-700 rounded-md" type="submit" form="seleccionaConsultas">Aplicar</button>
+	<button class="px-4 py-2 bg-cyan-700 rounded-md" type="button" hx-get="/v1/consultas/nueva" hx-prompt="Nombre humano de la nueva consulta">Nueva</button>
+</header>
+
+<main>
+
+	<form id="seleccionaConsultas" class="flex flex-wrap items-start content-around justify-center gap-4" action="/v1/consultas/" method="GET">
+		
+		{{ range .Consultas }}
+		<article class="p-4 text-center bg-cyan-900 rounded-lg w-72">
+			<h2 class="pb-2 font-bold">
+				<a href="/v1/consultas/{{ .Nombre.Clave }}">{{ .Nombre.Humano }}</a>
+			</h2>
+			<p class="p-1 font-mono bg-cyan-700 rounded-sm">
+				{{ .NombrePaquete }}.{{ .NombreEnCodigo }}
+			</p>
+			<p class="px-1 pt-2 text-sm opacity-75">
+				{{ .Nombre.Descripcion }}
+			</p>
+			<input class="hidden filtro_chkbox" type="checkbox" name="v" value="{{ .Nombre.Clave }}">
+		</article>
+		{{ end }}
+
+	</form>
+
+	<div class="h-dvh"></div>
+</main>

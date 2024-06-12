@@ -1,0 +1,328 @@
+
+<header class="flex gap-3 pb-6">
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
+	<h2 class="flex-grow text-2xl font-bold text-center">Proceso</h2>
+	<a class="inline-block text-2xl whitespace-nowrap" href="/dominios">❌</a>
+</header>
+<header class="mb-4 space-y-1">
+	<h3>
+		{{ with .Dominio -}}
+		<span class="px-2 py-1 mr-1 font-mono text-sm bg-black bg-opacity-40 rounded-md">D</span>
+		<span class="opacity-50">Como</span>
+		<a href="/dominios/{{ .DominioID }}" class="lowercase">{{ .Persona }}</a>
+		<span class="opacity-50">quiero</span>
+		{{- end }}
+	</h3>
+	<h4>
+		{{ with .Epica -}}
+		<span class="px-2 py-1 mr-1 font-mono text-sm bg-black bg-opacity-40 rounded-md">E</span>
+		<span class="opacity-50">poder</span>
+		<a href="/dominios/{{ .DominioID }}/{{ .EpicaID }}" class="lowercase">{{ .Epica }}</a>
+		<span class="opacity-50">mediante</span>
+		{{- end }}
+	</h4>
+	<h5>
+		{{ with .Proceso -}}
+		<span class="px-2 py-1 mr-1 font-mono text-sm bg-black bg-opacity-40 rounded-md">P</span>
+		<span class="opacity-50">el</span>
+		<button type="button" onclick="showEditProceso()" class="text-xl lowercase cursor-edit">{{ .Proceso }}</button>,
+		<span class="opacity-50">de la siguiente forma:</span>
+		{{ end }}
+	</h5>
+</header>
+
+<main id="actividades" class="flex items-start flex-grow gap-4 pb-2 overflow-x-auto">
+
+	{{ define "d_actividad_card" -}}
+	<article gk-dominio="{{ .DominioID }}" gk-epica="{{ .EpicaID }}" gk-proceso="{{ .ProcesoID }}" gk-actividad="{{ .ActividadID }}" class="relative flex flex-col max-h-full p-1 bg-cyan-900 rounded-md shadow-lg min-w-64 max-w-96">
+		<header class="p-1">
+			<!-- Mantener el orden de estos 5 elementos para showEditActividad -->
+			<span class="mr-1 cursor-pointer handle">⣿</span>
+			<span tipo="actividad_text" id="txtA{{ .ActividadID }}" class="font-medium text-center">{{ .Actividad }}</span>
+			<button type="button" onclick="showEditActividad(this)" class="float-right text-sm"><i class="px-2 py-1 fa fa-pen"></i></button>
+			<input name="actividad" value="{{ .Actividad }}" hx-target="#txtA{{ .ActividadID }}" hx-patch="/dominios/{{ .DominioID }}/{{ .EpicaID }}/{{ .ProcesoID }}/{{ .ActividadID }}" type="text" class="hidden form-control">
+			<span class="absolute top-0 right-0 px-1 text-xs bg-black opacity-40 rounded-tr-md rounded-bl-md">A</span>
+		</header>
+
+		<div tipo="tareas" id="tareas{{ .ActividadID }}" class="flex flex-col flex-grow gap-3 p-1 overflow-x-hidden overflow-y-auto">
+			{{ range .Tareas -}}
+				{{ template "d_tarea_card" . }}
+			{{ end }}
+		</div>
+
+		<footer class="p-1 pt-2">
+			<input name="tarea_nueva" hx-target="#tareas{{ .ActividadID }}" hx-swap="beforeend" hx-post="/dominios/{{ .DominioID }}/{{ .EpicaID }}/{{ .ProcesoID }}/{{ .ActividadID }}" placeholder="Agregar tarea..." type="text" class="block w-full p-3 bg-slate-800 rounded-md shadow-lg opacity-50 focus:opacity-100">
+		</footer>
+	</article>
+	{{ end }}
+
+	{{ range .Proceso.Actividades -}}
+		{{ template "d_actividad_card" . }}
+	{{ end }}
+	
+	{{ with .Proceso -}}
+	<input name="actividad_nueva" hx-target="this" hx-swap="beforebegin" hx-post="/dominios/{{ .DominioID }}/{{ .EpicaID }}/{{ .ProcesoID }}" placeholder="Agregar actividad..." type="text" class="inline-block p-3 bg-cyan-900 rounded-md shadow-lg opacity-50 focus:opacity-100">
+	{{ end }}
+</main>
+
+
+<!-- EDITAR PROCESO -->
+<dialog id="dialogEdit" class="p-3 rounded-lg">
+	<header class="flex flex-wrap items-center gap-3 pb-2">
+		<h2 class="flex-grow w-full text-xl text-center sm:w-auto sm:text-left">Proceso</h2>
+		<button type="button" class="w-10 py-1 text-xl text-slate-200 bg-slate-600 rounded-lg" onclick="this.parentNode.parentNode.close()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+	</header>
+	{{ with .Proceso }}
+	<form class="space-y-2" hx-patch="/dominios/{{ .DominioID }}/{{ .EpicaID }}/{{ .ProcesoID }}">
+		<div>
+			<input name="proceso" value="{{ .Proceso }}" type="text" class="form-control" onfocus="this.select()">
+		</div>
+		<div class="pt-2">
+			<button type="submit" class="block w-full p-2 font-medium text-white bg-blue-800 rounded">Guardar</button>
+		</div>
+	</form>
+	{{ end -}}
+</dialog>
+
+<div id="delete-zone" class="absolute bottom-0 right-0 hidden w-32 h-32 bg-red-700 rounded-tl-full opacity-80">
+	<p class="absolute bottom-10 right-4">Eliminar</p>
+</div>
+<script src="/assets/js/Sortable.min.js"></script>
+
+<script>
+
+// ================================================================ //
+// ========== PROCESO ============================================= //
+
+// Editar proceso
+function showEditProceso() {
+	dialogEdit.showModal()
+	dialogEdit.querySelector('input').focus()
+}
+
+// ================================================================ //
+// ========== ACTIVIDADES ========================================= //
+
+// Insertar actividad
+document.querySelectorAll("input[name='actividad_nueva']").forEach(input => {
+	input.addEventListener("htmx:afterSwap", event => {
+		input.value = ""; // limpiar una vez insertado el item.
+		// el item insertado debe ser un <article> hermano al <input>.
+		let actividad = input.previousElementSibling
+		if (actividad.nodeName != "ARTICLE") {
+			console.warn("actividad not article", actividad)
+			return
+		}
+		let actividadText = actividad.querySelector("span[tipo='actividad_text']")
+		let inputEditActividad =  actividad.querySelector("input[name='actividad']")
+		inputEditActividad.addEventListener("keyup", (event) => {
+			if (event.keyCode == 27) {
+				inputEditActividad.value = actividadText.textContent
+				hideEditActividad(inputEditActividad)
+			}
+		})
+		actividadText.addEventListener("htmx:afterSwap", (event) => {
+			hideEditActividad(inputEditActividad)
+		})
+		// setup input tarea
+		let inputTarea = actividad.querySelector("input[name='tarea_nueva']")
+		actividad.querySelector("div[tipo='tareas']").addEventListener("htmx:afterSwap", event => {
+			inputTarea.value = "";
+		})
+		inputTarea.addEventListener("keyup", event => {
+			if (event.keyCode == 27) {
+				inputTarea.value = ""
+				inputTarea.blur()
+			}
+		})
+		inputTarea.focus()
+		// setup sortable
+		prepSortableTareasDe(actividad.querySelector("div[tipo='tareas']"))
+	})
+})
+
+// Editar actividad. Debe tener esta estructura:
+//	<actividad>
+//		<sort_handle>
+//		<text_actividad>
+//		<edit_button>
+//		<edit_input name="actividad">
+function showEditActividad(input) {
+	let header = input.parentNode.parentNode.querySelector("header")
+	header.children[0].classList.add("hidden") // sort_handle
+	header.children[1].classList.add("hidden") // text_header
+	header.children[2].classList.add("hidden") // edit_button
+	header.children[3].classList.remove("hidden") // edit_input
+	header.children[3].focus()                    // edit_input
+	header.children[3].select()                   // edit_input
+}
+function hideEditActividad(input) {
+	let header = input.parentNode.parentNode.querySelector("header")
+	header.children[0].classList.remove("hidden") // sort_handle
+	header.children[1].classList.remove("hidden") // text_header
+	header.children[2].classList.remove("hidden") // edit_button
+	header.children[2].focus()                    // edit_button
+	header.children[3].classList.add("hidden") // edit_input
+}
+// Salir del modo de edición de actividad
+document.querySelectorAll("#actividades input[name='actividad']").forEach((input) => {
+	let actividad = input.parentNode.parentNode
+	actividadText = actividad.querySelector("span[tipo='actividad_text']")
+	// Cuando se presione [Esc]
+	input.addEventListener("keyup", (event) => {
+		if (event.keyCode == 27) {
+			input.value = actividadText.textContent
+			hideEditActividad(input)
+		}
+	})
+	// Cuando se guarde el cambio. // text_actividad
+	actividadText.addEventListener("htmx:afterSwap", (event) => {
+		hideEditActividad(input)
+	})
+})
+
+// === DELETE & SORT ACTIVIDADES === //
+var zonaEliminar = new Sortable(document.getElementById("delete-zone"), {
+	group: "actividades",
+});
+var zonaElementos = new Sortable(document.getElementById("actividades"), {
+	draggable: "article",
+	handle: ".handle",
+	group: "actividades",
+	swapThreshold: 0.50,
+	animation: 150,
+	onStart: function(event) {
+		event.item.classList.add("opacity-50")
+		document.getElementById("delete-zone").classList.remove("hidden")
+	},
+	onEnd: function(event) { // Element dragging ended
+		event.item.classList.remove("opacity-50")
+		let dominioID = event.item.getAttribute("gk-dominio")
+		let epicaID = event.item.getAttribute("gk-epica")
+		let procesoID = event.item.getAttribute("gk-proceso")
+		// Se puede eliminar
+		document.getElementById("delete-zone").classList.add("hidden")
+		if (event.to.id == "delete-zone") {
+			fetch(`/dominios/${dominioID}/${epicaID}/${procesoID}/${event.oldIndex}`, { method: 'DELETE' }).then(response => {
+				response.text().then((msg) => {
+					if (response.status == 200) {
+						console.log(msg)
+					} else {
+						alert(msg)
+					}
+					location.reload()
+				})
+			});
+			return
+		}
+		// Se puede cambiar de lugar
+		if (event.oldIndex != event.newIndex){
+			fetch(`/dominios/${dominioID}/${epicaID}/${procesoID}/${event.oldIndex}/${event.newIndex}/swap`, { method: 'POST' }).then(response => {
+				response.text().then((msg) => {
+					if (response.status == 200) {
+						console.log(msg)
+					} else {
+						alert(msg)
+					}
+					location.reload()
+				})
+			});
+			return
+		}
+	},
+});
+
+// ================================================================ //
+// ========== TAREAS ============================================== //
+
+// Insertar tarea: limpiar input después de insertar
+document.querySelectorAll("div[tipo='tareas']").forEach(elem => {
+	elem.addEventListener("htmx:afterSwap", event => {
+		elem.parentNode.querySelector("input[name='tarea_nueva']").value = "";
+	})
+})
+// Insertar tarea: cancelar con ESC
+document.querySelectorAll("input[name='tarea_nueva']").forEach(input => {
+	input.addEventListener("keyup", event => {
+		if (event.keyCode == 27) {
+			input.value = ""
+			input.blur()
+		}
+	})
+})
+
+// === DELETE & SORT TAREAS === //
+var zonaEliminar = new Sortable(document.getElementById("delete-zone"), {
+	group: "tareas",
+});
+function prepSortableTareasDe(tareasElem) {
+	var zonaTareas = new Sortable(tareasElem, {
+		draggable: "div[tipo='tarea']",
+		handle: ".handle1",
+		group: "tareas",
+		animation: 150,
+		onStart: function(event) {
+			event.item.classList.add("opacity-50")
+			document.getElementById("delete-zone").classList.remove("hidden")
+			// document.querySelectorAll("input[name='tarea']").forEach((elem) => { elem.classList.add("hidden") })
+		},
+		onEnd: function(event) { // Element dragging ended
+			event.item.classList.remove("opacity-50")
+			// document.querySelectorAll("input[name='tarea']").forEach((elem) => { elem.classList.remove("hidden") })
+			let dominioID = event.item.getAttribute("gk-dominio")
+			let epicaID = event.item.getAttribute("gk-epica")
+			let procesoID = event.item.getAttribute("gk-proceso")
+			let actividadID = event.item.getAttribute("gk-actividad")
+			let tareaID = event.item.getAttribute("gk-tarea")
+			// Se puede eliminar
+			document.getElementById("delete-zone").classList.add("hidden")
+			if (event.to.id == "delete-zone") {
+				fetch(`/dominios/${dominioID}/${epicaID}/${procesoID}/${actividadID}/${tareaID}`, { method: 'DELETE' }).then(response => {
+					response.text().then((msg) => {
+						if (response.status == 200) {
+							console.log(msg)
+						} else {
+							alert(msg)
+						}
+						location.reload()
+					})
+				});
+				return
+			}
+			// Se puede cambiar de lugar en diferente actividad
+			let toActividadID = event.to.parentNode.getAttribute("gk-actividad")
+			if (actividadID != toActividadID) {
+				fetch(`/dominios/${dominioID}/${epicaID}/${procesoID}/${actividadID}/${tareaID}/${event.newDraggableIndex}/swap-in/${toActividadID}`, { method: 'POST' }).then(response => {
+					response.text().then((msg) => {
+						if (response.status == 200) {
+							console.log(msg)
+						} else {
+							alert(msg)
+						}
+						location.reload()
+					})
+				});
+				return
+			}
+			// Se puede cambiar de lugar en la misma actividad
+			if (event.oldIndex != event.newIndex){
+				fetch(`/dominios/${dominioID}/${epicaID}/${procesoID}/${actividadID}/${tareaID}/${event.newIndex}/swap`, { method: 'POST' }).then(response => {
+					response.text().then((msg) => {
+						if (response.status == 200) {
+							console.log(msg)
+						} else {
+							alert(msg)
+						}
+						location.reload()
+					})
+				});
+				return
+			}
+		},
+	});
+}
+document.getElementById("actividades").querySelectorAll("div[tipo='tareas']").forEach((elem) => {
+	prepSortableTareasDe(elem)
+});
+	
+</script>

@@ -1,0 +1,124 @@
+<header class="flex gap-3 pb-6">
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
+	<h2 class="flex-grow text-2xl font-bold text-center">Épica</h2>
+	<a class="inline-block text-2xl whitespace-nowrap" href="/dominios">❌</a>
+</header>
+<main class="container mx-auto">
+	<header class="mb-4 space-y-1">
+		<h3>
+			{{ with .Dominio -}}
+			<span class="px-2 py-1 mr-1 font-mono text-sm bg-black bg-opacity-40 rounded-md">D</span>
+			<span class="opacity-50">Como</span>
+			<a href="/dominios/{{ .DominioID }}" class="lowercase">{{ .Persona }}</a>
+			<span class="opacity-50">quiero</span>
+			{{- end }}
+		</h3>
+		<h2>
+			<span class="px-2 py-1 mr-1 font-mono text-sm bg-black bg-opacity-40 rounded-md">E</span>
+			<span class="opacity-50">poder</span>
+			<button type="button" onclick="dlgEdit.showModal(); dlgEdit.querySelector('input').focus();" class="text-xl lowercase cursor-edit">{{ .Epica.Epica }}</button>,
+			<span class="opacity-50">que consiste en...</span>
+		</h2>
+	</header>
+	
+	<div id="procesos" class="flex flex-wrap gap-4">
+		
+		{{ define "d_proceso_card" }}
+		<article gk-dominio="{{ .DominioID }}" gk-epica="{{ .EpicaID }}" class="p-3 bg-cyan-900 rounded-md shadow-lg">
+			<span class="mr-1 cursor-pointer handle">⣿</span>
+			<a href="/dominios/{{ .DominioID }}/{{ .EpicaID }}/{{ .ProcesoID }}">{{ .Proceso }}</a>
+		</article>
+		{{ end }}
+
+		{{ range .Epica.Procesos -}}
+			{{ template "d_proceso_card" . }}
+		{{ end }}
+		
+		{{ with .Epica -}}
+			<input type="text" placeholder="Agregar proceso..." name="proceso" hx-target="this" hx-swap="beforebegin" hx-post="/dominios/{{ .DominioID }}/{{ .EpicaID }}" class="inline-block p-3 space-y-3 bg-cyan-900 rounded-md shadow-lg opacity-75 focus:opacity-100">
+		{{- end }}
+		
+	</div>
+</main>
+<div style="height: 20vh;"></div>
+
+<dialog id="dlgEdit" class="p-3 rounded-lg">
+	<header class="flex flex-wrap items-center gap-3 pb-2">
+		<h2 class="flex-grow w-full text-xl text-center sm:w-auto sm:text-left">Épica</h2>
+		<button type="button" class="w-10 py-1 text-xl text-slate-200 bg-slate-600 rounded-lg" onclick="this.parentNode.parentNode.close()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+	</header>
+	{{ with .Epica }}
+	<form class="space-y-2" hx-patch="/dominios/{{ .DominioID }}/{{ .EpicaID }}">
+		<div>
+			<!-- <label for="input1">Epica*</label> -->
+			<input id="input1" name="epica" value="{{ .Epica }}" type="text" class="form-control" onfocus="this.select()">
+		</div>
+		<div class="pt-2">
+			<button type="submit" class="block w-full p-2 font-medium text-white bg-blue-800 rounded">Guardar</button>
+		</div>
+	</form>
+	{{ end -}}
+</dialog>
+
+<div id="delete-zone" class="absolute bottom-0 right-0 hidden w-32 h-32 bg-red-700 rounded-tl-full opacity-80">
+	<p class="absolute bottom-10 right-4">Eliminar</p>
+</div>
+<script src="/assets/js/Sortable.min.js"></script>
+
+<script>
+	// ========== INSERT ============================================== //
+	document.querySelectorAll("input[name='proceso']").forEach(input => {
+		input.addEventListener("htmx:afterSwap", event => {
+			input.value = "";
+		})
+	})
+
+	// ========== SORT AND DELETE ===================================== //
+	var zonaEliminar = new Sortable(document.getElementById("delete-zone"), {
+    	group: "shared",
+	});
+	var zonaElementos = new Sortable(document.getElementById("procesos"), {
+		draggable: "article",
+		// handle: ".handle",
+		group: "shared",
+		animation: 150,
+		onStart: function(event) {
+			event.item.classList.add("opacity-50")
+			document.getElementById("delete-zone").classList.remove("hidden")
+		},
+		onEnd: function(event) { // Element dragging ended
+			event.item.classList.remove("opacity-50")
+			let dominioID = event.item.getAttribute("gk-dominio")
+			let epicaID = event.item.getAttribute("gk-epica")
+			// Se puede eliminar
+			document.getElementById("delete-zone").classList.add("hidden")
+			if (event.to.id == "delete-zone") {
+				fetch(`/dominios/${dominioID}/${epicaID}/${event.oldIndex}`, { method: 'DELETE' }).then(response => {
+					response.text().then((msg) => {
+						if (response.status == 200) {
+							console.log(msg)
+						} else {
+							alert(msg)
+						}
+						location.reload()
+					})
+				});
+				return
+			}
+			// Se puede cambiar de lugar
+			if (event.oldIndex != event.newIndex){
+				fetch(`/dominios/${dominioID}/${epicaID}/${event.oldIndex}/${event.newIndex}/swap`, { method: 'POST' }).then(response => {
+					response.text().then((msg) => {
+						if (response.status == 200) {
+							console.log(msg)
+						} else {
+							alert(msg)
+						}
+						location.reload()
+					})
+				});
+				return
+			}
+		},
+	});
+</script>

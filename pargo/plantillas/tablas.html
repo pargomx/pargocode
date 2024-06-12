@@ -1,0 +1,72 @@
+{{ template "app/nav" . }}
+
+<header class="flex gap-4 p-2 pb-4">
+	<h1 class="flex-grow text-2xl whitespace-nowrap"><a href="/">Entidades</a></h1>
+
+	<input type="search" class="form-control" oninput="filtrarArticles(this.value)" placeholder="Buscar entidad...">
+
+	<button id="showCheckboxsBtn" class="px-4 py-2 bg-cyan-700 rounded-md" type="button" onclick="showCheckboxs()">Filtr.</button>
+	<button id="applyCheckboxsBtn" class="hidden px-4 py-2 bg-cyan-700 rounded-md" type="submit" form="seleccionaEntidades">Aplicar</button>
+
+	<button class="px-4 py-2 bg-cyan-700 rounded-md" type="button" hx-get="/v1/tablas/nueva" hx-prompt="Nombre humano de la nueva entidad">Nueva</button>
+
+</header>
+
+<main>
+
+	<form id="seleccionaEntidades" class="flex flex-wrap items-start content-around justify-center gap-4" action="/v1/tablas" method="GET">
+		
+		{{ range $i, $e := .Tablas }}
+		<article class="p-4 text-center bg-cyan-900 rounded-lg">
+
+			<h2 class="pb-4 font-bold">
+				<!-- <a href="/v1/tablas/{{ .Nombre.Clave }}/referencias" title="Ver tablas que referencian {{ .Nombre.Humano }}">🔗</a> -->
+				<a href="/v1/tablas/{{ .Nombre.Clave }}">
+					{{- if .EsEntidadPadre }} 👑 {{ end -}}
+					{{ .Nombre.Humano }}
+					{{- if .EsEntidadPadre }} 👑 {{ end -}}
+				</a>
+				<!-- <a href="/v1/tablas/{{ .Nombre.Clave }}/nueva-consulta" title="Asistente para consultas">👁️</a> -->
+			</h2>
+
+			<table class="w-full px-1 text-center border-separate table-auto border-spacing-y-1">
+				<tbody>
+					{{ range .PrimaryKeys -}}
+					<tr class="bg-cyan-700 hover:bg-cyan-600">
+						<td>
+							{{ .Nombre.Snake }}
+						</td>
+						<td>
+							<a class="" href="/v1/tablas/{{ $e.Nombre.Clave }}" title="Clave primaria">🔑</a>
+						</td>
+						<td>
+							{{- if .ForeignKey -}}
+							<a class="{{ if not .EntidadFK }}p-2 rounded-lg bg-red-700{{ end }}" href="/v1/tablas/{{.EntidadFK}}" title="FK de {{.EntidadFK}}">🗝️</a>
+							{{- end -}}
+						</td>
+					</tr>
+					{{- end -}}
+
+					{{ range .ForeignKeys -}}
+					{{- if not .PrimaryKey -}}
+					<tr class="bg-cyan-700 hover:bg-cyan-600">
+						<td>{{ .Nombre.Snake }}</td>
+						<td></td>
+						<td>
+							<a class="{{ if not .EntidadFK }}p-2 rounded-lg bg-red-700{{ end }}" href="/v1/tablas/{{.EntidadFK}}" title="FK de {{.EntidadFK}}">🗝️</a>
+						</td>
+					</tr>
+					{{- end -}}
+					{{- end }}
+
+				</tbody>
+			</table>
+
+			<input class="hidden filtro_chkbox" type="checkbox" name="sel" value="{{ $e.Nombre.Clave }}">
+		</article>
+		{{ end }}
+
+	</form>
+
+	<div class="h-dvh"></div>
+</main>

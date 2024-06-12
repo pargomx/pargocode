@@ -1,0 +1,33 @@
+<section class="bg-cyan-900 rounded-lg shadow-lg">
+	<h2 class="text-lg text-center">{{ .Nombre.Humano }}</h2>
+	<small class="block text-center opacity-50">{{ .Nombre.Descripcion }}</small>
+	<table class="w-full px-1 text-sm text-center border-separate table-auto border-spacing-y-1">
+		<thead>
+			<tr class="bg-slate-400 dark:bg-slate-900">
+				<th>Campo</th>
+				<th>SQL</th>
+				<th>Go</th>
+				<th>FK</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{ range .Campos }}
+			<tr class="bg-slate-400/25 hover:bg-slate-400/50 dark:bg-slate-800/50 dark:hover:bg-slate-800">
+				<td class="font-mono text-left{{ if .PrimaryKey }} font-bold{{ end }}">
+					{{ if .PrimaryKey }}<span title="PK">🔑</span>{{ end }}
+					{{ .Nombre.Snake }}
+				</td>
+				<td>
+					{{ .TipoSQL }}
+				</td>
+				<td>
+					{{ .Tipo }}
+				</td>
+				<td>
+					{{ if .ForeignKey }}<span title="FK">🗝️ {{ .EntidadFK }}</span>{{ end }}
+				</td>
+			</tr>
+			{{ end }}
+		</tbody>
+	</table>
+</section>

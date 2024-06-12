@@ -1,0 +1,155 @@
+{{ template "app/nav" . }}
+
+<main class="container mx-auto">
+
+	<section class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center justify-between gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				<a href="/dominios">Dominios</a>
+			</h3>
+			<div class="max-w-40">
+				<input type="search" class="form-control" oninput="filtrarRows(this.value,'tDominios')" placeholder="Filtrar...">
+			</div>
+		</header>
+		<div class="overflow-x-auto max-h-96">
+			<table id="tDominios" class="w-full p-4 text-center border-separate table-auto border-spacing-y-1">
+				<thead>
+					<tr class="bg-slate-400 dark:bg-slate-900">
+						<th sortable>Persona</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ range .Diseño.Dominios -}}
+					<tr>
+						<td><a href="/dominios/{{ .DominioID }}">{{ .Persona }}</a></td>
+					</tr>
+					{{ end }}
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+
+	<div id="dominios" class="flex flex-wrap gap-4">
+
+		{{ define "d_dominio_card" -}}
+		<article gk-dominio="{{ .DominioID }}" class="p-3 bg-cyan-900 rounded-md shadow-lg">
+			<span class="mr-1 cursor-pointer">⣿</span>
+			<a href="/dominios/{{ .DominioID }}">{{ .Persona }}</a>
+			<button type="button" hx-delete="/dominios/{{ .DominioID }}" hx-swap="none" class="ml-1">🗑️</button>
+		</article>
+		{{ end }}
+
+		{{ range .Diseño.Dominios -}}
+			{{ template "d_dominio_card" . }}
+		{{ end }}
+	
+		<input type="text" placeholder="Agregar persona..." name="persona" hx-target="this" hx-swap="beforebegin" hx-post="/dominios" class="inline-block p-3 space-y-3 bg-cyan-900 rounded-md shadow-lg opacity-75 focus:opacity-100">
+		
+	</div>
+</main>
+<div style="height: 20vh;"></div>
+
+<script>
+
+	// Después de insertar un item
+	document.querySelectorAll("input[name='persona']").forEach(input => {
+		input.addEventListener("htmx:afterSwap", event => {
+			input.value = "";
+		})
+	})
+
+	// ================================================================ //
+	// ========== DRAG AND DROP ======================================= //
+	
+	// Configurar drag and drop
+	const draggableTagName = "ARTICLE" // debe ser MAYUSC
+	let dragParent = document.getElementById('dominios')
+	let draggables = document.getElementById("dominios").querySelectorAll(draggableTagName)
+
+	// Utilidad para limitar ejecución de handler
+	function throttle(func, limit) {
+		let inThrottle = false;
+		return function() { if (!inThrottle) { func.apply(this, arguments); inThrottle = true; setTimeout(function() { inThrottle = false; }, limit); } };
+	}
+
+	// Setup draggables
+	let clickedElem = null; // sobre el que se hizo click
+	let draggedElem = null; // elemento siendo arrastrado
+	draggables.forEach(elem => {
+		elem.draggable = true
+		elem.addEventListener("dragstart", dragStart)
+		elem.addEventListener("dragend", dragEnd)
+		elem.addEventListener("dragover", throttle(dragOver,500))
+		elem.onmousedown = function() { clickedElem = event.target; }
+	})
+	
+	function dragStart(){
+		// solo mover el elemento por su drag handler <span>⣿</span>
+		if (clickedElem.nodeName != "SPAN" || clickedElem.textContent != "⣿") {
+			event.preventDefault();
+			event.stopPropagation();
+			return
+		}
+		// mover solo el elemento esperado.
+		if (event.target.nodeName != draggableTagName) { 
+			console.warn("draggedElem inválido", draggedElem)
+			return
+		}
+		draggedElem = event.target; // alternativa: event.currentTarget
+		draggedElem.classList.add("bg-red-900","opacity-50")
+		// console.log("dragging", draggedElem)
+	}
+	
+	function dragEnd(){
+		// console.log("drag end", event.target)
+		draggedElem.classList.remove("bg-red-900","opacity-50")
+		
+		// Obtener posiciones original y nueva.
+		let desde = Number(draggedElem.getAttribute("gk-dominio"))
+		let hacia = 0
+		let previousSibling = draggedElem.previousSibling
+		while(previousSibling && previousSibling.nodeType != 1) {
+    		previousSibling = previousSibling.previousSibling
+		}
+		if (previousSibling != null) {
+			hacia = Number(previousSibling.getAttribute("gk-dominio"))
+			if (hacia < desde){
+				hacia++
+			}
+		}
+		if (desde == hacia) {
+			return
+		}
+		// Enviar comando
+		fetch(`/dominios/${desde}/${hacia}/swap`, { method: 'POST' }).then(response => {
+			response.text().then((msg) => {
+				if (response.status == 200) {
+					console.log(msg)
+					location.reload()
+				} else {
+					alert(msg)
+				}
+			})
+		});
+	}
+	
+	function dragOver(){
+		event.preventDefault(); // habilitar drop zone
+		event.dataTransfer.dropEffect = "move"
+		let overElem = event.currentTarget // debe ser currentTarget para evitar bugs
+		if (overElem.nodeName != draggableTagName){
+			console.warn("dragged over elem inválido:", overElem)
+			return
+		}
+		let hermanos = Array.from(draggables);
+		if ( hermanos.indexOf(overElem) > hermanos.indexOf(draggedElem) ) {
+			// console.log("drag after", overElem)
+			overElem.after(draggedElem);
+		} else {
+			// console.log("drag before", overElem)
+			overElem.before(draggedElem);
+		}
+	}
+	
+</script>

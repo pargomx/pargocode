@@ -1,0 +1,106 @@
+{{ with $.Diseño }}
+<header class="flex gap-3 pb-6">
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
+	<h2 class="flex-grow text-2xl font-bold text-center">Diseño</h2>
+	<a class="inline-block text-2xl whitespace-nowrap" href="/">❌</a>
+</header>
+<main class="container flex flex-col gap-4 mx-auto">
+
+	<div class="flex gap-3">
+		{{ range .Dominios }}
+		<div class="p-3 bg-cyan-900 rounded-md shadow-lg">
+			{{ .Persona }}
+		</div>
+		{{ end }}
+	</div>
+
+
+	{{ range $id, $d := .Dominios }}
+	<div class="p-3 space-y-3 bg-stone-950 rounded-md shadow-lg">
+		<header class="flex items-center gap-3">
+			<h3 class="flex-grow text-xl">Como <span class="font-bold">{{ .Persona }}</span> quiero...</h3>
+			{{ .Contexto }}
+			<span class="px-2 bg-black bg-opacity-40 rounded-md">Dominio {{ .Tipo }}</span>
+		</header>
+
+		{{ range $ie, $e := .Epicas }}
+		<div class="p-3 space-y-3 bg-cyan-900 rounded-md shadow-lg">
+			<header class="flex items-center gap-3">
+				<h3 class="flex-grow text-xl">{{ .Epica }}</h3>
+				<span class="px-2 bg-black rounded-md bg-opacity-">Epica</span>
+			</header>
+			<div class="flex flex-col gap-3">
+				
+				{{ range $ip, $p := .Procesos }}
+				<div class="p-3 space-y-3 bg-lime-900 rounded-md shadow-lg">
+					<header class="flex items-center gap-3">
+						<h3 class="flex-grow text-lg">{{ .Proceso }}</h3>
+						<span class="px-2 bg-black bg-opacity-40 rounded-md">Proceso</span>
+					</header>
+					<div class="grid grid-cols-4 gap-3">
+
+						{{ range $ia, $a := .Actividades }}
+						<div class="relative p-3 bg-orange-900 rounded-md shadow-lg">
+							<h3 class="font-medium text-center">{{ .Actividad }}</h3>
+							<span class="absolute top-0 right-0 px-1 text-xs bg-black opacity-40 rounded-tr-md rounded-bl-md">A</span>
+							
+							<div class="flex flex-col gap-3 mt-3">
+								
+								{{ range $it, $t := .Tareas }}
+								<div class="relative p-3 bg-slate-800 rounded-md shadow-lg">
+									<h3 class="text-center">{{ .Tarea }}</h3>
+									<span class="absolute top-0 right-0 px-1 text-xs bg-black opacity-40 rounded-tr-md rounded-bl-md">{{ if .Unhappy }}🙁{{ else }}T{{ end }}</span>
+									
+									<div class="hidden gap-3">
+
+										{{ range .CasosDeUso }}
+										<div class="p-3 space-y-3 bg-sky-800 rounded-md shadow-lg">
+											<span class="px-2 bg-black bg-opacity-40 rounded-md">Usecase</span> {{ .UI }} <br>
+											<span class="px-2 bg-black bg-opacity-40 rounded-md">Hdl</span> {{ .Hdl }} <br>
+											<span class="px-2 bg-black bg-opacity-40 rounded-md">Ruta</span> {{ .Ruta }} <br>
+											{{ if .Criterios }}
+											<span class="px-2 bg-black bg-opacity-40 rounded-md">Criterios</span>
+											<ol class="pl-6 list-decimal">
+												{{ range .Criterios }}<li>{{ . }}</li>{{ end }}
+											</ol>
+											{{ end }}
+										</div>
+										{{ end }}
+										<!-- END USECASES -->
+										
+									</div>
+								</div>
+								{{ end }}
+								<input type="text" placeholder="..." name="tarea" hx-target="this" hx-swap="beforebegin" hx-post="/dominios/{{ $id }}/e/{{ $ie }}/p/{{ $ip }}/a/{{ $ia }}/t" class="inline-block p-3 space-y-3 bg-slate-800 rounded-md shadow-lg opacity-75 focus:opacity-100">
+								<!-- END TAREAS -->
+								
+							</div>
+						</div>
+						{{ end }}
+						<!-- END ACTIVIDADES -->
+
+					</div>
+				</div>
+				{{ end }}
+				<!-- END PROCESOS -->
+				
+			</div>
+		</div>
+		{{ end }}
+		<!-- END EPICAS -->
+		
+	</div>
+	{{ end }}
+
+</main>
+<div style="height: 20vh;"></div>
+
+<script>
+	document.querySelectorAll("input[name='tarea']").forEach(input => {
+		input.addEventListener("htmx:afterSwap", event => {
+			input.value = "";
+		})
+	})
+</script>
+
+{{ end }}
