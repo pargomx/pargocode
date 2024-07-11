@@ -1,5 +1,5 @@
 /* Hay configuraciones PRAGMA que aplican para cada conexión y no deben estar aquí */
-PRAGMA journal_mode = WAL;
+PRAGMA journal_mode = DELETE;
 
 /* Crear tabla para control de migraciones */
 CREATE TABLE migraciones (

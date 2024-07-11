@@ -41,7 +41,7 @@ func main() {
 
 	// Parámetros de ejecución
 	flag.StringVar(&directorio, "dir", "", "directorio raíz del proyecto")
-	flag.StringVar(&databasePath, "db", "_pargo/entidades.db", "ubicación de la db sqlite")
+	flag.StringVar(&databasePath, "db", "entidades.db", "ubicación de la db sqlite")
 	flag.StringVar(&puerto, "p", "5050", "el servidor escuchará en este puerto")
 	flag.Parse()
 	if directorio != "" {
