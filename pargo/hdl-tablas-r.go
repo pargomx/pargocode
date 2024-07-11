@@ -44,7 +44,7 @@ func (s *servidor) getTablaNueva(c *gecko.Context) error {
 	if nuevoNombre != "" {
 		tbl.Humano = textutils.PrimeraMayusc(nuevoNombre)
 		tbl.HumanoPlural = textutils.PrimeraMayusc(textutils.DeducirNombrePlural(nuevoNombre))
-		tbl.NombreRepo = textutils.KebabToSnake(textutils.QuitarAcentos(strings.ReplaceAll(nuevoNombre, " ", "-")))
+		tbl.NombreRepo = textutils.KebabToSnake(textutils.QuitarAcentos(strings.ReplaceAll(textutils.DeducirNombrePlural(nuevoNombre), " ", "-")))
 		tbl.NombreItem = textutils.KebabToCamel(textutils.QuitarAcentos(strings.ToLower(strings.ReplaceAll(nuevoNombre, " ", "-"))))
 		tbl.NombreItems = textutils.KebabToCamel(textutils.QuitarAcentos(strings.ToLower(strings.ReplaceAll(textutils.DeducirNombrePlural(nuevoNombre), " ", "-"))))
 		tbl.Kebab = textutils.QuitarAcentos(strings.ToLower(strings.ReplaceAll(nuevoNombre, " ", "-")))
