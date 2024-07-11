@@ -9,8 +9,8 @@
 		</div>
 		
 		<div>
-			<label for="cc02">Tipo SQL</label>
-			<select id="cc02" name="tipo_sql" {{ if .NombreColumna }}autofocus {{ end -}} class="form-control">
+			<label for="tipoSql">Tipo SQL</label>
+			<select id="tipoSql" name="tipo_sql" {{ if .NombreColumna }}autofocus {{ end -}} onchange="updatedTipoSql(this.value)" class="form-control">
 	
 				{{ if .TipoSQL }}
 				<optgroup label="Actual">
@@ -52,8 +52,8 @@
 		</div>
 
 		<div>
-			<label for="cc03">Default SQL</label>
-			<input id="cc03" name="default_sql" type="text" value="{{ .DefaultSQL }}" onfocus="this.select()" class="form-control">
+			<label for="defaultSql">Default SQL</label>
+			<input id="defaultSql" name="default_sql" type="text" value="{{ .DefaultSQL }}" onfocus="this.select()" class="form-control">
 		</div>
 
 		<div>
@@ -62,8 +62,8 @@
 		</div>
 
 		<div>
-			<input id="cc05" name="unsinged" type="checkbox" {{ if .Unsigned }}checked{{ end }}>
-			<label for="cc05">Unsigned (positivo)</label>
+			<input id="ccUnsigned" name="unsinged" type="checkbox" {{ if .Unsigned }}checked{{ end }}>
+			<label for="ccUnsigned">Unsigned (positivo)</label>
 		</div>
 		
 		<div>
@@ -82,8 +82,8 @@
 		</div>
 		
 		<div>
-			<label for="cc12">Tipo Go</label>
-			<input id="cc12" name="tipo_go" type="text" value="{{ .TipoGo }}" placeholder="auto" class="form-control">
+			<label for="tipoGo">Tipo Go</label>
+			<input id="tipoGo" name="tipo_go" type="text" value="{{ .TipoGo }}" placeholder="auto" class="form-control">
 		</div>
 
 		<div>
@@ -180,3 +180,19 @@
 		</button>
 	</fieldset>
 </form>
+
+<script>
+	function updatedTipoSql(newValue){
+		if (newValue.includes('bigint')){
+			document.getElementById('tipoGo').value = "uint64";
+			document.getElementById('ccUnsigned').checked = true;
+
+		} else if (newValue.includes('int')){
+			document.getElementById('tipoGo').value = "int";
+
+		} else if ( newValue.includes('text') || newValue.includes('char') ){
+			document.getElementById('tipoGo').value = "string";
+			document.getElementById('ccUnsigned').checked = false;
+		}
+	}
+</script>
