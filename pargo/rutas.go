@@ -9,12 +9,12 @@ import (
 	"os/signal"
 	"syscall"
 
+	"monorepo/assets"
 	"monorepo/domain_driven_design/gencode"
 	"monorepo/domain_driven_design/sqliteddd"
 	"monorepo/gecko"
 	"monorepo/gecko/plantillas"
-	"monorepo/pargo/assets"
-	"monorepo/pargo/migraciones"
+	"monorepo/migraciones"
 	"monorepo/sqlitedb"
 )
 
