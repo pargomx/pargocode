@@ -1,7 +1,6 @@
 package main
 
 import (
-	"embed"
 	"flag"
 	"fmt"
 	"net/http"
@@ -14,12 +13,10 @@ import (
 	"monorepo/domain_driven_design/sqliteddd"
 	"monorepo/gecko"
 	"monorepo/gecko/plantillas"
+	"monorepo/htmltmpl"
 	"monorepo/migraciones"
 	"monorepo/sqlitedb"
 )
-
-//go:embed plantillas
-var plantillasFS embed.FS
 
 // Generador de código
 var codeGenerator *gencode.Generador
@@ -67,7 +64,7 @@ func main() {
 	dddrepo := sqliteddd.NuevoRepositorio(sqliteDB)
 	srv := &servidor{db: sqliteDB, ddd: dddrepo}
 
-	tpls, err := plantillas.NuevoServicioPlantillasEmbebidas(plantillasFS, "plantillas")
+	tpls, err := plantillas.NuevoServicioPlantillasEmbebidas(htmltmpl.PlantillasFS, "")
 	if err != nil {
 		fatal(err.Error())
 	}
