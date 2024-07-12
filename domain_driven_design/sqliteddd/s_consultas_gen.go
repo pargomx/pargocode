@@ -114,6 +114,28 @@ func (s *Repositorio) DeleteConsulta(ConsultaID int) error {
 	}
 	// Eliminar registro
 	_, err = s.db.Exec(
+		"DELETE FROM consulta_campos WHERE consulta_id = ?",
+		ConsultaID,
+	)
+	if err != nil {
+		if strings.HasPrefix(err.Error(), "Error 1451 (23000)") {
+			return gecko.NewErr(http.StatusConflict).Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
+		} else {
+			return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		}
+	}
+	_, err = s.db.Exec(
+		"DELETE FROM consulta_relaciones WHERE consulta_id = ?",
+		ConsultaID,
+	)
+	if err != nil {
+		if strings.HasPrefix(err.Error(), "Error 1451 (23000)") {
+			return gecko.NewErr(http.StatusConflict).Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
+		} else {
+			return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		}
+	}
+	_, err = s.db.Exec(
 		"DELETE FROM consultas WHERE consulta_id = ?",
 		ConsultaID,
 	)

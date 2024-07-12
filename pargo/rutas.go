@@ -109,6 +109,7 @@ func main() {
 	g.POS("/consultas", srv.crearConsulta)
 	g.GET("/consultas/nueva", srv.formNuevaConsulta)
 	g.GET("/consultas/{consulta_id}", srv.getConsulta)
+	g.DEL("/consultas/{consulta_id}", srv.deleteConsulta)
 	g.PUT("/consultas/{consulta_id}", srv.actualizarConsulta)
 	g.GET("/consultas/{consulta_id}/generar", srv.generarDeConsulta)
 	g.POS("/consultas/{consulta_id}/relaciones", srv.postRelacionConsulta)

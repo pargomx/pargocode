@@ -49,6 +49,15 @@ func (s *servidor) actualizarConsulta(c *gecko.Context) error {
 	return c.StatusOk(fmt.Sprintf("Consulta %v actualizada %v", con.ConsultaID, time.Now().Format("03:04:05pm")))
 }
 
+func (s *servidor) deleteConsulta(c *gecko.Context) error {
+	err := dpaquete.EliminarConsulta(c.PathInt("consulta_id"), s.ddd)
+	if err != nil {
+		return err
+	}
+	c.LogEvento("consulta eliminada")
+	return c.Redir("/paquetes")
+}
+
 // ================================================================ //
 // ========== RELACIONES ========================================== //
 

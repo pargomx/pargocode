@@ -32,6 +32,7 @@ type Repositorio interface {
 	GetConsulta(consultaID int) (*ddd.Consulta, error)
 	InsertConsulta(consulta ddd.Consulta) error
 	UpdateConsulta(consulta ddd.Consulta) error
+	DeleteConsulta(consultaID int) error
 
 	InsertConsultaRelacion(rel ddd.ConsultaRelacion) error
 	DeleteRelacionConsulta(ConsultaID int, Posicion int) error

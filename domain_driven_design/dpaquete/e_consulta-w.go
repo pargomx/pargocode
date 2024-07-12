@@ -128,6 +128,19 @@ func ActualizarConsulta(consultaID int, new ddd.Consulta, repo Repositorio) erro
 	return nil
 }
 
+func EliminarConsulta(consultaID int, repo Repositorio) error {
+	op := gecko.NewOp("EliminarConsulta")
+	con, err := repo.GetConsulta(consultaID)
+	if err != nil {
+		return op.Err(err)
+	}
+	err = repo.DeleteConsulta(con.ConsultaID)
+	if err != nil {
+		return op.Err(err)
+	}
+	return nil
+}
+
 // ================================================================ //
 // ========== RELACIONES ========================================== //
 
