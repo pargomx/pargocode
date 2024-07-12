@@ -11,11 +11,12 @@ import (
 	"monorepo/assets"
 	"monorepo/domain_driven_design/gencode"
 	"monorepo/domain_driven_design/sqliteddd"
-	"monorepo/gecko"
-	"monorepo/gecko/plantillas"
 	"monorepo/htmltmpl"
 	"monorepo/migraciones"
 	"monorepo/sqlitedb"
+
+	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/plantillas"
 )
 
 // Generador de código

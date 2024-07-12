@@ -3,9 +3,10 @@ package sqliteddd
 import (
 	"database/sql"
 	"monorepo/domain_driven_design/ddd"
-	"monorepo/gecko"
 	"net/http"
 	"strings"
+
+	"github.com/pargomx/gecko"
 )
 
 // ================================================================ //

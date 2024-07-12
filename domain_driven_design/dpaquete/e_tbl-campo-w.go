@@ -3,9 +3,10 @@ package dpaquete
 import (
 	"errors"
 	"monorepo/domain_driven_design/ddd"
-	"monorepo/gecko"
 	"monorepo/textutils"
 	"strings"
+
+	"github.com/pargomx/gecko"
 )
 
 func ReordenarCampo(campoID int, newPosicion int, repo Repositorio) error {

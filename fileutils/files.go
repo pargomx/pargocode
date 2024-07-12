@@ -2,8 +2,9 @@ package fileutils
 
 import (
 	"errors"
-	"monorepo/gecko"
 	"os"
+
+	"github.com/pargomx/gecko"
 )
 
 // NuevaCarpeta intenta crear una nueva carpeta

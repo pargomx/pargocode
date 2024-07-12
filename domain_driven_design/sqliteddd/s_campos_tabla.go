@@ -2,8 +2,9 @@ package sqliteddd
 
 import (
 	"monorepo/domain_driven_design/ddd"
-	"monorepo/gecko"
 	"net/http"
+
+	"github.com/pargomx/gecko"
 )
 
 // ListCamposByTablaID retorna los registros a partir de TablaID.

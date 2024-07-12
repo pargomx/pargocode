@@ -2,7 +2,8 @@ package dpaquete
 
 import (
 	"fmt"
-	"monorepo/gecko"
+
+	"github.com/pargomx/gecko"
 )
 
 func GetTabla(tablaID int, repo Repositorio) (*Tabla, error) {

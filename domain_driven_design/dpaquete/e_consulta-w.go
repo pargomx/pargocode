@@ -3,8 +3,9 @@ package dpaquete
 import (
 	"fmt"
 	"monorepo/domain_driven_design/ddd"
-	"monorepo/gecko"
 	"strings"
+
+	"github.com/pargomx/gecko"
 )
 
 func validarConsulta(con ddd.Consulta, repo Repositorio, op *gecko.Gkerror) error {

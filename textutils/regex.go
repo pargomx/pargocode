@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"monorepo/gecko"
+	"github.com/pargomx/gecko"
 
 	"github.com/manifoldco/promptui"
 )

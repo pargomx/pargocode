@@ -1,7 +1,7 @@
 package main
 
 import (
-	"monorepo/gecko"
+	"github.com/pargomx/gecko"
 )
 
 func getInicio(c *gecko.Context) error {

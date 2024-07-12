@@ -3,7 +3,8 @@ package main
 import (
 	"html"
 	"monorepo/domain_driven_design/dpaquete"
-	"monorepo/gecko"
+
+	"github.com/pargomx/gecko"
 )
 
 // ================================================================ //

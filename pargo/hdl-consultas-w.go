@@ -5,8 +5,9 @@ import (
 	"monorepo/domain_driven_design/ddd"
 	"monorepo/domain_driven_design/dpaquete"
 	"monorepo/domain_driven_design/sqliteddd"
-	"monorepo/gecko"
 	"time"
+
+	"github.com/pargomx/gecko"
 )
 
 func (s *servidor) crearConsulta(c *gecko.Context) error {

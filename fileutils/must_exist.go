@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"monorepo/gecko"
+	"github.com/pargomx/gecko"
 )
 
 func Existe(path string) bool {

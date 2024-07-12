@@ -6,11 +6,12 @@ import (
 	"io"
 	"monorepo/domain_driven_design/dpaquete"
 	"monorepo/fileutils"
-	"monorepo/gecko"
 	"monorepo/textutils"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/pargomx/gecko"
 )
 
 // ================================================================ //

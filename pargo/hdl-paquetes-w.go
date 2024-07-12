@@ -3,8 +3,9 @@ package main
 import (
 	"monorepo/domain_driven_design/ddd"
 	"monorepo/domain_driven_design/dpaquete"
-	"monorepo/gecko"
 	"monorepo/textutils"
+
+	"github.com/pargomx/gecko"
 )
 
 func (s *servidor) agregarPaquete(c *gecko.Context) error {

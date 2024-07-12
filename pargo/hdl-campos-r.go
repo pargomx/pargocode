@@ -2,7 +2,8 @@ package main
 
 import (
 	"monorepo/domain_driven_design/dpaquete"
-	"monorepo/gecko"
+
+	"github.com/pargomx/gecko"
 )
 
 func (s *servidor) formCampo(c *gecko.Context) error {

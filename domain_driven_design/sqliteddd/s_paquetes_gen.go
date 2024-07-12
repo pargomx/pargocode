@@ -7,7 +7,8 @@ import (
 	"strings"
 
 	"monorepo/domain_driven_design/ddd"
-	"monorepo/gecko"
+
+	"github.com/pargomx/gecko"
 )
 
 //  ================================================================  //

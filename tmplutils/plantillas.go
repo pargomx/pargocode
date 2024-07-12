@@ -9,7 +9,7 @@ package tmplutils
 // 	"strings"
 // 	"text/template"
 
-// 	"monorepo/gecko"
+// 	"github.com/pargomx/gecko"
 // )
 
 // // ================================================================ //

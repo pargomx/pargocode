@@ -5,8 +5,9 @@ import (
 	"text/template"
 	"time"
 
-	"monorepo/gecko"
 	"monorepo/textutils"
+
+	"github.com/pargomx/gecko"
 )
 
 // funcMap contiene funciones útiles para usar dentro de las plantillas.

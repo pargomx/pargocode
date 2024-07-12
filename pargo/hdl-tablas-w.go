@@ -5,9 +5,10 @@ import (
 	"html"
 	"monorepo/domain_driven_design/ddd"
 	"monorepo/domain_driven_design/dpaquete"
-	"monorepo/gecko"
 	"monorepo/textutils"
 	"time"
+
+	"github.com/pargomx/gecko"
 )
 
 func (s *servidor) postTablaNueva(c *gecko.Context) error {

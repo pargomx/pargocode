@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"monorepo/domain_driven_design/ddd"
-	"monorepo/gecko"
+
+	"github.com/pargomx/gecko"
 
 	"github.com/davecgh/go-spew/spew"
 )

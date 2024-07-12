@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"monorepo/gecko"
+	"github.com/pargomx/gecko"
 )
 
 // ================================================================ //

@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"monorepo/gecko"
+	"github.com/pargomx/gecko"
 )
 
 var (

@@ -3,9 +3,10 @@ package main
 import (
 	"monorepo/domain_driven_design/ddd"
 	"monorepo/domain_driven_design/dpaquete"
-	"monorepo/gecko"
 	"monorepo/textutils"
 	"strings"
+
+	"github.com/pargomx/gecko"
 )
 
 func (s *servidor) formNuevaConsulta(c *gecko.Context) error {

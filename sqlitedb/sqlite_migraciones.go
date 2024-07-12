@@ -5,9 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"monorepo/gecko"
 	"strconv"
 	"strings"
+
+	"github.com/pargomx/gecko"
 )
 
 // ================================================================ //

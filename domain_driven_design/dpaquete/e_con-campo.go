@@ -2,8 +2,9 @@ package dpaquete
 
 import (
 	"fmt"
-	"monorepo/gecko"
 	"strings"
+
+	"github.com/pargomx/gecko"
 )
 
 // ================================================================ //

@@ -1,6 +1,6 @@
 package dpaquete
 
-import "monorepo/gecko"
+import "github.com/pargomx/gecko"
 
 func GetAgregadoConsulta(consultaID int, repo Repositorio) (*Consulta, error) {
 	ctx := gecko.NewOp("GetAgregadoConsulta").Ctx("consultaID", consultaID)
