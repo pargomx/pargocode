@@ -65,12 +65,15 @@ func (s *servidor) eliminarTabla(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
+	if c.PromptVal() != "ok" {
+		return c.StatusBadRequest("Para eliminarlo escribe el 'ok' en el campo de confirmación")
+	}
 	err = s.ddd.DeleteTabla(tbl.TablaID)
 	if err != nil {
 		return err
 	}
 	c.LogInfof("Tabla '%s' eliminada", tbl.NombreRepo)
-	return c.StatusOkf("Tabla '%s' eliminada", tbl.NombreRepo)
+	return c.Redir("/paquetes")
 }
 
 // ================================================================ //

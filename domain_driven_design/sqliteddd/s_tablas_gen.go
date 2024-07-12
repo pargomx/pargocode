@@ -140,17 +140,27 @@ func (s *Repositorio) DeleteTabla(TablaID int) error {
 	} else if num == 0 {
 		return gecko.NewErr(http.StatusNotFound).Err(ddd.ErrTablaNotFound).Op(op).Msg("cero resultados")
 	}
-	// Eliminar registro
+	// Eliminar todo lo relacionado a la tabla.
+	_, err = s.db.Exec(
+		"DELETE FROM valores_enum WHERE campo_id IN (SELECT v.campo_id FROM valores_enum v INNER JOIN campos c ON v.campo_id = c.campo_id INNER JOIN tablas t ON c.tabla_id = t.tabla_id WHERE t.tabla_id = ? GROUP BY v.campo_id)",
+		TablaID,
+	)
+	if err != nil {
+		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op).Op("delete_valores_enum")
+	}
+	_, err = s.db.Exec(
+		"DELETE FROM campos WHERE tabla_id = ?",
+		TablaID,
+	)
+	if err != nil {
+		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op).Op("delete_campos")
+	}
 	_, err = s.db.Exec(
 		"DELETE FROM tablas WHERE tabla_id = ?",
 		TablaID,
 	)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "Error 1451 (23000)") {
-			return gecko.NewErr(http.StatusConflict).Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
-		} else {
-			return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
-		}
+		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op).Op("delete_tabla")
 	}
 	return nil
 }
