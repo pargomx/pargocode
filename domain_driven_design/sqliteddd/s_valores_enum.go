@@ -34,6 +34,10 @@ func (s *Repositorio) GuardarValoresEnum(campoID int, vals []ddd.ValorEnum) erro
 		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op).Op("borrar_valores_enum_anteriores")
 	}
 
+	if len(vals) == 0 {
+		return nil
+	}
+
 	sqlStr := "INSERT INTO valores_enum (campo_id, numero, clave, etiqueta, descripcion) VALUES "
 	args := []any{}
 	for _, val := range vals {
