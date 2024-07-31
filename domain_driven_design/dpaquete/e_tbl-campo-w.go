@@ -6,7 +6,7 @@ import (
 	"monorepo/textutils"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 func ReordenarCampo(campoID int, newPosicion int, repo Repositorio) error {
@@ -22,7 +22,7 @@ func ReordenarCampo(campoID int, newPosicion int, repo Repositorio) error {
 }
 
 func validarCampo(cam *ddd.Campo, repo Repositorio) error {
-	op := gecko.NewOp("validarCampo")
+	op := gko.Op("validarCampo")
 
 	// Debe pertenecer a una tabla
 	if cam.TablaID == 0 {
@@ -165,7 +165,7 @@ func validarCampo(cam *ddd.Campo, repo Repositorio) error {
 
 // Insertar campo con defaults basado solamente en el nombre del campo.
 func InsertarCampoQuick(tablaID int, nombreCol string, repo Repositorio) error {
-	op := gecko.NewOp("InsertarCampoQuick")
+	op := gko.Op("InsertarCampoQuick")
 	if nombreCol == "" {
 		return op.Msg("Debe especificar un nombre para el nuevo campo")
 	}
@@ -205,7 +205,7 @@ func InsertarCampoQuick(tablaID int, nombreCol string, repo Repositorio) error {
 	// Default basado en un campo con el mismo nombre
 	similar, err := repo.GetCampoByNombre(nombreCol)
 	if err != nil {
-		gecko.LogError(err)
+		gko.LogError(err)
 	} else {
 		cam.NombreCampo = similar.NombreCampo
 		cam.NombreColumna = similar.NombreColumna
@@ -241,7 +241,7 @@ func InsertarCampoQuick(tablaID int, nombreCol string, repo Repositorio) error {
 }
 
 func InsertarCampo(cam ddd.Campo, repo Repositorio) error {
-	op := gecko.NewOp("InsertarCampo")
+	op := gko.Op("InsertarCampo")
 	err := validarCampo(&cam, repo)
 	if err != nil {
 		return op.Err(err)
@@ -254,7 +254,7 @@ func InsertarCampo(cam ddd.Campo, repo Repositorio) error {
 }
 
 func ActualizarCampo(campoID int, new ddd.Campo, repo Repositorio) error {
-	op := gecko.NewOp("UpdateCampo")
+	op := gko.Op("UpdateCampo")
 	cam, err := repo.GetCampo(campoID)
 	if err != nil {
 		return op.Err(err)

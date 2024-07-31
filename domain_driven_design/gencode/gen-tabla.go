@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 // ================================================================ //
@@ -68,7 +68,7 @@ func (gen *Generador) TblGenerarArchivos(tbl *dpaquete.Tabla, tipo string) tblGe
 		if !fileutils.Existe(filepath.Join(tbl.Paquete.Directorio, "sqlite"+tbl.Paquete.Nombre, "servicio_repo.go")) {
 			err := gen.TblGenerarArchivos(tbl, "sqlite/servicio").Generar()
 			if err != nil {
-				gecko.LogError(err)
+				gko.LogError(err)
 			}
 		}
 
@@ -78,7 +78,7 @@ func (gen *Generador) TblGenerarArchivos(tbl *dpaquete.Tabla, tipo string) tblGe
 		if !fileutils.Existe(filepath.Join(tbl.Paquete.Directorio, "mysql"+tbl.Paquete.Nombre, "servicio_repo.go")) {
 			err := gen.TblGenerarArchivos(tbl, "mysql/servicio").Generar()
 			if err != nil {
-				gecko.LogError(err)
+				gko.LogError(err)
 			}
 		}
 
@@ -294,7 +294,7 @@ func (s *Generador) GenerarDeTablaString(tbl *dpaquete.Tabla, tipo string) (stri
 // ========== COLECCIONES ========================================= //
 
 func (s *Generador) GenerarDeTablaEntidad(tbl *dpaquete.Tabla, buf io.Writer) error {
-	ctx := gecko.NewErr(800).Op("GenerarDeTablaEntidad")
+	ctx := gko.Op("GenerarDeTablaEntidad")
 	if err := s.GenerarDeTabla(tbl, "go/tbl_struct", buf, false); err != nil {
 		return ctx.Err(err)
 	}
@@ -308,7 +308,7 @@ func (s *Generador) GenerarDeTablaEntidad(tbl *dpaquete.Tabla, buf io.Writer) er
 }
 
 func (s *Generador) GenerarDeTablaAllMySQL(tbl *dpaquete.Tabla, buf io.Writer) error {
-	ctx := gecko.NewErr(800).Op("GenerarDeTablaAllMySQL")
+	ctx := gko.Op("GenerarDeTablaAllMySQL")
 	err := s.GenerarDeTabla(tbl, "mysql/paquete", buf, false)
 	if err != nil {
 		return err
@@ -350,7 +350,7 @@ func (s *Generador) GenerarDeTablaAllMySQL(tbl *dpaquete.Tabla, buf io.Writer) e
 }
 
 func (s *Generador) GenerarDeTablaMySQLInsertUpdate(tbl *dpaquete.Tabla, buf io.Writer) error {
-	ctx := gecko.NewErr(800).Op("GenerarDeTablaMySQLInsertUpdate")
+	ctx := gko.Op("GenerarDeTablaMySQLInsertUpdate")
 	err := s.GenerarDeTabla(tbl, "mysql/paquete", buf, false)
 	if err != nil {
 		return err
@@ -372,7 +372,7 @@ func (s *Generador) GenerarDeTablaMySQLInsertUpdate(tbl *dpaquete.Tabla, buf io.
 }
 
 func (s *Generador) GenerarDeTablaMySQLSimple(tbl *dpaquete.Tabla, buf io.Writer) error {
-	ctx := gecko.NewErr(800).Op("GenerarDeTablaMySQLSimple")
+	ctx := gko.Op("GenerarDeTablaMySQLSimple")
 	err := s.GenerarDeTabla(tbl, "mysql/paquete", buf, false)
 	if err != nil {
 		return err
@@ -397,7 +397,7 @@ func (s *Generador) GenerarDeTablaMySQLSimple(tbl *dpaquete.Tabla, buf io.Writer
 // ========== GENERAR ============================================= //
 
 func (s *Generador) GenerarDeTabla(tbl *dpaquete.Tabla, tipo string, buf io.Writer, separador bool) (err error) {
-	ctx := gecko.NewErr(700).Op("generar").Ctx("tipo", tipo)
+	ctx := gko.Op("generar").Ctx("tipo", tipo)
 	if tbl == nil {
 		return ctx.Msg("tabla es nil")
 	}

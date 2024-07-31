@@ -3,12 +3,11 @@ package sqliteddd
 import (
 	"database/sql"
 	"errors"
-	"net/http"
 	"strings"
 
 	"monorepo/domain_driven_design/ddd"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 //  ================================================================  //
@@ -31,20 +30,20 @@ const fromCampo string = "FROM campos "
 func (s *Repositorio) InsertCampo(cam ddd.Campo) error {
 	const op string = "mysqlddd.InsertCampo"
 	if cam.CampoID == 0 {
-		return gecko.NewErr(http.StatusBadRequest).Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if cam.NombreCampo == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("NombreCampo sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido().Msg("NombreCampo sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if cam.NombreColumna == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("NombreColumna sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido().Msg("NombreColumna sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if cam.NombreHumano == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("NombreHumano sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido().Msg("NombreHumano sin especificar").Ctx(op, "required_sin_valor")
 	}
 	err := cam.Validar()
 	if err != nil {
-		return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec("INSERT INTO campos "+
 		"(campo_id, tabla_id, nombre_campo, nombre_columna, nombre_humano, tipo_go, tipo_sql, setter, importado, primary_key, foreign_key, uq, req, ro, filtro, nullable, max_lenght, uns, default_sql, especial, referencia_campo, expresion, es_femenino, descripcion, posicion) "+
@@ -53,11 +52,11 @@ func (s *Repositorio) InsertCampo(cam ddd.Campo) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1062 (23000)") {
-			return gecko.NewErr(http.StatusConflict).Err(err).Op(op)
+			return gko.ErrYaExiste().Err(err).Op(op)
 		} else if strings.HasPrefix(err.Error(), "Error 1452 (23000)") {
-			return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
+			return gko.ErrDatoInvalido().Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
 		} else {
-			return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return gko.ErrInesperado().Err(err).Op(op)
 		}
 	}
 	return nil
@@ -70,20 +69,20 @@ func (s *Repositorio) InsertCampo(cam ddd.Campo) error {
 func (s *Repositorio) UpdateCampo(cam ddd.Campo) error {
 	const op string = "mysqlddd.UpdateCampo"
 	if cam.CampoID == 0 {
-		return gecko.NewErr(http.StatusBadRequest).Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if cam.NombreCampo == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("NombreCampo sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido().Msg("NombreCampo sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if cam.NombreColumna == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("NombreColumna sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido().Msg("NombreColumna sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if cam.NombreHumano == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("NombreHumano sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido().Msg("NombreHumano sin especificar").Ctx(op, "required_sin_valor")
 	}
 	err := cam.Validar()
 	if err != nil {
-		return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec(
 		"UPDATE campos SET "+
@@ -93,7 +92,7 @@ func (s *Repositorio) UpdateCampo(cam ddd.Campo) error {
 		cam.CampoID,
 	)
 	if err != nil {
-		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return gko.ErrInesperado().Err(err).Op(op)
 	}
 	return nil
 }
@@ -106,7 +105,7 @@ func (s *Repositorio) UpdateCampo(cam ddd.Campo) error {
 func (s *Repositorio) DeleteCampo(CampoID int) error {
 	const op string = "mysqlddd.DeleteCampo"
 	if CampoID == 0 {
-		return gecko.NewErr(http.StatusBadRequest).Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	// Verificar que solo se borre un registro.
 	var num int
@@ -115,14 +114,14 @@ func (s *Repositorio) DeleteCampo(CampoID int) error {
 	).Scan(&num)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return gecko.NewErr(http.StatusNotFound).Err(ddd.ErrCampoNotFound).Op(op)
+			return gko.ErrNoEncontrado().Err(ddd.ErrCampoNotFound).Op(op)
 		}
-		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return gko.ErrInesperado().Err(err).Op(op)
 	}
 	if num > 1 {
-		return gecko.NewErr(http.StatusInternalServerError).Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
+		return gko.ErrInesperado().Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
 	} else if num == 0 {
-		return gecko.NewErr(http.StatusNotFound).Err(ddd.ErrCampoNotFound).Op(op).Msg("cero resultados")
+		return gko.ErrNoEncontrado().Err(ddd.ErrCampoNotFound).Op(op).Msg("cero resultados")
 	}
 	// Eliminar registro
 	_, err = s.db.Exec(
@@ -131,9 +130,9 @@ func (s *Repositorio) DeleteCampo(CampoID int) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1451 (23000)") {
-			return gecko.NewErr(http.StatusConflict).Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
+			return gko.ErrYaExiste().Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
 		} else {
-			return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return gko.ErrInesperado().Err(err).Op(op)
 		}
 	}
 	return nil
@@ -150,9 +149,9 @@ func (s *Repositorio) scanRowCampo(row *sql.Row, cam *ddd.Campo, op string) erro
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return gecko.NewErr(http.StatusNotFound).Msg("el campo no se encuentra").Op(op)
+			return gko.ErrNoEncontrado().Msg("el campo no se encuentra").Op(op)
 		}
-		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return gko.ErrInesperado().Err(err).Op(op)
 	}
 
 	if referenciaCampo.Valid {
@@ -170,7 +169,7 @@ func (s *Repositorio) scanRowCampo(row *sql.Row, cam *ddd.Campo, op string) erro
 func (s *Repositorio) GetCampo(CampoID int) (*ddd.Campo, error) {
 	const op string = "mysqlddd.GetCampo"
 	if CampoID == 0 {
-		return nil, gecko.NewErr(http.StatusBadRequest).Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
+		return nil, gko.ErrDatoInvalido().Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	row := s.db.QueryRow(
 		"SELECT "+columnasCampo+" "+fromCampo+
@@ -189,10 +188,10 @@ func (s *Repositorio) GetCampo(CampoID int) (*ddd.Campo, error) {
 func (s *Repositorio) GetCampoByTablaIDNombreCampo(TablaID int, NombreCampo string) (*ddd.Campo, error) {
 	const op string = "mysqlddd.GetCampoByTablaIDNombreCampo"
 	if TablaID == 0 {
-		return nil, gecko.NewErr(http.StatusBadRequest).Msg("TablaID sin especificar").Ctx(op, "param_indefinido")
+		return nil, gko.ErrDatoInvalido().Msg("TablaID sin especificar").Ctx(op, "param_indefinido")
 	}
 	if NombreCampo == "" {
-		return nil, gecko.NewErr(http.StatusBadRequest).Msg("NombreCampo sin especificar").Ctx(op, "param_indefinido")
+		return nil, gko.ErrDatoInvalido().Msg("NombreCampo sin especificar").Ctx(op, "param_indefinido")
 	}
 	row := s.db.QueryRow(
 		"SELECT "+columnasCampo+" "+fromCampo+
@@ -219,7 +218,7 @@ func (s *Repositorio) scanRowsCampo(rows *sql.Rows, op string) ([]ddd.Campo, err
 			&cam.CampoID, &cam.TablaID, &cam.NombreCampo, &cam.NombreColumna, &cam.NombreHumano, &cam.TipoGo, &cam.TipoSql, &cam.Setter, &cam.Importado, &cam.PrimaryKey, &cam.ForeignKey, &cam.Uq, &cam.Req, &cam.Ro, &cam.Filtro, &cam.Nullable, &cam.MaxLenght, &cam.Uns, &cam.DefaultSql, &cam.Especial, &referenciaCampo, &cam.Expresion, &cam.EsFemenino, &cam.Descripcion, &cam.Posicion,
 		)
 		if err != nil {
-			return nil, gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return nil, gko.ErrInesperado().Err(err).Op(op)
 		}
 
 		if referenciaCampo.Valid {

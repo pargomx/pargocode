@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 // ================================================================ //
@@ -27,7 +27,7 @@ func (s *SqliteDB) verificarMigraciones(migracionesFS fs.FS) error {
 	rows, err := s.db.Query(selectMigraciones)
 	if err != nil {
 		// Inicializar base de datos si aún no tiene ni siquiera tabla de migraciones.
-		gecko.LogEventof("Aplicando migración 00_setup.sql")
+		gko.LogEventof("Aplicando migración 00_setup.sql")
 		migracionCero, err := fs.ReadFile(migracionesFS, "00_setup.sql")
 		if err != nil {
 			return err
@@ -40,7 +40,7 @@ func (s *SqliteDB) verificarMigraciones(migracionesFS fs.FS) error {
 		if err != nil {
 			return err
 		}
-		// gecko.LogOkeyf("Inicializada")
+		// gko.LogOkeyf("Inicializada")
 	}
 
 	// Obtener migraciones aplicadas.
@@ -96,7 +96,7 @@ func (s *SqliteDB) verificarMigraciones(migracionesFS fs.FS) error {
 	for i, migra := range disponibles {
 		// Aplicar migración si no está aplicada.
 		if len(aplicadas)-1 < i {
-			gecko.LogEventof("Aplicando migración %v", migra.filename)
+			gko.LogEventof("Aplicando migración %v", migra.filename)
 			tx, err := s.db.Begin()
 			if err != nil {
 				return err
@@ -125,14 +125,14 @@ func (s *SqliteDB) verificarMigraciones(migracionesFS fs.FS) error {
 				return err
 			}
 			aplicadas = append(aplicadas, aplicado)
-			// gecko.LogOkeyf("aplicada")
+			// gko.LogOkeyf("aplicada")
 		}
 		// Verificar que coincida la migración aplicada con la disponible.
 		if migra.id != aplicadas[i].id {
 			return fmt.Errorf("migración aplicada con id %v pero debería ser %v para %v", aplicadas[i].id, migra.id, migra.filename)
 		}
 		if !strings.Contains(migra.contenido, aplicadas[i].detalles) {
-			gecko.LogWarnf("Migración " + migra.filename + " no coincide con mensaje aplicado '" + aplicadas[i].detalles + "'")
+			gko.LogWarnf("Migración " + migra.filename + " no coincide con mensaje aplicado '" + aplicadas[i].detalles + "'")
 		}
 	}
 

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 
 	"github.com/manifoldco/promptui"
 )
@@ -15,7 +15,7 @@ import (
 // el mensaje de error dado si el input no la cumple.
 func NuevaValidación(reg *regexp.Regexp, errMsg string) promptui.ValidateFunc {
 	if reg == nil {
-		gecko.FatalFmt("NuevaValidación: regexp es nil")
+		gko.FatalExit("NuevaValidación: regexp es nil")
 	}
 	return func(input string) error {
 		if input == "" {
@@ -35,7 +35,7 @@ func NuevaValidación(reg *regexp.Regexp, errMsg string) promptui.ValidateFunc {
 func RegexLetrasAcentosEspacios() *regexp.Regexp {
 	reg, err := regexp.Compile(`^[a-zA-ZáéíóúÁÉÍÓÚ ]+$`)
 	if err != nil {
-		gecko.FatalFmt("regex: %v", err)
+		gko.FatalExitf("regex: %v", err)
 	}
 	return reg
 }
@@ -44,7 +44,7 @@ func RegexLetrasAcentosEspacios() *regexp.Regexp {
 func RegexMinusculasGuiones() *regexp.Regexp {
 	reg, err := regexp.Compile(`^[a-z-]+$`)
 	if err != nil {
-		gecko.FatalFmt("regex: %v", err)
+		gko.FatalExitf("regex: %v", err)
 	}
 	return reg
 }
@@ -53,7 +53,7 @@ func RegexMinusculasGuiones() *regexp.Regexp {
 func RegexMinusculas() *regexp.Regexp {
 	reg, err := regexp.Compile(`^[a-z]+$`)
 	if err != nil {
-		gecko.FatalFmt("regex: %v", err)
+		gko.FatalExitf("regex: %v", err)
 	}
 	return reg
 }
@@ -62,7 +62,7 @@ func RegexMinusculas() *regexp.Regexp {
 func RegexTresLetras() *regexp.Regexp {
 	reg, err := regexp.Compile(`^[a-z-]{3}$`)
 	if err != nil {
-		gecko.FatalFmt("regex: %v", err)
+		gko.FatalExitf("regex: %v", err)
 	}
 	return reg
 }
@@ -71,7 +71,7 @@ func RegexTresLetras() *regexp.Regexp {
 func RegexAlfanumericoGuiones() *regexp.Regexp {
 	reg, err := regexp.Compile(`^[a-zA-Z1-9-]+$`)
 	if err != nil {
-		gecko.FatalFmt("regex: %v", err)
+		gko.FatalExitf("regex: %v", err)
 	}
 	return reg
 }

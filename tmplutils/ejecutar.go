@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 // ================================================================ //
@@ -16,7 +16,7 @@ import (
 
 func (s *Renderer) HaciaBuffer(nombre string, data any, buf io.Writer) error {
 	if err := s.tmpls.ExecuteTemplate(buf, nombre, data); err != nil {
-		return gecko.NewErr(800).Err(err).Op("execTemplate")
+		return gko.Err(err).Op("execTemplate")
 	}
 	return nil
 }
@@ -24,7 +24,7 @@ func (s *Renderer) HaciaBuffer(nombre string, data any, buf io.Writer) error {
 func (s *Renderer) HaciaString(nombre string, data any) (string, error) {
 	buf := new(bytes.Buffer)
 	if err := s.tmpls.ExecuteTemplate(buf, nombre, data); err != nil {
-		return "", gecko.NewErr(800).Err(err).Op("execTemplate")
+		return "", gko.Err(err).Op("execTemplate")
 	}
 	return buf.String(), nil
 }
@@ -35,7 +35,7 @@ func (s *Renderer) HaciaArchivo(nombre string, data any, filename string) error 
 		return err
 	}
 	if err = s.tmpls.ExecuteTemplate(fileOut, nombre, data); err != nil {
-		return gecko.NewErr(800).Err(err).Op("execTemplate")
+		return gko.Err(err).Op("execTemplate")
 	}
 	return fileOut.Close()
 }
@@ -48,15 +48,15 @@ func (s *Renderer) HaciaArchivo(nombre string, data any, filename string) error 
 func (s *Renderer) HaciaBufferGo(nombre string, data any, buf io.Writer) error {
 	var buf2 bytes.Buffer
 	if err := s.tmpls.ExecuteTemplate(&buf2, nombre, data); err != nil {
-		return gecko.NewErr(800).Err(err).Op("execTemplate")
+		return gko.Err(err).Op("execTemplate")
 	}
 	codigo, err := format.Source(buf2.Bytes())
 	if err != nil { // no retornar error para facilitar debug del código generado
-		codigo = []byte("// ERROR: " + gecko.NewErr(800).Err(err).Op("fmt_gocode").Error() + "\n\n" + buf2.String())
+		codigo = []byte("// ERROR: " + gko.Err(err).Op("fmt_gocode").Error() + "\n\n" + buf2.String())
 	}
 	_, err = buf.Write(codigo)
 	if err != nil {
-		return gecko.NewErr(800).Err(err).Op("write_buffer")
+		return gko.Err(err).Op("write_buffer")
 	}
 	return nil
 }
@@ -68,12 +68,12 @@ func (s *Renderer) HaciaArchivoGo(nombre string, data any, filename string) erro
 		return err
 	}
 	if err = s.tmpls.ExecuteTemplate(fileOut, nombre, data); err != nil {
-		return gecko.NewErr(800).Err(err).Op("execTemplate")
+		return gko.Err(err).Op("execTemplate")
 	}
 	fileOut.Close()
 	cmd := exec.Command("goimports", "-w", filename)
 	if errOut, err := cmd.CombinedOutput(); err != nil {
-		return gecko.Err(err).Op("goimports").Msg("no se pudo dar formato").Msg(string(errOut))
+		return gko.Err(err).Op("goimports").Msg("no se pudo dar formato").Msg(string(errOut))
 	}
 	return nil
 }
@@ -85,7 +85,7 @@ func (s *Renderer) HaciaArchivoGo(nombre string, data any, filename string) erro
 func (s *Renderer) HaciaBufferHTML(nombre string, data any, buf io.Writer) (err error) {
 	buf2 := new(bytes.Buffer)
 	if err = s.tmpls.ExecuteTemplate(buf2, nombre, data); err != nil {
-		return gecko.NewErr(800).Err(err).Op("execTemplate")
+		return gko.Err(err).Op("execTemplate")
 	}
 	strings.NewReplacer("[[", "{{", "]]", "}}").WriteString(buf, buf2.String())
 	return nil
@@ -95,7 +95,7 @@ func (s *Renderer) HaciaBufferHTML(nombre string, data any, buf io.Writer) (err 
 func (s *Renderer) HaciaStringHTML(nombre string, data any) (html string, err error) {
 	buf := new(bytes.Buffer)
 	if err = s.tmpls.ExecuteTemplate(buf, nombre, data); err != nil {
-		return "", gecko.NewErr(800).Err(err).Op("execTemplate")
+		return "", gko.Err(err).Op("execTemplate")
 	}
 	return strings.NewReplacer("[[", "{{", "]]", "}}").Replace(buf.String()), nil
 }
@@ -104,7 +104,7 @@ func (s *Renderer) HaciaStringHTML(nombre string, data any) (html string, err er
 func (s *Renderer) HaciaArchivoHTML(nombre string, data any, filename string) error {
 	buf := new(bytes.Buffer)
 	if err := s.tmpls.ExecuteTemplate(buf, nombre, data); err != nil {
-		return gecko.NewErr(800).Err(err).Op("execTemplate")
+		return gko.Err(err).Op("execTemplate")
 	}
 	fileOut, err := os.Create(filename)
 	if err != nil {

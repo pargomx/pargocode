@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 func (s *servidor) crearConsulta(c *gecko.Context) error {
@@ -26,7 +27,7 @@ func (s *servidor) crearConsulta(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	c.LogOkeyf("Consulta %v creada %v", con.ConsultaID, time.Now().Format("03:04:05pm"))
+	gko.LogOkeyf("Consulta %v creada %v", con.ConsultaID, time.Now().Format("03:04:05pm"))
 	return c.RedirectHTMX("/consultas/%v", con.ConsultaID)
 }
 
@@ -54,7 +55,7 @@ func (s *servidor) deleteConsulta(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	c.LogEvento("consulta eliminada")
+	gko.LogEvento("consulta eliminada")
 	return c.Redir("/paquetes")
 }
 

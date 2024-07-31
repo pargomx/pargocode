@@ -2,12 +2,11 @@ package sqliteddd
 
 import (
 	"database/sql"
-	"net/http"
 	"strings"
 
 	"monorepo/domain_driven_design/ddd"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 //  ================================================================  //
@@ -25,17 +24,17 @@ const columnasValorEnum string = "campo_id, numero, clave, etiqueta, descripcion
 func (s *Repositorio) InsertValorEnum(val ddd.ValorEnum) error {
 	const op string = "mysqlddd.InsertValorEnum"
 	if val.CampoID == 0 {
-		return gecko.NewErr(http.StatusBadRequest).Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if val.Clave == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("Clave sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("Clave sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if val.Etiqueta == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("Etiqueta sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido().Msg("Etiqueta sin especificar").Ctx(op, "required_sin_valor")
 	}
 	err := val.Validar()
 	if err != nil {
-		return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec("INSERT INTO valores_enum "+
 		"(campo_id, numero, clave, etiqueta, descripcion) "+
@@ -44,11 +43,11 @@ func (s *Repositorio) InsertValorEnum(val ddd.ValorEnum) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1062 (23000)") {
-			return gecko.NewErr(http.StatusConflict).Err(err).Op(op)
+			return gko.ErrYaExiste().Err(err).Op(op)
 		} else if strings.HasPrefix(err.Error(), "Error 1452 (23000)") {
-			return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
+			return gko.ErrDatoInvalido().Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
 		} else {
-			return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return gko.ErrInesperado().Err(err).Op(op)
 		}
 	}
 	return nil
@@ -70,7 +69,7 @@ func (s *Repositorio) scanRowsValorEnum(rows *sql.Rows, op string) ([]ddd.ValorE
 			&val.CampoID, &val.Numero, &val.Clave, &val.Etiqueta, &val.Descripcion,
 		)
 		if err != nil {
-			return nil, gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return nil, gko.ErrInesperado().Err(err).Op(op)
 		}
 
 		items = append(items, val)

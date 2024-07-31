@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 // ================================================================ //
@@ -208,7 +208,7 @@ func ScanTempVarsTabla(campos []CampoTabla) string {
 
 		case campo.EsPointer(): //* No reconocido
 			res += "\n\tvar " + "invalid string // No reconocido"
-			gecko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
+			gko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
 		}
 	}
 	return strings.TrimPrefix(res, "\n\t")
@@ -221,7 +221,7 @@ func ScanTempVarsTabla(campos []CampoTabla) string {
 // El itemVar es el nombre de la variable de la estructura. Ej. "usu" para resultar en &usu.UsuarioID, &usu.Nombre
 func ScanArgsTabla(campos []CampoTabla, itemVar string) string {
 	if itemVar == "" {
-		gecko.LogWarnf("itemVar indefinida para ScanArgs")
+		gko.LogWarnf("itemVar indefinida para ScanArgs")
 	}
 	var args string
 	for _, campo := range campos {
@@ -256,7 +256,7 @@ func ScanArgsTabla(campos []CampoTabla, itemVar string) string {
 
 		case campo.EsPointer():
 			args += "Invalid" // No reconocido
-			gecko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
+			gko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
 
 		default:
 			args += itemVar + "." + campo.NombreCampo // ej. &usu.UsuarioID, &usu.Nombre... (int, string)
@@ -273,7 +273,7 @@ func ScanArgsTabla(campos []CampoTabla, itemVar string) string {
 // El itemVar es el nombre de la variable de la estructura. Ej. "usu" para resultar en usu.SetEstatusDB(...), usu.FechaBaja = (...)
 func ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 	if itemVar == "" {
-		gecko.LogWarnf("itemVar indefinida para ScanSetters")
+		gko.LogWarnf("itemVar indefinida para ScanSetters")
 	}
 	var res string
 	for _, c := range campos {
@@ -287,7 +287,7 @@ func ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 			// ================================================================ //
 
 		// case c.TipoImportado && c.TipoSetter != "": // ej. usu.TipoImportado = importado.SetTipoDB(tipo)
-		// gecko.LogWarnf("Usando TipoImportado no implementado")
+		// gko.LogWarnf("Usando TipoImportado no implementado")
 		// res += itemVar + "." + c.NombreCampo + " = " + strings.ReplaceAll(c.TipoSetter, "?", c.Variable())
 		// ================================================================ //
 
@@ -301,7 +301,7 @@ func ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 			// 	)
 			// default:
 			// 	res += "invalid"
-			// 	gecko.LogWarnf("el campo " + c.NombreCampo + " es time.Time pero no se sabe si timestamp|datetime|date|time")
+			// 	gko.LogWarnf("el campo " + c.NombreCampo + " es time.Time pero no se sabe si timestamp|datetime|date|time")
 			// }
 			// ================================================================ //
 
@@ -327,7 +327,7 @@ func ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 
 			res += fmt.Sprintf(
 				"\n if %v.Valid{ \n\t\t"+
-					"if %v.Int64 < 0{\n gecko.LogWarnf(fmt.Sprint(\"el campo %v espera número positivo pero obtuvo \",%v.Int64)) \n}\n"+
+					"if %v.Int64 < 0{\n gko.LogWarnf(fmt.Sprint(\"el campo %v espera número positivo pero obtuvo \",%v.Int64)) \n}\n"+
 					"num := %v(%v.Int64) \n\t\t"+ // ej. if calificacion.Valid {
 					"%v.%v = &num \n}", // 				num := int(calificacion.Int64)
 				c.Variable(), // 					apr.Calificacion = &num
@@ -362,7 +362,7 @@ func ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 		case c.EsPointer():
 
 			res += "invalid"
-			gecko.LogWarnf("el campo " + c.NombreCampo + " no puede ser " + c.TipoGo + " para generar SQL")
+			gko.LogWarnf("el campo " + c.NombreCampo + " no puede ser " + c.TipoGo + " para generar SQL")
 			// ================================================================ //
 
 		default:

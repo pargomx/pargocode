@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 var (
@@ -22,10 +22,10 @@ func GuardarGoCodeConfirm(filename string, codigo string) error {
 
 func GuardarGoCode(filename string, codigo string) error {
 	if !OuptutToConsole && !OutputToFile {
-		gecko.FatalFmt("No se especificó a donde mandar el resultado: fileutils.OuptutToConsole/OutputToFile es false")
+		gko.FatalExit("No se especificó a donde mandar el resultado: fileutils.OuptutToConsole/OutputToFile es false")
 	}
 	if OuptutToConsole {
-		gecko.LogEventof("Imprimiendo:")
+		gko.LogEventof("Imprimiendo:")
 		fmt.Print(codigo)
 	}
 	if !OutputToFile {
@@ -42,11 +42,11 @@ func GuardarGoCode(filename string, codigo string) error {
 	fileOut.Close()
 	cmd := exec.Command("goimports", "-w", filename)
 	if errOut, err := cmd.CombinedOutput(); err != nil {
-		gecko.LogWarnf(string(errOut))
+		gko.LogWarnf(string(errOut))
 	}
 	cmd = exec.Command("goimports-reviser", "-project-name", "monorepo", "-file-path", filename)
 	if errOut, err := cmd.CombinedOutput(); err != nil {
-		gecko.LogWarnf(string(errOut))
+		gko.LogWarnf(string(errOut))
 	}
 
 	return nil

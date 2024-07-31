@@ -3,12 +3,11 @@ package sqliteddd
 import (
 	"database/sql"
 	"errors"
-	"net/http"
 	"strings"
 
 	"monorepo/domain_driven_design/ddd"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 //  ================================================================  //
@@ -31,20 +30,20 @@ const fromConsultaCampo string = "FROM consulta_campos "
 func (s *Repositorio) InsertConsultaCampo(campcons ddd.ConsultaCampo) error {
 	const op string = "mysqlddd.InsertConsultaCampo"
 	if campcons.ConsultaID == 0 {
-		return gecko.NewErr(http.StatusBadRequest).Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if campcons.Posicion == 0 {
-		return gecko.NewErr(http.StatusBadRequest).Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if campcons.NombreCampo == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("NombreCampo sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido().Msg("NombreCampo sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if campcons.TipoGo == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("TipoGo sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido().Msg("TipoGo sin especificar").Ctx(op, "required_sin_valor")
 	}
 	err := campcons.Validar()
 	if err != nil {
-		return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec("INSERT INTO consulta_campos "+
 		"(consulta_id, posicion, expresion, alias_sql, nombre_campo, tipo_go, campo_id, pk, filtro, group_by, descripcion) "+
@@ -53,11 +52,11 @@ func (s *Repositorio) InsertConsultaCampo(campcons ddd.ConsultaCampo) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1062 (23000)") {
-			return gecko.NewErr(http.StatusConflict).Err(err).Op(op)
+			return gko.ErrYaExiste().Err(err).Op(op)
 		} else if strings.HasPrefix(err.Error(), "Error 1452 (23000)") {
-			return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
+			return gko.ErrDatoInvalido().Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
 		} else {
-			return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return gko.ErrInesperado().Err(err).Op(op)
 		}
 	}
 	return nil
@@ -70,20 +69,20 @@ func (s *Repositorio) InsertConsultaCampo(campcons ddd.ConsultaCampo) error {
 func (s *Repositorio) UpdateConsultaCampo(campcons ddd.ConsultaCampo) error {
 	const op string = "mysqlddd.UpdateConsultaCampo"
 	if campcons.ConsultaID == 0 {
-		return gecko.NewErr(http.StatusBadRequest).Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if campcons.Posicion == 0 {
-		return gecko.NewErr(http.StatusBadRequest).Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if campcons.NombreCampo == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("NombreCampo sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido().Msg("NombreCampo sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if campcons.TipoGo == "" {
-		return gecko.NewErr(http.StatusBadRequest).Msg("TipoGo sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido().Msg("TipoGo sin especificar").Ctx(op, "required_sin_valor")
 	}
 	err := campcons.Validar()
 	if err != nil {
-		return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec(
 		"UPDATE consulta_campos SET "+
@@ -93,7 +92,7 @@ func (s *Repositorio) UpdateConsultaCampo(campcons ddd.ConsultaCampo) error {
 		campcons.ConsultaID, campcons.Posicion,
 	)
 	if err != nil {
-		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return gko.ErrInesperado().Err(err).Op(op)
 	}
 	return nil
 }
@@ -109,9 +108,9 @@ func (s *Repositorio) scanRowConsultaCampo(row *sql.Row, campcons *ddd.ConsultaC
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return gecko.NewErr(http.StatusNotFound).Msg("el campo de consulta no se encuentra").Op(op)
+			return gko.ErrNoEncontrado().Msg("el campo de consulta no se encuentra").Op(op)
 		}
-		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return gko.ErrInesperado().Err(err).Op(op)
 	}
 
 	if campoID.Valid {
@@ -129,10 +128,10 @@ func (s *Repositorio) scanRowConsultaCampo(row *sql.Row, campcons *ddd.ConsultaC
 func (s *Repositorio) GetConsultaCampo(ConsultaID int, Posicion int) (*ddd.ConsultaCampo, error) {
 	const op string = "mysqlddd.GetConsultaCampo"
 	if ConsultaID == 0 {
-		return nil, gecko.NewErr(http.StatusBadRequest).Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
+		return nil, gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if Posicion == 0 {
-		return nil, gecko.NewErr(http.StatusBadRequest).Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
+		return nil, gko.ErrDatoInvalido().Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
 	}
 	row := s.db.QueryRow(
 		"SELECT "+columnasConsultaCampo+" "+fromConsultaCampo+
@@ -159,7 +158,7 @@ func (s *Repositorio) scanRowsConsultaCampo(rows *sql.Rows, op string) ([]ddd.Co
 			&campcons.ConsultaID, &campcons.Posicion, &campcons.Expresion, &campcons.AliasSql, &campcons.NombreCampo, &campcons.TipoGo, &campoID, &campcons.Pk, &campcons.Filtro, &campcons.GroupBy, &campcons.Descripcion,
 		)
 		if err != nil {
-			return nil, gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return nil, gko.ErrInesperado().Err(err).Op(op)
 		}
 
 		if campoID.Valid {
@@ -178,7 +177,7 @@ func (s *Repositorio) scanRowsConsultaCampo(rows *sql.Rows, op string) ([]ddd.Co
 func (s *Repositorio) ListConsultaCamposByConsultaID(ConsultaID int) ([]ddd.ConsultaCampo, error) {
 	const op string = "mysqlddd.ListConsultaCamposByConsultaID"
 	if ConsultaID == 0 {
-		return nil, gecko.NewErr(http.StatusBadRequest).Msg("ConsultaID sin especificar").Ctx(op, "param_indefinido")
+		return nil, gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "param_indefinido")
 	}
 	where := "WHERE consulta_id = ?"
 	argumentos := []any{}
@@ -190,7 +189,7 @@ func (s *Repositorio) ListConsultaCamposByConsultaID(ConsultaID int) ([]ddd.Cons
 		argumentos...,
 	)
 	if err != nil {
-		return nil, gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return nil, gko.ErrInesperado().Err(err).Op(op)
 	}
 	return s.scanRowsConsultaCampo(rows, op)
 }

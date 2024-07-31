@@ -27,7 +27,7 @@ func (s *Repositorio) List{{ .NombreItems }}By{{ range .CamposSeleccionados }}{{
 		argumentos...,
 	)
 	if err != nil {
-		return nil, gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return nil, gko.ErrInesperado().Err(err).Op(op)
 	}
 	return s.scanRows{{ .NombreItem }}(rows, op)
 }
@@ -41,7 +41,7 @@ func (s *Repositorio) List{{ .NombreItems }}By{{ range .CamposSeleccionados }}{{
 		{{ .CamposSeleccionadosAsArguments "" }},
 	)
 	if err != nil {
-		return nil, gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return nil, gko.ErrInesperado().Err(err).Op(op)
 	}
 	return s.scanRows{{ .NombreItem }}(rows, op)
 }

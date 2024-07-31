@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 // ================================================================ //
@@ -72,7 +72,7 @@ func (cam CampoConsulta) IfZeroReturnNilAndErr(razón string, nombreVariable str
 // Ejemplo de resultado:
 //
 //	if enc.OrganizacionID == 0 {
-//		return nil, gecko.NewErr(http.StatusBadRequest).Msg("OrganizacionID sin especificar").Ctx(op, "pk_indefinida")
+//		return nil, gko.ErrDatoInvalido().Msg("OrganizacionID sin especificar").Ctx(op, "pk_indefinida")
 //	}
 //
 // razón que se da como contexto al error. Ejemplos: "pk_indefinida" "fk requerida" "campo requerido"
@@ -114,7 +114,7 @@ func (cam CampoConsulta) ifZeroReturnErr(razón string, nombreVariable string, r
 		comparacion += ".Es" + cam.NombreCampo + "Indefinido() "
 
 	default:
-		gecko.LogWarnf("cam.NombreCampo: No se verificará que %v no sea Zero value", cam.NombreCampo)
+		gko.LogWarnf("cam.NombreCampo: No se verificará que %v no sea Zero value", cam.NombreCampo)
 		return `\\` + " TODO: verificar que " + cam.NombreCampo + " no esté indefinido"
 	}
 
@@ -124,7 +124,7 @@ func (cam CampoConsulta) ifZeroReturnErr(razón string, nombreVariable string, r
 		comparacion += "nil, "
 	}
 
-	comparacion += fmt.Sprintf(`gecko.NewErr(http.StatusBadRequest).Msg("%v sin especificar").Ctx(op, "%v")`, cam.NombreCampo, razón)
+	comparacion += fmt.Sprintf(`gko.ErrDatoInvalido().Msg("%v sin especificar").Ctx(op, "%v")`, cam.NombreCampo, razón)
 
 	comparacion += "\n}\n"
 
@@ -214,7 +214,7 @@ func ScanTempVars(campos []CampoConsulta) string {
 
 		case campo.EsPointer(): //* No reconocido
 			res += "\n\tvar " + "invalid string // No reconocido"
-			gecko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
+			gko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
 		}
 	}
 	return strings.TrimPrefix(res, "\n\t")
@@ -227,7 +227,7 @@ func ScanTempVars(campos []CampoConsulta) string {
 // El itemVar es el nombre de la variable de la estructura. Ej. "usu" para resultar en &usu.UsuarioID, &usu.Nombre
 func ScanArgs(campos []CampoConsulta, itemVar string) string {
 	if itemVar == "" {
-		gecko.LogWarnf("itemVar indefinida para ScanArgs")
+		gko.LogWarnf("itemVar indefinida para ScanArgs")
 	}
 	var args string
 	for _, campo := range campos {
@@ -262,7 +262,7 @@ func ScanArgs(campos []CampoConsulta, itemVar string) string {
 
 		case campo.EsPointer():
 			args += "Invalid" // No reconocido
-			gecko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
+			gko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
 
 		default:
 			args += itemVar + "." + campo.NombreCampo // ej. &usu.UsuarioID, &usu.Nombre... (int, string)
@@ -279,7 +279,7 @@ func ScanArgs(campos []CampoConsulta, itemVar string) string {
 // El itemVar es el nombre de la variable de la estructura. Ej. "usu" para resultar en usu.SetEstatusDB(...), usu.FechaBaja = (...)
 func ScanSetters(campos []CampoConsulta, itemVar string) string {
 	if itemVar == "" {
-		gecko.LogWarnf("itemVar indefinida para ScanSetters")
+		gko.LogWarnf("itemVar indefinida para ScanSetters")
 	}
 	var res string
 	for _, c := range campos {
@@ -293,7 +293,7 @@ func ScanSetters(campos []CampoConsulta, itemVar string) string {
 			// ================================================================ //
 
 		// case c.TipoImportado && c.TipoSetter != "": // ej. usu.TipoImportado = importado.SetTipoDB(tipo)
-		// gecko.LogWarnf("Usando TipoImportado no implementado")
+		// gko.LogWarnf("Usando TipoImportado no implementado")
 		// res += itemVar + "." + c.NombreCampo + " = " + strings.ReplaceAll(c.TipoSetter, "?", c.Variable())
 		// ================================================================ //
 
@@ -307,7 +307,7 @@ func ScanSetters(campos []CampoConsulta, itemVar string) string {
 			// 	)
 			// default:
 			// 	res += "invalid"
-			// 	gecko.LogWarnf("el campo " + c.NombreCampo + " es time.Time pero no se sabe si timestamp|datetime|date|time")
+			// 	gko.LogWarnf("el campo " + c.NombreCampo + " es time.Time pero no se sabe si timestamp|datetime|date|time")
 			// }
 			// ================================================================ //
 
@@ -333,7 +333,7 @@ func ScanSetters(campos []CampoConsulta, itemVar string) string {
 
 			res += fmt.Sprintf(
 				"\n if %v.Valid{ \n\t\t"+
-					"if %v.Int64 < 0{\n gecko.LogWarnf(fmt.Sprint(\"el campo %v espera número positivo pero obtuvo \",%v.Int64)) \n}\n"+
+					"if %v.Int64 < 0{\n gko.LogWarnf(fmt.Sprint(\"el campo %v espera número positivo pero obtuvo \",%v.Int64)) \n}\n"+
 					"num := %v(%v.Int64) \n\t\t"+ // ej. if calificacion.Valid {
 					"%v.%v = &num \n}", // 				num := int(calificacion.Int64)
 				c.Variable(), // 					apr.Calificacion = &num
@@ -368,7 +368,7 @@ func ScanSetters(campos []CampoConsulta, itemVar string) string {
 		case c.EsPointer():
 
 			res += "invalid"
-			gecko.LogWarnf("el campo " + c.NombreCampo + " no puede ser " + c.TipoGo + " para generar SQL")
+			gko.LogWarnf("el campo " + c.NombreCampo + " no puede ser " + c.TipoGo + " para generar SQL")
 			// ================================================================ //
 
 		default:

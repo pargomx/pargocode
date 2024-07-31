@@ -10,13 +10,13 @@
 		
 		{
 			"label": "install pargo", "detail": "",
-			"command": "CGO_ENABLED=0 go install ./pargo && echo 'pargo instalado!'",
+			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=\"$(date -I):$(git log --format=\"%H\" -n 1)\" -X main.AMBIENTE=DEV\" ./pargo && echo 'app instalada!'",
 			"type": "shell", "presentation": { "echo": true, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
 		},
 		
 		{
 			"label": "deploy pargo", "detail": "Enviar binario pargo al servidor",
-			"command": "GOOS=linux CGO_ENABLED=0 go build -o ~/proyectos/builds/pargo ./pargo && rsync -avh --progress ~/proyectos/builds/pargo ${input:remoteHost}:~/bin/ && echo 'Listo :D'",
+			"command": "GOOS=linux CGO_ENABLED=0 go build -ldflags \"-X main.BUILD_INFO=\"$(date -I):$(git log --format=\"%H\" -n 1)\" -X main.AMBIENTE=PROD\" -o /tmp/pargo ./pargo && rsync -avh --progress /tmp/pargo ${input:remoteHost}:~/bin/ && echo 'Listo :D'",
 			"type": "shell", "presentation": { "echo": true, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
 		},
 

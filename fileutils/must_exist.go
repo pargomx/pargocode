@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 func Existe(path string) bool {
@@ -17,17 +17,17 @@ func Existe(path string) bool {
 // Verifica que el archivo exista.
 func FileExist(absolutePath string) bool {
 	if !filepath.IsAbs(absolutePath) {
-		gecko.FatalFmt("fileExist: path debe ser absoluta: %v", absolutePath)
+		gko.FatalExitf("fileExist: path debe ser absoluta: %v", absolutePath)
 	}
 	stat, err := os.Stat(absolutePath)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
 			return false
 		}
-		gecko.FatalFmt("fileExist: %v", err)
+		gko.FatalExitf("fileExist: %v", err)
 	}
 	if stat.IsDir() {
-		gecko.FatalFmt("fileExist: es un directorio: %v", absolutePath)
+		gko.FatalExitf("fileExist: es un directorio: %v", absolutePath)
 	}
 	return true
 }
@@ -36,17 +36,17 @@ func FileExist(absolutePath string) bool {
 // sale del programa con un error fatal.
 func FileMustExist(absolutePath string) {
 	if !filepath.IsAbs(absolutePath) {
-		gecko.FatalFmt("fileMustExist: path debe ser absoluta: %v", absolutePath)
+		gko.FatalExitf("fileMustExist: path debe ser absoluta: %v", absolutePath)
 	}
 	stat, err := os.Stat(absolutePath)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
-			gecko.FatalFmt("fileMustExist: %v", absolutePath)
+			gko.FatalExitf("fileMustExist: %v", absolutePath)
 		}
-		gecko.FatalFmt("fileMustExist: %v", err)
+		gko.FatalExitf("fileMustExist: %v", err)
 	}
 	if stat.IsDir() {
-		gecko.FatalFmt("fileMustExist: es un directorio: %v", absolutePath)
+		gko.FatalExitf("fileMustExist: es un directorio: %v", absolutePath)
 	}
 }
 
@@ -54,16 +54,16 @@ func FileMustExist(absolutePath string) {
 // requisitos sale del programa con un error fatal.
 func DirMustExist(absolutePath string) {
 	if !filepath.IsAbs(absolutePath) {
-		gecko.FatalFmt("dirMustExist: path debe ser absoluta: %v", absolutePath)
+		gko.FatalExitf("dirMustExist: path debe ser absoluta: %v", absolutePath)
 	}
 	stat, err := os.Stat(absolutePath)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
-			gecko.FatalFmt("dirMustExist: %v", absolutePath)
+			gko.FatalExitf("dirMustExist: %v", absolutePath)
 		}
-		gecko.FatalFmt("dirMustExist: %v", err)
+		gko.FatalExitf("dirMustExist: %v", err)
 	}
 	if !stat.IsDir() {
-		gecko.FatalFmt("dirMustExist: es un directorio")
+		gko.FatalExitf("dirMustExist: es un directorio")
 	}
 }

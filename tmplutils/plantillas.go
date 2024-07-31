@@ -18,11 +18,11 @@ package tmplutils
 // func HaciaBuffer(tmplString string, data any, buf io.Writer) error {
 // 	tmpl, err := template.New("").Funcs(funcMap).Parse(tmplString)
 // 	if err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("parseTemplate")
+// 		return gko.Err(err).Op("parseTemplate")
 // 	}
 
 // 	if err = tmpl.Execute(buf, data); err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("execTemplate")
+// 		return gko.Err(err).Op("execTemplate")
 // 	}
 
 // 	return nil
@@ -31,13 +31,13 @@ package tmplutils
 // func HaciaString(tmplString string, data any) (string, error) {
 // 	tmpl, err := template.New("").Funcs(funcMap).Parse(tmplString)
 // 	if err != nil {
-// 		return "", gecko.NewErr(800).Err(err).Op("parseTemplate")
+// 		return "", gko.Err(err).Op("parseTemplate")
 // 	}
 
 // 	buf := new(bytes.Buffer)
 
 // 	if err = tmpl.Execute(buf, data); err != nil {
-// 		return "", gecko.NewErr(800).Err(err).Op("execTemplate")
+// 		return "", gko.Err(err).Op("execTemplate")
 // 	}
 
 // 	return buf.String(), nil
@@ -46,7 +46,7 @@ package tmplutils
 // func HaciaArchivo(tmplString string, data any, filename string) error {
 // 	tmpl, err := template.New("").Funcs(funcMap).Parse(tmplString)
 // 	if err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("parseTemplate")
+// 		return gko.Err(err).Op("parseTemplate")
 // 	}
 
 // 	fileOut, err := os.Create(filename)
@@ -55,7 +55,7 @@ package tmplutils
 // 	}
 
 // 	if err = tmpl.Execute(fileOut, data); err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("execTemplate")
+// 		return gko.Err(err).Op("execTemplate")
 // 	}
 
 // 	return fileOut.Close()
@@ -69,22 +69,22 @@ package tmplutils
 // func HaciaBufferGo(tmplString string, data any, buf io.Writer) error {
 // 	tmpl, err := template.New("").Funcs(funcMap).Parse(tmplString)
 // 	if err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("parseTemplate")
+// 		return gko.Err(err).Op("parseTemplate")
 // 	}
 
 // 	var buf2 bytes.Buffer
 
 // 	if err = tmpl.Execute(&buf2, data); err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("execTemplate")
+// 		return gko.Err(err).Op("execTemplate")
 // 	}
 
 // 	codigo, err := format.Source(buf2.Bytes())
 // 	if err != nil { // no retornar error para facilitar debug del código generado
-// 		codigo = []byte("// ERROR: " + gecko.NewErr(800).Err(err).Op("fmt_gocode").Error() + "\n\n" + buf2.String())
+// 		codigo = []byte("// ERROR: " + gko.Err(err).Op("fmt_gocode").Error() + "\n\n" + buf2.String())
 // 	}
 // 	_, err = buf.Write(codigo)
 // 	if err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("write_buffer")
+// 		return gko.Err(err).Op("write_buffer")
 // 	}
 // 	return nil
 // }
@@ -93,7 +93,7 @@ package tmplutils
 // func HaciaArchivoGo(tmplString string, data any, filename string) error {
 // 	tmpl, err := template.New("").Funcs(funcMap).Parse(tmplString)
 // 	if err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("parseTemplate")
+// 		return gko.Err(err).Op("parseTemplate")
 // 	}
 
 // 	fileOut, err := os.Create(filename)
@@ -102,13 +102,13 @@ package tmplutils
 // 	}
 
 // 	if err = tmpl.Execute(fileOut, data); err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("execTemplate")
+// 		return gko.Err(err).Op("execTemplate")
 // 	}
 // 	fileOut.Close()
 
 // 	cmd := exec.Command("goimports", "-w", filename)
 // 	if errOut, err := cmd.CombinedOutput(); err != nil {
-// 		return gecko.Err(err).Op("goimports").Msg("no se pudo dar formato").Msg(string(errOut))
+// 		return gko.Err(err).Op("goimports").Msg("no se pudo dar formato").Msg(string(errOut))
 // 	}
 // 	return nil
 // }
@@ -120,13 +120,13 @@ package tmplutils
 // func HaciaBufferHTML(tmplString string, data any, buf io.Writer) (err error) {
 // 	tmpl, err := template.New("").Funcs(funcMap).Parse(tmplString)
 // 	if err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("parseTemplate")
+// 		return gko.Err(err).Op("parseTemplate")
 // 	}
 
 // 	buf2 := new(bytes.Buffer)
 
 // 	if err = tmpl.Execute(buf2, data); err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("execTemplate")
+// 		return gko.Err(err).Op("execTemplate")
 // 	}
 
 // 	strings.NewReplacer("[[", "{{", "]]", "}}").WriteString(buf, buf2.String())
@@ -137,13 +137,13 @@ package tmplutils
 // func HaciaStringHTML(tmplString string, data any) (html string, err error) {
 // 	tmpl, err := template.New("").Funcs(funcMap).Parse(tmplString)
 // 	if err != nil {
-// 		return "", gecko.NewErr(800).Err(err).Op("parseTemplate")
+// 		return "", gko.Err(err).Op("parseTemplate")
 // 	}
 
 // 	buf := new(bytes.Buffer)
 
 // 	if err = tmpl.Execute(buf, data); err != nil {
-// 		return "", gecko.NewErr(800).Err(err).Op("execTemplate")
+// 		return "", gko.Err(err).Op("execTemplate")
 // 	}
 
 // 	return strings.NewReplacer("[[", "{{", "]]", "}}").Replace(buf.String()), nil
@@ -153,13 +153,13 @@ package tmplutils
 // func HaciaArchivoHTML(tmplString string, data any, filename string) error {
 // 	tmpl, err := template.New("").Funcs(funcMap).Parse(tmplString)
 // 	if err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("parseTemplate")
+// 		return gko.Err(err).Op("parseTemplate")
 // 	}
 
 // 	buf := new(bytes.Buffer)
 
 // 	if err = tmpl.Execute(buf, data); err != nil {
-// 		return gecko.NewErr(800).Err(err).Op("execTemplate")
+// 		return gko.Err(err).Op("execTemplate")
 // 	}
 
 // 	fileOut, err := os.Create(filename)

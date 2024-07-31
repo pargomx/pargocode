@@ -12,7 +12,7 @@ func (s *Repositorio) scanRows{{ .NombreItem }}(rows *sql.Rows, op string) ([]{{
 			{{ .ScanArgs }},
 		)
 		if err != nil {
-			return nil, gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return nil, gko.ErrInesperado().Err(err).Op(op)
 		}
 		{{ .ScanSetters }}
 		items = append(items, {{ .NombreAbrev }})

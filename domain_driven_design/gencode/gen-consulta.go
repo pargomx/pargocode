@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 // ================================================================ //
@@ -239,10 +239,9 @@ func (s *Generador) GenerarDeConsultaStringNew(consulta *dpaquete.Consulta, tipo
 // ========== COLECCIONES ========================================= //
 
 func (s *Generador) GenerarDeConsultaAllMySQL(qry *dpaquete.Consulta, buf io.Writer) error {
-	ctx := gecko.NewErr(800).Op("GenerarDeConsultaAllMySQL")
 	err := s.GenerarDeConsultaNew(qry, "mysql/paquete", buf, false)
 	if err != nil {
-		return err
+		return gko.Err(err).Op("GenerarDeConsultaAllMySQL")
 	}
 	porGenerar := []string{
 		"mysql/constantes",
@@ -256,7 +255,7 @@ func (s *Generador) GenerarDeConsultaAllMySQL(qry *dpaquete.Consulta, buf io.Wri
 	}
 	for _, tipo := range porGenerar {
 		if err := s.GenerarDeConsultaNew(qry, tipo, buf, true); err != nil {
-			return ctx.Err(err)
+			return gko.Err(err).Op("GenerarDeConsultaAllMySQL")
 		}
 	}
 	return nil
@@ -266,16 +265,16 @@ func (s *Generador) GenerarDeConsultaAllMySQL(qry *dpaquete.Consulta, buf io.Wri
 // ========== GENERAR ============================================= //
 
 func (s *Generador) GenerarDeConsultaNew(consulta *dpaquete.Consulta, tipo string, buf io.Writer, separador bool) error {
-	ctx := gecko.NewErr(700).Op("generar").Ctx("tipo", tipo)
+	op := gko.Op("generar").Ctx("tipo", tipo)
 	if consulta == nil {
-		return ctx.Msg("consulta es nil")
+		return op.Msg("consulta es nil")
 	}
-	ctx.Ctx("consulta", consulta.Consulta.NombreItem)
+	op.Ctx("consulta", consulta.Consulta.NombreItem)
 	if consulta.Consulta.NombreItem == "" {
-		return ctx.Msg("nombre de modelo indefinido")
+		return op.Msg("nombre de modelo indefinido")
 	}
 	if len(consulta.Campos) == 0 {
-		return ctx.Msg("debe haber al menos una columna")
+		return op.Msg("debe haber al menos una columna")
 	}
 	// if len(consulta.PrimaryKeys) == 0 {
 	// 	return ctx.Msg("debe haber al menos una clave primaria")

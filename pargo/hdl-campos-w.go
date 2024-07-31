@@ -104,12 +104,12 @@ func (s *servidor) postEnumCampo(c *gecko.Context) error {
 	}
 	data, err := io.ReadAll(c.Request().Body)
 	if err != nil {
-		return c.ServerError(err)
+		return err
 	}
 	valores := []RequestCampoEspecial{}
 	err = json.Unmarshal(data, &valores)
 	if err != nil {
-		return c.ErrBadRequest(err)
+		return err
 	}
 	fmt.Println("Recibido", valores)
 	nuevosValores := []ddd.ValorEnum{}

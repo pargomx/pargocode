@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 func (s *servidor) postTablaNueva(c *gecko.Context) error {
@@ -30,7 +31,7 @@ func (s *servidor) postTablaNueva(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	c.LogInfof("Tabla nueva '%s'", tbl.NombreRepo)
+	gko.LogInfof("Tabla nueva '%s'", tbl.NombreRepo)
 	return c.RedirectHTMX("/tablas/%d", tbl.TablaID)
 }
 
@@ -56,7 +57,7 @@ func (s *servidor) putTabla(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	c.LogInfof("Tabla actualizada '%s'", tbl.NombreRepo)
+	gko.LogInfof("Tabla actualizada '%s'", tbl.NombreRepo)
 	return c.StatusOk(fmt.Sprintf("Guardado %v", time.Now().Format("03:04:05pm")))
 }
 
@@ -66,13 +67,13 @@ func (s *servidor) eliminarTabla(c *gecko.Context) error {
 		return err
 	}
 	if c.PromptVal() != "ok" {
-		return c.StatusBadRequest("Para eliminarlo escribe el 'ok' en el campo de confirmación")
+		return gko.ErrDatoInvalido().Msg("Para eliminarlo escribe el 'ok' en el campo de confirmación")
 	}
 	err = s.ddd.DeleteTabla(tbl.TablaID)
 	if err != nil {
 		return err
 	}
-	c.LogInfof("Tabla '%s' eliminada", tbl.NombreRepo)
+	gko.LogInfof("Tabla '%s' eliminada", tbl.NombreRepo)
 	return c.Redir("/paquetes")
 }
 

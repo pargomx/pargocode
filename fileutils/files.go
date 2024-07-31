@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 // NuevaCarpeta intenta crear una nueva carpeta
@@ -18,7 +18,7 @@ func NuevaCarpeta(path string) {
 		return
 	}
 	if err != nil {
-		gecko.FatalFmt("nuevaCarpeta: ["+path+"]", err)
+		gko.FatalExitf("nuevaCarpeta: ["+path+"] %v", err)
 	}
 }
 
@@ -37,7 +37,7 @@ func NuevaCarpetaConfirm(path string) {
 		return
 	}
 	if err != nil {
-		gecko.FatalFmt("nuevaCarpeta: ["+path+"]", err)
+		gko.FatalExitf("nuevaCarpeta: ["+path+"] %v", err)
 	}
 }
 
@@ -52,11 +52,11 @@ func NuevoArchivo(path string) {
 	}
 
 	if !errors.Is(err, os.ErrNotExist) {
-		gecko.FatalFmt("NuevoArchivo: ["+path+"]", err)
+		gko.FatalExitf("NuevoArchivo: ["+path+"] %v", err)
 	}
 
 	_, err = os.Create(path)
 	if err != nil {
-		gecko.FatalFmt("NuevoArchivo: ["+path+"]", err)
+		gko.FatalExitf("NuevoArchivo: ["+path+"] %v", err)
 	}
 }

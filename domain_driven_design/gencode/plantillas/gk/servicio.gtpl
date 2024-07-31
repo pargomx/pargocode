@@ -20,11 +20,11 @@ func NewHandlers(
 	{{ end }}
 ) *handlersGecko {
 	if {{ $.Tabla.Nombre.ClavePlural }} == nil { {{/* comprobar repositorios nil */}}
-		gecko.FatalFmt("gk{{ $.Tabla.Nombre.Clave }}.NuevoServicio", errors.New("{{$.Tabla.Nombre.Clave}}.Repositorio es nil"))
+		gko.FatalExitf("gk{{ $.Tabla.Nombre.Clave }}.NuevoServicio", errors.New("{{$.Tabla.Nombre.Clave}}.Repositorio es nil"))
 	}
 	{{ range .EntidadesFK -}}
 	if {{ .Nombre.ClavePlural }} == nil {
-		gecko.FatalFmt("gk{{ $.Tabla.Nombre.Clave }}.NuevoServicio", errors.New("{{ .Nombre.ClavePlural }}.Lector es nil"))
+		gko.FatalExitf("gk{{ $.Tabla.Nombre.Clave }}.NuevoServicio", errors.New("{{ .Nombre.ClavePlural }}.Lector es nil"))
 	}
 	{{ end -}}
 	return &handlersGecko{

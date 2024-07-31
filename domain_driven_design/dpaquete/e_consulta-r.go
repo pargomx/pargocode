@@ -1,9 +1,9 @@
 package dpaquete
 
-import "github.com/pargomx/gecko"
+import "github.com/pargomx/gecko/gko"
 
 func GetAgregadoConsulta(consultaID int, repo Repositorio) (*Consulta, error) {
-	ctx := gecko.NewOp("GetAgregadoConsulta").Ctx("consultaID", consultaID)
+	ctx := gko.Op("GetAgregadoConsulta").Ctx("consultaID", consultaID)
 	consulta, err := repo.GetConsulta(consultaID)
 	if err != nil {
 		return nil, ctx.Err(err)

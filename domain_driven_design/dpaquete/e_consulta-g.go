@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 // ================================================================ //
@@ -64,11 +64,11 @@ func (consulta *Consulta) SqlFromClause(sep string) string {
 	for i, rel := range consulta.Relaciones {
 		fromSQL += sep + rel.joinString()
 		if rel.From == nil {
-			gecko.LogWarnf("la relación FromTabla = nil")
+			gko.LogWarnf("la relación FromTabla = nil")
 			continue
 		}
 		if i == 0 && rel.FromTablaID != consulta.TablaOrigen.TablaID {
-			gecko.LogWarnf("la consulta '" + consulta.Consulta.NombreItem + "' debería tener el primer join a partir de la tabla principal '" + consulta.TablaOrigen.NombreRepo + "'")
+			gko.LogWarnf("la consulta '" + consulta.Consulta.NombreItem + "' debería tener el primer join a partir de la tabla principal '" + consulta.TablaOrigen.NombreRepo + "'")
 		}
 	}
 	return fromSQL + sep
@@ -104,21 +104,21 @@ func (r Relacion) onString() string {
 			for _, tJoin = range r.Join.ForeignKeys() {
 				tFrom, err = r.From.BuscarCampo(tJoin.NombreColumna) // TODO: no usar agregado sino GetCampo(idCampo)
 				if err != nil {
-					// gecko.LogWarnf("Tablas en relación '" + r.TablaJoin.NombreRepo + "->" + r.TablaFrom.NombreRepo + "' no comparten PK-FK " + tJoin.NombreColumna)
+					// gko.LogWarnf("Tablas en relación '" + r.TablaJoin.NombreRepo + "->" + r.TablaFrom.NombreRepo + "' no comparten PK-FK " + tJoin.NombreColumna)
 					continue // Esto es normal porque la relación puede ser entre un subset de los PK y FK.
 				}
 				break
 			}
 		}
 		if tFrom == nil {
-			gecko.LogWarnf("ignorando '" + r.Join.Tabla.NombreRepo + "->" + r.From.Tabla.NombreRepo + "' porque no comparten PK-FK " + tJoin.NombreColumna)
+			gko.LogWarnf("ignorando '" + r.Join.Tabla.NombreRepo + "->" + r.From.Tabla.NombreRepo + "' porque no comparten PK-FK " + tJoin.NombreColumna)
 			continue
 		}
 		if !tJoin.ForeignKey && !tJoin.PrimaryKey {
-			gecko.LogWarnf("El campo '" + tJoin.NombreColumna + "' de '" + r.Join.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + r.Join.Tabla.NombreRepo + "->" + r.From.Tabla.NombreRepo)
+			gko.LogWarnf("El campo '" + tJoin.NombreColumna + "' de '" + r.Join.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + r.Join.Tabla.NombreRepo + "->" + r.From.Tabla.NombreRepo)
 		}
 		if !tFrom.ForeignKey && !tFrom.PrimaryKey {
-			gecko.LogWarnf("El campo '" + tFrom.NombreColumna + "' de '" + r.From.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + r.Join.Tabla.NombreRepo + "->" + r.From.Tabla.NombreRepo)
+			gko.LogWarnf("El campo '" + tFrom.NombreColumna + "' de '" + r.From.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + r.Join.Tabla.NombreRepo + "->" + r.From.Tabla.NombreRepo)
 		}
 		comparaciones += fmt.Sprintf("%s.%s = %s.%s AND ",
 			r.From.Tabla.Abrev, tFrom.NombreColumna,

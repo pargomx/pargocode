@@ -7,7 +7,7 @@ import (
 
 	"monorepo/textutils"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 // funcMap contiene funciones útiles para usar dentro de las plantillas.
@@ -21,7 +21,7 @@ var funcMap = template.FuncMap{
 	},
 	"resta": func(num ...int) int {
 		if len(num) == 0 {
-			gecko.LogWarnf("template.resta: llamada func resta sin argumentos")
+			gko.LogWarnf("template.resta: llamada func resta sin argumentos")
 			return 0
 		}
 		var res int

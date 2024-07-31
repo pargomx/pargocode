@@ -3,12 +3,12 @@ package dpaquete
 import (
 	"fmt"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 func GetTabla(tablaID int, repo Repositorio) (*Tabla, error) {
 
-	op := gecko.NewOp("GetAgregadoTabla").Ctx("tablaID", tablaID)
+	op := gko.Op("GetAgregadoTabla").Ctx("tablaID", tablaID)
 	tabla, err := repo.GetTabla(tablaID)
 	if err != nil {
 		return nil, op.Err(err)
@@ -88,7 +88,7 @@ func GetTabla(tablaID int, repo Repositorio) (*Tabla, error) {
 }
 
 func GetTablas(repo Repositorio) ([]Tabla, error) {
-	ctx := gecko.NewOp("GetAgregadosTabla")
+	ctx := gko.Op("GetAgregadosTabla")
 	tablas, err := repo.ListTablas()
 	if err != nil {
 		return nil, ctx.Err(err)

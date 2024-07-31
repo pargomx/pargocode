@@ -3,12 +3,11 @@ package sqliteddd
 import (
 	"database/sql"
 	"errors"
-	"net/http"
 	"strings"
 
 	"monorepo/domain_driven_design/ddd"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 //  ================================================================  //
@@ -31,11 +30,11 @@ const fromPaquete string = "FROM paquetes "
 func (s *Repositorio) InsertPaquete(paq ddd.Paquete) error {
 	const op string = "mysqlddd.InsertPaquete"
 	if paq.PaqueteID == 0 {
-		return gecko.NewErr(http.StatusBadRequest).Msg("PaqueteID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("PaqueteID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	err := paq.Validar()
 	if err != nil {
-		return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec("INSERT INTO paquetes "+
 		"(paquete_id, go_module, directorio, nombre, descripcion) "+
@@ -44,11 +43,11 @@ func (s *Repositorio) InsertPaquete(paq ddd.Paquete) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1062 (23000)") {
-			return gecko.NewErr(http.StatusConflict).Err(err).Op(op)
+			return gko.ErrYaExiste().Err(err).Op(op)
 		} else if strings.HasPrefix(err.Error(), "Error 1452 (23000)") {
-			return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
+			return gko.ErrDatoInvalido().Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
 		} else {
-			return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return gko.ErrInesperado().Err(err).Op(op)
 		}
 	}
 	return nil
@@ -61,11 +60,11 @@ func (s *Repositorio) InsertPaquete(paq ddd.Paquete) error {
 func (s *Repositorio) UpdatePaquete(paq ddd.Paquete) error {
 	const op string = "mysqlddd.UpdatePaquete"
 	if paq.PaqueteID == 0 {
-		return gecko.NewErr(http.StatusBadRequest).Msg("PaqueteID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("PaqueteID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	err := paq.Validar()
 	if err != nil {
-		return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec(
 		"UPDATE paquetes SET "+
@@ -75,7 +74,7 @@ func (s *Repositorio) UpdatePaquete(paq ddd.Paquete) error {
 		paq.PaqueteID,
 	)
 	if err != nil {
-		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return gko.ErrInesperado().Err(err).Op(op)
 	}
 	return nil
 }
@@ -88,7 +87,7 @@ func (s *Repositorio) UpdatePaquete(paq ddd.Paquete) error {
 func (s *Repositorio) DeletePaquete(PaqueteID int) error {
 	const op string = "mysqlddd.DeletePaquete"
 	if PaqueteID == 0 {
-		return gecko.NewErr(http.StatusBadRequest).Msg("PaqueteID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido().Msg("PaqueteID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	// Verificar que solo se borre un registro.
 	var num int
@@ -97,14 +96,14 @@ func (s *Repositorio) DeletePaquete(PaqueteID int) error {
 	).Scan(&num)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return gecko.NewErr(http.StatusNotFound).Err(ddd.ErrPaqueteNotFound).Op(op)
+			return gko.ErrNoEncontrado().Err(ddd.ErrPaqueteNotFound).Op(op)
 		}
-		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return gko.ErrInesperado().Err(err).Op(op)
 	}
 	if num > 1 {
-		return gecko.NewErr(http.StatusInternalServerError).Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
+		return gko.ErrInesperado().Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
 	} else if num == 0 {
-		return gecko.NewErr(http.StatusNotFound).Err(ddd.ErrPaqueteNotFound).Op(op).Msg("cero resultados")
+		return gko.ErrNoEncontrado().Err(ddd.ErrPaqueteNotFound).Op(op).Msg("cero resultados")
 	}
 	// Eliminar registro
 	_, err = s.db.Exec(
@@ -113,9 +112,9 @@ func (s *Repositorio) DeletePaquete(PaqueteID int) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1451 (23000)") {
-			return gecko.NewErr(http.StatusConflict).Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
+			return gko.ErrYaExiste().Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
 		} else {
-			return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return gko.ErrInesperado().Err(err).Op(op)
 		}
 	}
 	return nil
@@ -132,9 +131,9 @@ func (s *Repositorio) scanRowPaquete(row *sql.Row, paq *ddd.Paquete, op string) 
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return gecko.NewErr(http.StatusNotFound).Msg("el paquete no se encuentra").Op(op)
+			return gko.ErrNoEncontrado().Msg("el paquete no se encuentra").Op(op)
 		}
-		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return gko.ErrInesperado().Err(err).Op(op)
 	}
 
 	return nil
@@ -148,7 +147,7 @@ func (s *Repositorio) scanRowPaquete(row *sql.Row, paq *ddd.Paquete, op string) 
 func (s *Repositorio) GetPaquete(PaqueteID int) (*ddd.Paquete, error) {
 	const op string = "mysqlddd.GetPaquete"
 	if PaqueteID == 0 {
-		return nil, gecko.NewErr(http.StatusBadRequest).Msg("PaqueteID sin especificar").Ctx(op, "pk_indefinida")
+		return nil, gko.ErrDatoInvalido().Msg("PaqueteID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	row := s.db.QueryRow(
 		"SELECT "+columnasPaquete+" "+fromPaquete+
@@ -167,7 +166,7 @@ func (s *Repositorio) GetPaquete(PaqueteID int) (*ddd.Paquete, error) {
 func (s *Repositorio) GetPaqueteByNombre(Nombre string) (*ddd.Paquete, error) {
 	const op string = "mysqlddd.GetPaqueteByNombre"
 	if Nombre == "" {
-		return nil, gecko.NewErr(http.StatusBadRequest).Msg("Nombre sin especificar").Ctx(op, "param_indefinido")
+		return nil, gko.ErrDatoInvalido().Msg("Nombre sin especificar").Ctx(op, "param_indefinido")
 	}
 	row := s.db.QueryRow(
 		"SELECT "+columnasPaquete+" "+fromPaquete+
@@ -194,7 +193,7 @@ func (s *Repositorio) scanRowsPaquete(rows *sql.Rows, op string) ([]ddd.Paquete,
 			&paq.PaqueteID, &paq.GoModule, &paq.Directorio, &paq.Nombre, &paq.Descripcion,
 		)
 		if err != nil {
-			return nil, gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return nil, gko.ErrInesperado().Err(err).Op(op)
 		}
 
 		items = append(items, paq)
@@ -212,7 +211,7 @@ func (s *Repositorio) ListPaquetes() ([]ddd.Paquete, error) {
 		"SELECT " + columnasPaquete + " " + fromPaquete,
 	)
 	if err != nil {
-		return nil, gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return nil, gko.ErrInesperado().Err(err).Op(op)
 	}
 	return s.scanRowsPaquete(rows, op)
 }

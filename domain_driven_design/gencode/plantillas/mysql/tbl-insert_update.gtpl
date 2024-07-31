@@ -7,7 +7,7 @@ func (s *Repositorio) InsertUpdate{{ .Tabla.NombreItem }}({{ .Tabla.NombreAbrev 
 	{{ end -}}
 	err := {{ .Tabla.NombreAbrev }}.Validar()
 	if err != nil {
-		return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec("INSERT INTO {{ .Tabla.NombreRepo }} "+
 		"({{ .Tabla.CamposEditablesAsSnakeList ", " }}) "+
@@ -24,12 +24,12 @@ func (s *Repositorio) InsertUpdate{{ .Tabla.NombreItem }}({{ .Tabla.NombreAbrev 
 				{{ .Tabla.PrimaryKeysAsArguments .Tabla.NombreAbrev }},
 			)
 			if err != nil {
-				return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+				return gko.ErrInesperado().Err(err).Op(op)
 			}
 		}else if strings.HasPrefix(err.Error(), "Error 1452 (23000)") {
-			return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
+			return gko.ErrDatoInvalido().Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
 		}else {
-			return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return gko.ErrInesperado().Err(err).Op(op)
 		}
 	}
 	return nil

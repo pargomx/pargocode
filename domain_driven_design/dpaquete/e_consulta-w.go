@@ -5,10 +5,10 @@ import (
 	"monorepo/domain_driven_design/ddd"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
-func validarConsulta(con ddd.Consulta, repo Repositorio, op *gecko.Gkerror) error {
+func validarConsulta(con ddd.Consulta, repo Repositorio, op *gko.Error) error {
 	// Validar Paquete
 	if con.PaqueteID == 0 {
 		return op.Msg("se debe definir el paquete al que pertenece la nueva consulta")
@@ -69,7 +69,7 @@ func validarConsulta(con ddd.Consulta, repo Repositorio, op *gecko.Gkerror) erro
 }
 
 func CrearConsulta(con ddd.Consulta, repo Repositorio) error {
-	op := gecko.NewOp("CrearConsulta")
+	op := gko.Op("CrearConsulta")
 	if con.ConsultaID == 0 {
 		return op.Msg("se debe proporcionar un nuevo ID para la consulta")
 	}
@@ -90,7 +90,7 @@ func CrearConsulta(con ddd.Consulta, repo Repositorio) error {
 }
 
 func ActualizarConsulta(consultaID int, new ddd.Consulta, repo Repositorio) error {
-	op := gecko.NewOp("ActualizarConsulta")
+	op := gko.Op("ActualizarConsulta")
 	con, err := repo.GetConsulta(consultaID)
 	if err != nil {
 		return err
@@ -129,7 +129,7 @@ func ActualizarConsulta(consultaID int, new ddd.Consulta, repo Repositorio) erro
 }
 
 func EliminarConsulta(consultaID int, repo Repositorio) error {
-	op := gecko.NewOp("EliminarConsulta")
+	op := gko.Op("EliminarConsulta")
 	con, err := repo.GetConsulta(consultaID)
 	if err != nil {
 		return op.Err(err)
@@ -145,7 +145,7 @@ func EliminarConsulta(consultaID int, repo Repositorio) error {
 // ========== RELACIONES ========================================== //
 
 func AgregarRelacionConsulta(consultaID int, tipo string, joinTablaID int, fromAbrev string, repo Repositorio) error {
-	op := gecko.NewOp("AgregarRelacionConsulta")
+	op := gko.Op("AgregarRelacionConsulta")
 	// Consulta a la que se le agrega la relación
 	con, err := GetAgregadoConsulta(consultaID, repo)
 	if err != nil {
@@ -235,14 +235,14 @@ func AgregarRelacionConsulta(consultaID int, tipo string, joinTablaID int, fromA
 			}
 		}
 		if cFrom == nil {
-			gecko.LogWarnf("ignorando '" + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo + "' porque no comparten PK-FK " + cJoin.NombreColumna)
+			gko.LogWarnf("ignorando '" + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo + "' porque no comparten PK-FK " + cJoin.NombreColumna)
 			continue
 		}
 		if !cJoin.ForeignKey && !cJoin.PrimaryKey {
-			gecko.LogWarnf("El campo '" + cJoin.NombreColumna + "' de '" + tblJoin.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo)
+			gko.LogWarnf("El campo '" + cJoin.NombreColumna + "' de '" + tblJoin.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo)
 		}
 		if !cFrom.ForeignKey && !cFrom.PrimaryKey {
-			gecko.LogWarnf("El campo '" + cFrom.NombreColumna + "' de '" + tblFrom.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo)
+			gko.LogWarnf("El campo '" + cFrom.NombreColumna + "' de '" + tblFrom.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo)
 		}
 		relacion.JoinOn += fmt.Sprintf("%s.%s = %s.%s AND ",
 			relacion.JoinAs, cJoin.NombreColumna,
@@ -259,7 +259,7 @@ func AgregarRelacionConsulta(consultaID int, tipo string, joinTablaID int, fromA
 }
 
 func EliminarRelacionConsulta(consultaID int, posicion int, repo Repositorio) error {
-	op := gecko.NewOp("EliminarRelacionConsulta").Ctx("id", consultaID)
+	op := gko.Op("EliminarRelacionConsulta").Ctx("id", consultaID)
 	con, err := GetAgregadoConsulta(consultaID, repo)
 	if err != nil {
 		return op.Msgf("no se puede cargar la consulta %v", consultaID).Err(err)
@@ -286,7 +286,7 @@ func EliminarRelacionConsulta(consultaID int, posicion int, repo Repositorio) er
 }
 
 func ActualizarRelacionConsulta(ConsultaID int, Posicion int, newTipo string, newAs string, newOn string, repo Repositorio) error {
-	op := gecko.NewOp("ActualizarRelacionConsulta").Ctx("id", ConsultaID)
+	op := gko.Op("ActualizarRelacionConsulta").Ctx("id", ConsultaID)
 	con, err := GetAgregadoConsulta(ConsultaID, repo)
 	if err != nil {
 		return op.Msgf("no se puede cargar la consulta %v", ConsultaID).Err(err)
@@ -364,7 +364,7 @@ func ActualizarRelacionConsulta(ConsultaID int, Posicion int, newTipo string, ne
 // ========== CAMPOS ============================================== //
 
 func agregarAllCamposDeTabla(con *Consulta, fromAbrev string, repo Repositorio) error {
-	op := gecko.NewOp("agregarCamposConsultaAll").Ctx("consulta_id", con.Consulta.ConsultaID).Ctx("from", fromAbrev)
+	op := gko.Op("agregarCamposConsultaAll").Ctx("consulta_id", con.Consulta.ConsultaID).Ctx("from", fromAbrev)
 
 	var tblFrom *Tabla = nil
 	if fromAbrev == con.From.Tabla.Abrev {
@@ -384,14 +384,14 @@ func agregarAllCamposDeTabla(con *Consulta, fromAbrev string, repo Repositorio) 
 	for _, cam := range tblFrom.Campos {
 		err := AgregarCampoConsulta(con.Consulta.ConsultaID, fromAbrev, cam.NombreColumna, repo)
 		if err != nil {
-			gecko.LogError(err)
+			gko.LogError(err)
 		}
 	}
 	return nil
 }
 
 func AgregarCampoConsulta(consultaID int, fromAbrev string, expresion string, repo Repositorio) error {
-	op := gecko.NewOp("AgregarCampoConsulta").Ctx("consulta_id", consultaID).Ctx("from", fromAbrev).Ctx("expr", expresion)
+	op := gko.Op("AgregarCampoConsulta").Ctx("consulta_id", consultaID).Ctx("from", fromAbrev).Ctx("expr", expresion)
 	con, err := GetAgregadoConsulta(consultaID, repo)
 	if err != nil {
 		return op.Err(err)
@@ -484,7 +484,7 @@ func AgregarCampoConsulta(consultaID int, fromAbrev string, expresion string, re
 }
 
 func ReordenarCampoConsulta(consultaID int, oldPosicion, newPosicion int, repo Repositorio) error {
-	op := gecko.NewOp("MoverCampoConsulta").Ctx("consulta_id", consultaID).Ctx("old", oldPosicion).Ctx("new", newPosicion)
+	op := gko.Op("MoverCampoConsulta").Ctx("consulta_id", consultaID).Ctx("old", oldPosicion).Ctx("new", newPosicion)
 	con, err := GetAgregadoConsulta(consultaID, repo)
 	if err != nil {
 		return op.Err(err)
@@ -506,7 +506,7 @@ func ReordenarCampoConsulta(consultaID int, oldPosicion, newPosicion int, repo R
 }
 
 func ActualizarCampoConsulta(nuevo ddd.ConsultaCampo, repo Repositorio) error {
-	op := gecko.NewOp("ActualizarCampoConsulta").Ctx("consulta_id", nuevo.ConsultaID).Ctx("posicion", nuevo.Posicion)
+	op := gko.Op("ActualizarCampoConsulta").Ctx("consulta_id", nuevo.ConsultaID).Ctx("posicion", nuevo.Posicion)
 	con, err := GetAgregadoConsulta(nuevo.ConsultaID, repo)
 	if err != nil {
 		return op.Err(err)
@@ -564,7 +564,7 @@ func ActualizarCampoConsulta(nuevo ddd.ConsultaCampo, repo Repositorio) error {
 }
 
 func EliminarCampoConsulta(consultaID int, posicion int, repo Repositorio) error {
-	op := gecko.NewOp("EliminarCampoConsulta").Ctx("consulta_id", consultaID)
+	op := gko.Op("EliminarCampoConsulta").Ctx("consulta_id", consultaID)
 	con, err := GetAgregadoConsulta(consultaID, repo)
 	if err != nil {
 		return op.Err(err)

@@ -12,7 +12,7 @@ func (s *handlersGecko) InsertUpdate(c *gecko.Context) error {
 	{{/* Obtener info existente si la hay */ -}}
 	err := s.{{$.Tabla.Nombre.ClavePlural}}.Get{{$.Tabla.NombreItem}}ByID({{ range $.Tabla.PrimaryKeys }}{{ $.Tabla.Nombre.Camel }}.{{ .Nombre.Camel }},{{ end }} &{{ $.Tabla.Nombre.Camel }})
 	if err != nil && !gecko.EsErrNotFound(err) {
-		return gecko.Err(err).Op("gk{{ $.Tabla.Nombre.Clave }}.Put")
+		return gko.Err(err).Op("gk{{ $.Tabla.Nombre.Clave }}.Put")
 	}
 
 	{{/* Poner nuevos datos */ -}}
@@ -54,7 +54,7 @@ func (s *handlersGecko) InsertUpdate(c *gecko.Context) error {
 	{{/* Insertar o actualizar item en repositorio */ -}}
 	err = s.{{$.Tabla.Nombre.ClavePlural}}.InsertUpdateItem({{$.Tabla.Nombre.Camel}})
 	if err != nil {
-		return gecko.Err(err).Op("gk{{ $.Tabla.Nombre.Clave }}.Put")
+		return gko.Err(err).Op("gk{{ $.Tabla.Nombre.Clave }}.Put")
 	}
 	return c.Redir("/{{$.Tabla.Nombre.ClavePlural}}{{ range $.Tabla.PrimaryKeys }}/%v{{ end }}/{{ $.Tabla.Nombre.Kebab }}", {{ range $.Tabla.PrimaryKeys }}{{ $.Tabla.Nombre.Camel }}.{{ .Nombre.Camel }},{{ end }})
 }

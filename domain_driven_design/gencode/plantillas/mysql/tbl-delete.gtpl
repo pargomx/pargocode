@@ -8,14 +8,14 @@ func (s *Repositorio) Delete{{ .Tabla.NombreItem }}({{ .Tabla.PrimaryKeysAsFuncP
 	).Scan(&num)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return gecko.NewErr(http.StatusNotFound).Err({{ .Tabla.Paquete.Nombre }}.Err{{ .Tabla.NombreItem }}NotFound).Op(op)
+			return gko.ErrNoEncontrado().Err({{ .Tabla.Paquete.Nombre }}.Err{{ .Tabla.NombreItem }}NotFound).Op(op)
 		}
-		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return gko.ErrInesperado().Err(err).Op(op)
 	}
 	if num > 1 {
-		return gecko.NewErr(http.StatusInternalServerError).Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
+		return gko.ErrInesperado().Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
 	} else if num == 0 {
-		return gecko.NewErr(http.StatusNotFound).Err({{ .Tabla.Paquete.Nombre }}.Err{{ .Tabla.NombreItem }}NotFound).Op(op).Msg("cero resultados")
+		return gko.ErrNoEncontrado().Err({{ .Tabla.Paquete.Nombre }}.Err{{ .Tabla.NombreItem }}NotFound).Op(op).Msg("cero resultados")
 	}
 	// Eliminar registro
 	_, err = s.db.Exec(
@@ -24,9 +24,9 @@ func (s *Repositorio) Delete{{ .Tabla.NombreItem }}({{ .Tabla.PrimaryKeysAsFuncP
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(),"Error 1451 (23000)"){
-			return gecko.NewErr(http.StatusConflict).Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
+			return gko.ErrYaExiste().Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
 		} else {
-			return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+			return gko.ErrInesperado().Err(err).Op(op)
 		}
 	}
 	return nil

@@ -5,7 +5,7 @@ import (
 	"monorepo/domain_driven_design/ddd"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 type CampoTabla struct {
@@ -154,7 +154,7 @@ func (c CampoTabla) EsPointer() bool {
 // declarada en la semilla.csv
 // Útil para discriminar declaraciones de types.
 func EsPropiedadExtendida(nombre string) bool {
-	gecko.FatalFmt("EsPropiedadExtendida: deprecated")
+	gko.FatalExit("EsPropiedadExtendida: deprecated")
 	return false
 }
 
@@ -192,7 +192,7 @@ func (c CampoTabla) IfZeroReturnNilAndErr(razón string, nombreVariable string) 
 // Ejemplo de resultado:
 //
 //	if enc.OrganizacionID == 0 {
-//		return nil, gecko.NewErr(http.StatusBadRequest).Msg("OrganizacionID sin especificar").Ctx(op, "pk_indefinida")
+//		return nil, gko.ErrDatoInvalido().Msg("OrganizacionID sin especificar").Ctx(op, "pk_indefinida")
 //	}
 //
 // razón que se da como contexto al error. Ejemplos: "pk_indefinida" "fk requerida" "campo requerido"
@@ -234,7 +234,7 @@ func (c CampoTabla) ifZeroReturnErr(razón string, nombreVariable string, return
 		comparacion += ".Es" + c.NombreCampo + "Indefinido() "
 
 	default:
-		gecko.LogWarnf("No se verificará que %v no sea Zero value", c.NombreCampo)
+		gko.LogWarnf("No se verificará que %v no sea Zero value", c.NombreCampo)
 		return `\\` + " TODO: verificar que " + c.NombreCampo + " no esté indefinido"
 	}
 
@@ -244,7 +244,7 @@ func (c CampoTabla) ifZeroReturnErr(razón string, nombreVariable string, return
 		comparacion += "nil, "
 	}
 
-	comparacion += fmt.Sprintf(`gecko.NewErr(http.StatusBadRequest).Msg("%v sin especificar").Ctx(op, "%v")`, c.NombreCampo, razón)
+	comparacion += fmt.Sprintf(`gko.ErrDatoInvalido().Msg("%v sin especificar").Ctx(op, "%v")`, c.NombreCampo, razón)
 
 	comparacion += "\n}\n"
 

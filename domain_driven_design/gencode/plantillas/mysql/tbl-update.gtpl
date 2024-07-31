@@ -7,7 +7,7 @@ func (s *Repositorio) Update{{ .Tabla.NombreItem }}({{ .Tabla.NombreAbrev }} {{ 
 	{{ end -}}
 	err := {{ .Tabla.NombreAbrev }}.Validar()
 	if err != nil {
-		return gecko.NewErr(http.StatusBadRequest).Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec(
 		"UPDATE {{ .Tabla.NombreRepo }} SET " +
@@ -17,7 +17,7 @@ func (s *Repositorio) Update{{ .Tabla.NombreItem }}({{ .Tabla.NombreAbrev }} {{ 
 		{{ .Tabla.PrimaryKeysAsArguments .Tabla.NombreAbrev }},
 	)
 	if err != nil {
-		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return gko.ErrInesperado().Err(err).Op(op)
 	}
 	return nil
 }

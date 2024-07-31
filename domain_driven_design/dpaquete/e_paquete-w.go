@@ -5,11 +5,11 @@ import (
 	"monorepo/textutils"
 	"strings"
 
-	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 func AgregarPaquete(paq ddd.Paquete, repo Repositorio) error {
-	op := gecko.NewOp("AgregarPaquete")
+	op := gko.Op("AgregarPaquete")
 	if paq.PaqueteID == 0 {
 		return op.Msg("Debe especificar un nuevo paqueteID")
 	}
@@ -27,7 +27,7 @@ func AgregarPaquete(paq ddd.Paquete, repo Repositorio) error {
 }
 
 func ActualizarPaquete(paq ddd.Paquete, repo Repositorio) error {
-	op := gecko.NewOp("ActualizarPaquete")
+	op := gko.Op("ActualizarPaquete")
 	if paq.PaqueteID == 0 {
 		return op.Msg("paqueteID no especificado")
 	}
@@ -52,7 +52,7 @@ func ActualizarPaquete(paq ddd.Paquete, repo Repositorio) error {
 }
 
 func EliminarPaquete(paqueteID int, repo Repositorio) error {
-	op := gecko.NewOp("EliminarPaquete").Ctx("paquete_id", paqueteID)
+	op := gko.Op("EliminarPaquete").Ctx("paquete_id", paqueteID)
 	paquete, err := GetPaquete(repo, paqueteID)
 	if err != nil {
 		return op.Err(err)

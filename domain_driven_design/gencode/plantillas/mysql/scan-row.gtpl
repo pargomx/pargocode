@@ -7,9 +7,9 @@ func (s *Repositorio) scanRow{{ .NombreItem }}(row *sql.Row, {{ .NombreAbrev }} 
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return gecko.NewErr(http.StatusNotFound).Msg("{{ .TablaOrigen.Humano }} no se encuentra").Op(op)
+			return gko.ErrNoEncontrado().Msg("{{ .TablaOrigen.Humano }} no se encuentra").Op(op)
 		}
-		return gecko.NewErr(http.StatusInternalServerError).Err(err).Op(op)
+		return gko.ErrInesperado().Err(err).Op(op)
 	}
 	{{ .ScanSetters }}
 	return nil
