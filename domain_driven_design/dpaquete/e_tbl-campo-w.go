@@ -21,7 +21,7 @@ func ReordenarCampo(campoID int, newPosicion int, repo Repositorio) error {
 	return nil
 }
 
-func validarCampo(cam ddd.Campo, repo Repositorio) error {
+func validarCampo(cam *ddd.Campo, repo Repositorio) error {
 	op := gecko.NewOp("validarCampo")
 
 	// Debe pertenecer a una tabla
@@ -60,6 +60,8 @@ func validarCampo(cam ddd.Campo, repo Repositorio) error {
 			return err
 		}
 		cam.ReferenciaCampo = &fk.CampoID
+	} else {
+		cam.ReferenciaCampo = nil
 	}
 
 	// Si tiene valores enum entonces es un campo especial.
@@ -240,7 +242,7 @@ func InsertarCampoQuick(tablaID int, nombreCol string, repo Repositorio) error {
 
 func InsertarCampo(cam ddd.Campo, repo Repositorio) error {
 	op := gecko.NewOp("InsertarCampo")
-	err := validarCampo(cam, repo)
+	err := validarCampo(&cam, repo)
 	if err != nil {
 		return op.Err(err)
 	}
@@ -283,7 +285,7 @@ func ActualizarCampo(campoID int, new ddd.Campo, repo Repositorio) error {
 	cam.Filtro = new.Filtro
 	cam.Especial = new.Especial
 
-	err = validarCampo(*cam, repo)
+	err = validarCampo(cam, repo)
 	if err != nil {
 		return op.Err(err)
 	}
