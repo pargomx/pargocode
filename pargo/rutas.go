@@ -106,6 +106,7 @@ func main() {
 	s.gecko.PUT("/tablas/{tabla_id}/campos", s.putCampo)
 	s.gecko.GET("/tablas/{tabla_id}/generar", s.generarDeTabla)
 	s.gecko.PUT("/tablas/{tabla_id}/generar/{tipo}", s.generarDeTablaArchivos)
+	s.gecko.POS("/tablas/{tabla_id}/campos_ordenar", s.fixOrdenDeCampos)
 
 	s.gecko.PUT("/campos/{campo_id}", s.updateCampo)
 	s.gecko.DEL("/campos/{campo_id}", s.deleteCampo)

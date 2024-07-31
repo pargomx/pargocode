@@ -326,3 +326,19 @@ func ActualizarOpcionesDeCampoEnum(campoID int, nuevosValores []ddd.ValorEnum, r
 	}
 	return nil
 }
+
+func FixPosicionDeCampos(tablaID int, repo Repositorio) error {
+	campos, err := repo.ListCamposByTablaID(tablaID)
+	if err != nil {
+		return err
+	}
+	for i, c := range campos {
+		if c.Posicion != i+1 {
+			err := repo.ReordenarCampo(&c, i+1)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}

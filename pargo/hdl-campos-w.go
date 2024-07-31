@@ -135,3 +135,11 @@ func (s *servidor) deleteCampo(c *gecko.Context) error {
 	}
 	return c.StatusOkf("Campo %v eliminado", c.PathInt("campo_id"))
 }
+
+func (s *servidor) fixOrdenDeCampos(c *gecko.Context) error {
+	err := dpaquete.FixPosicionDeCampos(c.PathInt("tabla_id"), s.ddd)
+	if err != nil {
+		return err
+	}
+	return c.RefreshHTMX()
+}

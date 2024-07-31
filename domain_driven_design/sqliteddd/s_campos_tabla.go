@@ -82,13 +82,13 @@ func (s *Repositorio) ReordenarCampo(cam *ddd.Campo, newPosicion int) error {
 	// Cambiar posición de hermanos
 	if cam.Posicion < newPosicion {
 		_, err = s.db.Exec(
-			"UPDATE campos SET posicion = (posicion - 1) WHERE posicion > ? AND posicion <= ?",
-			cam.Posicion, newPosicion,
+			"UPDATE campos SET posicion = (posicion - 1) WHERE tabla_id = ? AND posicion > ? AND posicion <= ?",
+			cam.TablaID, cam.Posicion, newPosicion,
 		)
 	} else {
 		_, err = s.db.Exec(
-			"UPDATE campos SET posicion = (posicion + 1) WHERE posicion >= ? AND posicion <= ?",
-			newPosicion, cam.Posicion,
+			"UPDATE campos SET posicion = (posicion + 1) WHERE tabla_id = ? AND posicion >= ? AND posicion <= ?",
+			cam.TablaID, newPosicion, cam.Posicion,
 		)
 	}
 	if err != nil {
