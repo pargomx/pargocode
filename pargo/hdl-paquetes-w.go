@@ -42,3 +42,42 @@ func (s *servidor) actualizarPaquete(c *gecko.Context) error {
 	}
 	return c.Redir("/paquetes")
 }
+
+// ================================================================ //
+// ================================================================ //
+
+func (s *servidor) generarDePaqueteArchivos(c *gecko.Context) error {
+	paq, err := s.ddd.GetPaquete(c.PathInt("paquete_id"))
+	if err != nil {
+		return err
+	}
+	reporte := "ARCHIVOS GENERADOS:\n\n"
+	errores := []error{}
+	tablas, consultas, err := dpaquete.GetTablasYConsultas(paq.PaqueteID, s.ddd)
+	if err != nil {
+		return err
+	}
+	for _, tbl := range tablas {
+		call := codeGenerator.TblGenerarArchivos(&tbl, c.PathVal("tipo"))
+		reporte += call.Destino() + "\n"
+		err = call.Generar()
+		if err != nil {
+			errores = append(errores, err)
+		}
+	}
+	for _, con := range consultas {
+		call := codeGenerator.QryGenerarArchivos(&con, c.PathVal("tipo"))
+		reporte += call.Destino() + "\n"
+		err = call.Generar()
+		if err != nil {
+			errores = append(errores, err)
+		}
+	}
+	if len(errores) > 0 {
+		reporte += "\nERRORES:\n\n"
+		for _, e := range errores {
+			reporte += e.Error() + "\n\n"
+		}
+	}
+	return c.StatusOk(reporte)
+}

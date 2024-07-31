@@ -11,6 +11,7 @@
 			<button type="button" hx-delete="/paquetes/{{ .Paquete.PaqueteID }}" hx-confirm="¿Eliminar paquete?" title="Eliminar paquete">🚮</button>
 			<a href="/paquetes/{{ .Paquete.PaqueteID }}">{{ .Paquete.Nombre }}</a>
 			<button type="button" onclick="showDialog('paquete{{ .Paquete.PaqueteID }}')" title="Editar paquete">✏️</button>
+			<button type="button" onclick="showDialog('generar{{ .Paquete.PaqueteID }}')" title="Generar código">📠</button>
 		</h2>
 		<div class="flex flex-col gap-2">
 			{{ range .Tablas -}}
@@ -107,5 +108,25 @@
 			</button>
 		</div>
 	</form>
+</dialog>
+{{ end }}{{ end }}
+
+{{ range .PaquetesConEntidades }}{{ with .Paquete }}
+<dialog id="generar{{ .PaqueteID }}" class="p-3 rounded-lg">
+	<header class="flex flex-wrap items-center gap-3 pb-2">
+		<h2 class="flex-grow w-full text-xl text-center sm:w-auto sm:text-left">Generar código para paquete {{ .Nombre }}</h2>
+		<button type="button" class="w-10 py-1 text-xl text-slate-200 bg-slate-600 rounded-lg" onclick="this.parentNode.parentNode.close()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+	</header>
+	<div class="flex flex-wrap items-center justify-center gap-4">
+		<a target="_blank" href="/paquetes/{{ .PaqueteID }}/generar/mysql" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-cyan-700 rounded shadow-md hover:bg-cyan-600">
+			MySQL
+		</a>
+		<a target="_blank" href="/paquetes/{{ .PaqueteID }}/generar/sqlite" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-cyan-700 rounded shadow-md hover:bg-cyan-600">
+			Sqlite
+		</a>
+		<a target="_blank" href="/paquetes/{{ .PaqueteID }}/generar/entidad" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-cyan-700 rounded shadow-md hover:bg-cyan-600">
+			Entidad
+		</a>
+	</div>
 </dialog>
 {{ end }}{{ end }}

@@ -95,6 +95,7 @@ func main() {
 	s.gecko.PUT("/paquetes/{paquete_id}", s.actualizarPaquete)
 	s.gecko.DEL("/paquetes/{paquete_id}", s.eliminarPaquete)
 	s.gecko.GET("/paquetes/{paquete_id}", s.getMapaEntidadRelacionPaquete)
+	s.gecko.GET("/paquetes/{paquete_id}/generar/{tipo}", s.generarDePaqueteArchivos)
 
 	s.gecko.GET("/tablas", s.getPaquetes)              // 1. Tablas en el proyecto
 	s.gecko.GET("/tablas/nueva", s.getTablaNueva)      // 2. Formulario para nueva tabla

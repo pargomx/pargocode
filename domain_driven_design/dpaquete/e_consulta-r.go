@@ -2,7 +2,7 @@ package dpaquete
 
 import "github.com/pargomx/gecko/gko"
 
-func GetAgregadoConsulta(consultaID int, repo Repositorio) (*Consulta, error) {
+func GetConsulta(consultaID int, repo Repositorio) (*Consulta, error) {
 	ctx := gko.Op("GetAgregadoConsulta").Ctx("consultaID", consultaID)
 	consulta, err := repo.GetConsulta(consultaID)
 	if err != nil {

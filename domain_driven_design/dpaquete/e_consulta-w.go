@@ -147,7 +147,7 @@ func EliminarConsulta(consultaID int, repo Repositorio) error {
 func AgregarRelacionConsulta(consultaID int, tipo string, joinTablaID int, fromAbrev string, repo Repositorio) error {
 	op := gko.Op("AgregarRelacionConsulta")
 	// Consulta a la que se le agrega la relación
-	con, err := GetAgregadoConsulta(consultaID, repo)
+	con, err := GetConsulta(consultaID, repo)
 	if err != nil {
 		return op.Msgf("no se puede cargar la consulta %v", consultaID).Err(err)
 	}
@@ -260,7 +260,7 @@ func AgregarRelacionConsulta(consultaID int, tipo string, joinTablaID int, fromA
 
 func EliminarRelacionConsulta(consultaID int, posicion int, repo Repositorio) error {
 	op := gko.Op("EliminarRelacionConsulta").Ctx("id", consultaID)
-	con, err := GetAgregadoConsulta(consultaID, repo)
+	con, err := GetConsulta(consultaID, repo)
 	if err != nil {
 		return op.Msgf("no se puede cargar la consulta %v", consultaID).Err(err)
 	}
@@ -287,7 +287,7 @@ func EliminarRelacionConsulta(consultaID int, posicion int, repo Repositorio) er
 
 func ActualizarRelacionConsulta(ConsultaID int, Posicion int, newTipo string, newAs string, newOn string, repo Repositorio) error {
 	op := gko.Op("ActualizarRelacionConsulta").Ctx("id", ConsultaID)
-	con, err := GetAgregadoConsulta(ConsultaID, repo)
+	con, err := GetConsulta(ConsultaID, repo)
 	if err != nil {
 		return op.Msgf("no se puede cargar la consulta %v", ConsultaID).Err(err)
 	}
@@ -392,7 +392,7 @@ func agregarAllCamposDeTabla(con *Consulta, fromAbrev string, repo Repositorio) 
 
 func AgregarCampoConsulta(consultaID int, fromAbrev string, expresion string, repo Repositorio) error {
 	op := gko.Op("AgregarCampoConsulta").Ctx("consulta_id", consultaID).Ctx("from", fromAbrev).Ctx("expr", expresion)
-	con, err := GetAgregadoConsulta(consultaID, repo)
+	con, err := GetConsulta(consultaID, repo)
 	if err != nil {
 		return op.Err(err)
 	}
@@ -485,7 +485,7 @@ func AgregarCampoConsulta(consultaID int, fromAbrev string, expresion string, re
 
 func ReordenarCampoConsulta(consultaID int, oldPosicion, newPosicion int, repo Repositorio) error {
 	op := gko.Op("MoverCampoConsulta").Ctx("consulta_id", consultaID).Ctx("old", oldPosicion).Ctx("new", newPosicion)
-	con, err := GetAgregadoConsulta(consultaID, repo)
+	con, err := GetConsulta(consultaID, repo)
 	if err != nil {
 		return op.Err(err)
 	}
@@ -507,7 +507,7 @@ func ReordenarCampoConsulta(consultaID int, oldPosicion, newPosicion int, repo R
 
 func ActualizarCampoConsulta(nuevo ddd.ConsultaCampo, repo Repositorio) error {
 	op := gko.Op("ActualizarCampoConsulta").Ctx("consulta_id", nuevo.ConsultaID).Ctx("posicion", nuevo.Posicion)
-	con, err := GetAgregadoConsulta(nuevo.ConsultaID, repo)
+	con, err := GetConsulta(nuevo.ConsultaID, repo)
 	if err != nil {
 		return op.Err(err)
 	}
@@ -565,7 +565,7 @@ func ActualizarCampoConsulta(nuevo ddd.ConsultaCampo, repo Repositorio) error {
 
 func EliminarCampoConsulta(consultaID int, posicion int, repo Repositorio) error {
 	op := gko.Op("EliminarCampoConsulta").Ctx("consulta_id", consultaID)
-	con, err := GetAgregadoConsulta(consultaID, repo)
+	con, err := GetConsulta(consultaID, repo)
 	if err != nil {
 		return op.Err(err)
 	}

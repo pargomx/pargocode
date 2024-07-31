@@ -103,3 +103,33 @@ func GetTablas(repo Repositorio) ([]Tabla, error) {
 	}
 	return items, nil
 }
+
+func GetTablasYConsultas(paqueteID int, repo Repositorio) ([]Tabla, []Consulta, error) {
+	op := gko.Op("GetTablasYConsultas")
+	tablas, err := repo.ListTablasByPaqueteID(paqueteID)
+	if err != nil {
+		return nil, nil, op.Err(err)
+	}
+	Tablas := []Tabla{}
+	for _, t := range tablas {
+		tbl, err := GetTabla(t.TablaID, repo)
+		if err != nil {
+			return nil, nil, op.Err(err)
+		}
+		Tablas = append(Tablas, *tbl)
+	}
+
+	consultas, err := repo.ListConsultasByPaqueteID(paqueteID)
+	if err != nil {
+		return nil, nil, op.Err(err)
+	}
+	Consultas := []Consulta{}
+	for _, c := range consultas {
+		consulta, err := GetConsulta(c.ConsultaID, repo)
+		if err != nil {
+			return nil, nil, op.Err(err)
+		}
+		Consultas = append(Consultas, *consulta)
+	}
+	return Tablas, Consultas, nil
+}

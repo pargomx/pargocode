@@ -45,7 +45,7 @@ func (s *servidor) formNuevaConsulta(c *gecko.Context) error {
 }
 
 func (s *servidor) getConsulta(c *gecko.Context) error {
-	agregadoConsulta, err := dpaquete.GetAgregadoConsulta(c.PathInt("consulta_id"), s.ddd)
+	agregadoConsulta, err := dpaquete.GetConsulta(c.PathInt("consulta_id"), s.ddd)
 	if err != nil {
 		return err
 	}
