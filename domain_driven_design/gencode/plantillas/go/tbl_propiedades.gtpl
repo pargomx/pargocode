@@ -77,38 +77,24 @@ func (e {{ $tipoGo }}) Es{{ .Camel }}() bool {
 }
 {{- end}}
 
-func (i *{{ $.Tabla.NombreItem }}) Es{{ $nombreCampo }}Todos() bool {
-	return i.{{ $nombreCampo }}.Es({{ $tipoGo }}Todos)
-}
-func (i *{{ $.Tabla.NombreItem }}) Es{{ $nombreCampo }}Indefinido() bool {
-	return i.{{ $nombreCampo }}.Es({{ $tipoGo }}Indefinido)
-}
-{{- range .ValoresPosibles }}
-func (i *{{ $.Tabla.NombreItem }}) Es{{ $nombreCampo }}{{ .Camel }}() bool {
-	return i.{{ $nombreCampo }}.Es({{ $tipoGo }}{{ .Camel }})
-}
-{{- end}}
-
 
 // Recibe la forma .String
 func Set{{ .TipoGo }}DB(str string) {{ .TipoGo }} {
-	op := averr.Oper("{{ $.Tabla.Paquete.Nombre }}.Set{{ .TipoGo }}DB")
 	for _, e := range Lista{{ .TipoGo }} {
 		if e.String == str {
 			return e
 		}
 	}
 	if str == {{ .TipoGo }}Todos.String {
-		avelog.Alert(op, "No se permite {{ .TipoGo }}Todos para un registro en DB")
+		gko.LogWarn("{{ $.Tabla.Paquete.Nombre }}.Set{{ .TipoGo }}: {{ .TipoGo }}Todos es inválido en DB")
 		return {{ .TipoGo }}Indefinido
 	}
-	avelog.Alert(op, "{{ .TipoGo }} inválido: \"%v\"", str)
+	gko.LogWarnf("{{ $.Tabla.Paquete.Nombre }}.Set{{ .TipoGo }} inválido: '%v'", str)
 	return {{ .TipoGo }}Indefinido
 }
 
 // Recibe la forma .Filtro
 func Set{{ .TipoGo }}Filtro(str string) {{ .TipoGo }} {
-	op := averr.Oper("{{ $.Tabla.Paquete.Nombre }}.Set{{ .TipoGo }}")
 	if str == "" || str == {{ .TipoGo }}Todos.Filtro {
 		return {{ .TipoGo }}Todos
 	}
@@ -117,7 +103,7 @@ func Set{{ .TipoGo }}Filtro(str string) {{ .TipoGo }} {
 			return e
 		}
 	}
-	avelog.Alert(op, "{{ .TipoGo }} inválido: \"%v\"", str)
+	gko.LogWarnf("{{ $.Tabla.Paquete.Nombre }}.Set{{ .TipoGo }} inválido: '%v'", str)
 	return {{ .TipoGo }}Indefinido
 }
 
@@ -125,7 +111,6 @@ func Set{{ .TipoGo }}Filtro(str string) {{ .TipoGo }} {
 {{/* --- Métodos Modelo.SetPropiedad() ------------ */}}
 // Recibe la forma .String o .Filtro
 func (i *{{ $.Tabla.NombreItem }}) Set{{ $nombreCampo }}(str string) {
-	op := averr.Oper("{{ $.Tabla.Paquete.Nombre }}.Set{{ $nombreCampo }}")
 	for _, e := range Lista{{ .TipoGo }} {
 		if e.String == str {
 			i.{{ $nombreCampo }} = e
@@ -137,10 +122,10 @@ func (i *{{ $.Tabla.NombreItem }}) Set{{ $nombreCampo }}(str string) {
 		}
 	}
 	if str == {{ .TipoGo }}Todos.String {
-		avelog.Alert(op, "No se permite {{ .TipoGo }}Todos para un registro en DB")
+		gko.LogWarn("{{ $.Tabla.Paquete.Nombre }}.Set{{ .TipoGo }}: {{ .TipoGo }}Todos es inválido en DB")
 		i.{{ $nombreCampo }} = {{ .TipoGo }}Indefinido
 	}
-	avelog.Alert(op, "{{ .TipoGo }} inválido: \"%v\"", str)
+	gko.LogWarnf("{{ $.Tabla.Paquete.Nombre }}.Set{{ .TipoGo }} inválido: '%v'", str)
 	i.{{ $nombreCampo }} = {{ .TipoGo }}Indefinido
 }
 {{- end -}}{{/* Rango campos de modelo */}}
