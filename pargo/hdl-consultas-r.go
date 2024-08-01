@@ -1,8 +1,8 @@
 package main
 
 import (
+	"monorepo/appdominio"
 	"monorepo/ddd"
-	"monorepo/dpaquete"
 	"monorepo/textutils"
 	"strings"
 
@@ -45,7 +45,7 @@ func (s *servidor) formNuevaConsulta(c *gecko.Context) error {
 }
 
 func (s *servidor) getConsulta(c *gecko.Context) error {
-	agregadoConsulta, err := dpaquete.GetConsulta(c.PathInt("consulta_id"), s.ddd)
+	agregadoConsulta, err := appdominio.GetConsulta(c.PathInt("consulta_id"), s.ddd)
 	if err != nil {
 		return err
 	}

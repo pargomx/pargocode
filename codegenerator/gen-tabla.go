@@ -1,10 +1,10 @@
-package gencode
+package codegenerator
 
 import (
 	"bytes"
 	"fmt"
 	"io"
-	"monorepo/dpaquete"
+	"monorepo/appdominio"
 	"monorepo/fileutils"
 	"monorepo/textutils"
 	"os"
@@ -20,7 +20,7 @@ import (
 type tblGenCall struct {
 	filename string
 	tipo     string
-	tbl      *dpaquete.Tabla
+	tbl      *appdominio.Tabla
 	gen      *Generador
 	mkdir    bool
 }
@@ -46,7 +46,7 @@ func (c tblGenCall) Generar() error {
 	return fileutils.GuardarGoCode(c.filename, codigo)
 }
 
-func (gen *Generador) TblGenerarArchivos(tbl *dpaquete.Tabla, tipo string) tblGenCall {
+func (gen *Generador) TblGenerarArchivos(tbl *appdominio.Tabla, tipo string) tblGenCall {
 	c := tblGenCall{
 		filename: "generado.go",
 		tipo:     tipo,
@@ -98,7 +98,7 @@ func (gen *Generador) TblGenerarArchivos(tbl *dpaquete.Tabla, tipo string) tblGe
 
 // ================================================================ //
 
-func (gen *Generador) TblGenerarArchivosDirecto(tbl *dpaquete.Tabla, tipo string) error {
+func (gen *Generador) TblGenerarArchivosDirecto(tbl *appdominio.Tabla, tipo string) error {
 	filename := "generado.go"
 	switch tipo {
 
@@ -146,7 +146,7 @@ func (gen *Generador) TblGenerarArchivosDirecto(tbl *dpaquete.Tabla, tipo string
 // ========== TO STRING =========================================== //
 
 // Helper que admite ejecutar colecciones de plantillas en un mismo string.
-func (s *Generador) GenerarDeTablaMySQLDirectriz(tbl *dpaquete.Tabla, buf io.Writer) error {
+func (s *Generador) GenerarDeTablaMySQLDirectriz(tbl *appdominio.Tabla, buf io.Writer) error {
 
 	if len(tbl.Directrices()) == 0 {
 		return fmt.Errorf("no hay directrices para tabla %v", tbl.Tabla.NombreRepo)
@@ -268,7 +268,7 @@ func (s *Generador) GenerarDeTablaMySQLDirectriz(tbl *dpaquete.Tabla, buf io.Wri
 }
 
 // Helper que admite ejecutar colecciones de plantillas en un mismo string.
-func (s *Generador) GenerarDeTablaString(tbl *dpaquete.Tabla, tipo string) (string, error) {
+func (s *Generador) GenerarDeTablaString(tbl *appdominio.Tabla, tipo string) (string, error) {
 	buf := &bytes.Buffer{}
 	var err error
 	switch tipo {
@@ -293,7 +293,7 @@ func (s *Generador) GenerarDeTablaString(tbl *dpaquete.Tabla, tipo string) (stri
 // ================================================================ //
 // ========== COLECCIONES ========================================= //
 
-func (s *Generador) GenerarDeTablaEntidad(tbl *dpaquete.Tabla, buf io.Writer) error {
+func (s *Generador) GenerarDeTablaEntidad(tbl *appdominio.Tabla, buf io.Writer) error {
 	ctx := gko.Op("GenerarDeTablaEntidad")
 	if err := s.GenerarDeTabla(tbl, "go/tbl_struct", buf, false); err != nil {
 		return ctx.Err(err)
@@ -307,7 +307,7 @@ func (s *Generador) GenerarDeTablaEntidad(tbl *dpaquete.Tabla, buf io.Writer) er
 	return nil
 }
 
-func (s *Generador) GenerarDeTablaAllMySQL(tbl *dpaquete.Tabla, buf io.Writer) error {
+func (s *Generador) GenerarDeTablaAllMySQL(tbl *appdominio.Tabla, buf io.Writer) error {
 	ctx := gko.Op("GenerarDeTablaAllMySQL")
 	err := s.GenerarDeTabla(tbl, "mysql/paquete", buf, false)
 	if err != nil {
@@ -333,14 +333,14 @@ func (s *Generador) GenerarDeTablaAllMySQL(tbl *dpaquete.Tabla, buf io.Writer) e
 		}
 	}
 	for _, campo := range tbl.UniqueKeys() {
-		tbl.CamposSeleccionados = []dpaquete.CampoTabla{campo}
+		tbl.CamposSeleccionados = []appdominio.CampoTabla{campo}
 		err := s.GenerarDeTabla(tbl, "mysql/get_by", buf, true)
 		if err != nil {
 			return ctx.Ctx("mysql/get_by", campo.Campo.NombreCampo).Err(err)
 		}
 	}
 	for _, fk := range tbl.ForeignKeys() {
-		tbl.CamposSeleccionados = []dpaquete.CampoTabla{fk}
+		tbl.CamposSeleccionados = []appdominio.CampoTabla{fk}
 		err := s.GenerarDeTabla(tbl, "mysql/list_by", buf, true)
 		if err != nil {
 			return ctx.Ctx("mysql/list_by", fk.Campo.NombreCampo).Err(err)
@@ -349,7 +349,7 @@ func (s *Generador) GenerarDeTablaAllMySQL(tbl *dpaquete.Tabla, buf io.Writer) e
 	return nil
 }
 
-func (s *Generador) GenerarDeTablaMySQLInsertUpdate(tbl *dpaquete.Tabla, buf io.Writer) error {
+func (s *Generador) GenerarDeTablaMySQLInsertUpdate(tbl *appdominio.Tabla, buf io.Writer) error {
 	ctx := gko.Op("GenerarDeTablaMySQLInsertUpdate")
 	err := s.GenerarDeTabla(tbl, "mysql/paquete", buf, false)
 	if err != nil {
@@ -371,7 +371,7 @@ func (s *Generador) GenerarDeTablaMySQLInsertUpdate(tbl *dpaquete.Tabla, buf io.
 	return nil
 }
 
-func (s *Generador) GenerarDeTablaMySQLSimple(tbl *dpaquete.Tabla, buf io.Writer) error {
+func (s *Generador) GenerarDeTablaMySQLSimple(tbl *appdominio.Tabla, buf io.Writer) error {
 	ctx := gko.Op("GenerarDeTablaMySQLSimple")
 	err := s.GenerarDeTabla(tbl, "mysql/paquete", buf, false)
 	if err != nil {
@@ -396,7 +396,7 @@ func (s *Generador) GenerarDeTablaMySQLSimple(tbl *dpaquete.Tabla, buf io.Writer
 // ================================================================ //
 // ========== GENERAR ============================================= //
 
-func (s *Generador) GenerarDeTabla(tbl *dpaquete.Tabla, tipo string, buf io.Writer, separador bool) (err error) {
+func (s *Generador) GenerarDeTabla(tbl *appdominio.Tabla, tipo string, buf io.Writer, separador bool) (err error) {
 	ctx := gko.Op("generar").Ctx("tipo", tipo)
 	if tbl == nil {
 		return ctx.Msg("tabla es nil")

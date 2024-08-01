@@ -2,7 +2,7 @@ package main
 
 import (
 	"html"
-	"monorepo/dpaquete"
+	"monorepo/appdominio"
 
 	"github.com/pargomx/gecko"
 )
@@ -11,7 +11,7 @@ import (
 // ========== GENERAR ============================================= //
 
 func (s *servidor) generarDeConsulta(c *gecko.Context) error {
-	agregadoConsulta, err := dpaquete.GetConsulta(c.PathInt("consulta_id"), s.ddd)
+	agregadoConsulta, err := appdominio.GetConsulta(c.PathInt("consulta_id"), s.ddd)
 	if err != nil {
 		return err
 	}

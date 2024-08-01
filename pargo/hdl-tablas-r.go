@@ -1,8 +1,8 @@
 package main
 
 import (
+	"monorepo/appdominio"
 	"monorepo/ddd"
-	"monorepo/dpaquete"
 	"monorepo/textutils"
 	"strings"
 
@@ -10,12 +10,12 @@ import (
 )
 
 func (s *servidor) getTabla(c *gecko.Context) error {
-	Agregado, err := dpaquete.GetTabla(c.PathInt("tabla_id"), s.ddd)
+	Agregado, err := appdominio.GetTabla(c.PathInt("tabla_id"), s.ddd)
 	if err != nil {
 		return err
 	}
 	// Agregar un campo vacío para mostrar formulario y poder agregar campos
-	// Agregado.Campos = append(Agregado.Campos, dpaquete.CampoTabla{TablaID: Agregado.Tabla.TablaID})
+	// Agregado.Campos = append(Agregado.Campos, appdominio.CampoTabla{TablaID: Agregado.Tabla.TablaID})
 
 	// Para poder cambiar de paquete
 	paquetes, err := s.ddd.ListPaquetes()

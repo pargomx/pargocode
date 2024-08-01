@@ -1,10 +1,10 @@
-package gencode
+package codegenerator
 
 import (
 	"bytes"
 	"fmt"
 	"io"
-	"monorepo/dpaquete"
+	"monorepo/appdominio"
 	"monorepo/fileutils"
 	"monorepo/textutils"
 	"os"
@@ -20,7 +20,7 @@ import (
 type qryGenCall struct {
 	filename string
 	tipo     string
-	qry      *dpaquete.Consulta
+	qry      *appdominio.Consulta
 	gen      *Generador
 	mkdir    bool
 }
@@ -46,7 +46,7 @@ func (c qryGenCall) Generar() error {
 	return fileutils.GuardarGoCode(c.filename, codigo)
 }
 
-func (gen *Generador) QryGenerarArchivos(qry *dpaquete.Consulta, tipo string) qryGenCall {
+func (gen *Generador) QryGenerarArchivos(qry *appdominio.Consulta, tipo string) qryGenCall {
 	c := qryGenCall{
 		filename: "generado.go",
 		tipo:     tipo,
@@ -79,7 +79,7 @@ func (gen *Generador) QryGenerarArchivos(qry *dpaquete.Consulta, tipo string) qr
 // ========== DIRECTRIZ =========================================== //
 
 // Helper que admite ejecutar colecciones de plantillas en un mismo string.
-func (s *Generador) GenerarDeConsultaMySQLDirectriz(qry *dpaquete.Consulta, buf io.Writer) error {
+func (s *Generador) GenerarDeConsultaMySQLDirectriz(qry *appdominio.Consulta, buf io.Writer) error {
 
 	if len(qry.Directrices()) == 0 {
 		return fmt.Errorf("no hay directrices para %v", qry.Consulta.NombreItem)
@@ -196,7 +196,7 @@ func (s *Generador) GenerarDeConsultaMySQLDirectriz(qry *dpaquete.Consulta, buf 
 // ================================================================ //
 // ========== TO STRING =========================================== //
 
-func (s *Generador) GenerarDeConsultaString(consulta *dpaquete.Consulta, tipo string) (string, error) {
+func (s *Generador) GenerarDeConsultaString(consulta *appdominio.Consulta, tipo string) (string, error) {
 	buf := &bytes.Buffer{}
 	var err error
 	switch tipo {
@@ -216,7 +216,7 @@ func (s *Generador) GenerarDeConsultaString(consulta *dpaquete.Consulta, tipo st
 	return buf.String(), err
 }
 
-func (s *Generador) GenerarDeConsultaStringNew(consulta *dpaquete.Consulta, tipo string) (string, error) {
+func (s *Generador) GenerarDeConsultaStringNew(consulta *appdominio.Consulta, tipo string) (string, error) {
 	buf := &bytes.Buffer{}
 	var err error
 	switch tipo {
@@ -238,7 +238,7 @@ func (s *Generador) GenerarDeConsultaStringNew(consulta *dpaquete.Consulta, tipo
 // ================================================================ //
 // ========== COLECCIONES ========================================= //
 
-func (s *Generador) GenerarDeConsultaAllMySQL(qry *dpaquete.Consulta, buf io.Writer) error {
+func (s *Generador) GenerarDeConsultaAllMySQL(qry *appdominio.Consulta, buf io.Writer) error {
 	err := s.GenerarDeConsultaNew(qry, "mysql/paquete", buf, false)
 	if err != nil {
 		return gko.Err(err).Op("GenerarDeConsultaAllMySQL")
@@ -264,7 +264,7 @@ func (s *Generador) GenerarDeConsultaAllMySQL(qry *dpaquete.Consulta, buf io.Wri
 // ================================================================ //
 // ========== GENERAR ============================================= //
 
-func (s *Generador) GenerarDeConsultaNew(consulta *dpaquete.Consulta, tipo string, buf io.Writer, separador bool) error {
+func (s *Generador) GenerarDeConsultaNew(consulta *appdominio.Consulta, tipo string, buf io.Writer, separador bool) error {
 	op := gko.Op("generar").Ctx("tipo", tipo)
 	if consulta == nil {
 		return op.Msg("consulta es nil")

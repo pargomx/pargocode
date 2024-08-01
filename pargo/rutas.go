@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"monorepo/assets"
-	"monorepo/gencode"
+	"monorepo/codegenerator"
 	"monorepo/htmltmpl"
 	"monorepo/migraciones"
 	"monorepo/sqlitedb"
@@ -33,7 +33,7 @@ type configs struct {
 }
 
 // Generador de código
-var codeGenerator *gencode.Generador
+var codeGenerator *codegenerator.Generador
 
 type servidor struct {
 	cfg   configs
@@ -69,7 +69,7 @@ func main() {
 	s.ddd = sqliteddd.NuevoRepositorio(s.db)
 
 	// Generador de código
-	codeGenerator, err = gencode.NuevoGeneradorDeCodigo()
+	codeGenerator, err = codegenerator.NuevoGeneradorDeCodigo()
 	if err != nil {
 		gko.FatalError(err)
 	}

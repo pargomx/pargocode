@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"monorepo/appdominio"
 	"monorepo/ddd"
-	"monorepo/dpaquete"
 	"monorepo/sqliteddd"
 	"time"
 
@@ -23,7 +23,7 @@ func (s *servidor) crearConsulta(c *gecko.Context) error {
 		Descripcion: c.FormVal("descripcion"),
 		Directrices: c.FormValue("directrices"),
 	}
-	err := dpaquete.CrearConsulta(con, s.ddd)
+	err := appdominio.CrearConsulta(con, s.ddd)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (s *servidor) actualizarConsulta(c *gecko.Context) error {
 		Descripcion: c.FormVal("descripcion"),
 		Directrices: c.FormValue("directrices"),
 	}
-	err := dpaquete.ActualizarConsulta(con.ConsultaID, con, s.ddd)
+	err := appdominio.ActualizarConsulta(con.ConsultaID, con, s.ddd)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (s *servidor) actualizarConsulta(c *gecko.Context) error {
 }
 
 func (s *servidor) deleteConsulta(c *gecko.Context) error {
-	err := dpaquete.EliminarConsulta(c.PathInt("consulta_id"), s.ddd)
+	err := appdominio.EliminarConsulta(c.PathInt("consulta_id"), s.ddd)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (s *servidor) deleteConsulta(c *gecko.Context) error {
 // ========== RELACIONES ========================================== //
 
 func (s *servidor) postRelacionConsulta(c *gecko.Context) error {
-	err := dpaquete.AgregarRelacionConsulta(
+	err := appdominio.AgregarRelacionConsulta(
 		c.PathInt("consulta_id"),
 		c.FormVal("tipo_join"),
 		c.FormInt("join_tabla_id"),
@@ -76,7 +76,7 @@ func (s *servidor) postRelacionConsulta(c *gecko.Context) error {
 }
 
 func (s *servidor) eliminarRelacionConsulta(c *gecko.Context) error {
-	err := dpaquete.EliminarRelacionConsulta(c.PathInt("consulta_id"), c.PathInt("posicion"), s.ddd)
+	err := appdominio.EliminarRelacionConsulta(c.PathInt("consulta_id"), c.PathInt("posicion"), s.ddd)
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func (s *servidor) eliminarRelacionConsulta(c *gecko.Context) error {
 }
 
 func (s *servidor) actualizarRelacionConsulta(c *gecko.Context) error {
-	err := dpaquete.ActualizarRelacionConsulta(
+	err := appdominio.ActualizarRelacionConsulta(
 		c.PathInt("consulta_id"),
 		c.PathInt("posicion"),
 		c.FormVal("tipo_join"),
@@ -101,7 +101,7 @@ func (s *servidor) actualizarRelacionConsulta(c *gecko.Context) error {
 // ========== CAMPOS ============================================== //
 
 func (s *servidor) postCampoConsulta(c *gecko.Context) error {
-	err := dpaquete.AgregarCampoConsulta(c.PathInt("consulta_id"), c.FormVal("from_abrev"), c.FormVal("expresion"), s.ddd)
+	err := appdominio.AgregarCampoConsulta(c.PathInt("consulta_id"), c.FormVal("from_abrev"), c.FormVal("expresion"), s.ddd)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func (s *servidor) postCampoConsulta(c *gecko.Context) error {
 }
 
 func (s *servidor) eliminarCampoConsulta(c *gecko.Context) error {
-	err := dpaquete.EliminarCampoConsulta(c.PathInt("consulta_id"), c.PathInt("posicion"), s.ddd)
+	err := appdominio.EliminarCampoConsulta(c.PathInt("consulta_id"), c.PathInt("posicion"), s.ddd)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func (s *servidor) reordenarCampoConsulta(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	err = dpaquete.ReordenarCampoConsulta(c.PathInt("consulta_id"), c.FormInt("oldPosicion"), c.FormInt("newPosicion"), sqliteddd.NuevoRepositorio(tx))
+	err = appdominio.ReordenarCampoConsulta(c.PathInt("consulta_id"), c.FormInt("oldPosicion"), c.FormInt("newPosicion"), sqliteddd.NuevoRepositorio(tx))
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -145,7 +145,7 @@ func (s *servidor) actualizarCampoConsulta(c *gecko.Context) error {
 		GroupBy:     c.FormBool("group_by"),
 		Descripcion: c.FormVal("descripcion"),
 	}
-	err := dpaquete.ActualizarCampoConsulta(cam, s.ddd)
+	err := appdominio.ActualizarCampoConsulta(cam, s.ddd)
 	if err != nil {
 		return err
 	}

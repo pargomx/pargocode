@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"monorepo/appdominio"
 	"monorepo/ddd"
-	"monorepo/dpaquete"
 	"monorepo/textutils"
 	"strings"
 
@@ -13,7 +13,7 @@ import (
 )
 
 func (s *servidor) putCampo(c *gecko.Context) error {
-	err := dpaquete.InsertarCampoQuick(c.PathInt("tabla_id"), c.FormVal("nombre_columna"), s.ddd)
+	err := appdominio.InsertarCampoQuick(c.PathInt("tabla_id"), c.FormVal("nombre_columna"), s.ddd)
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (s *servidor) postCampo(c *gecko.Context) error {
 		Filtro:     c.FormBool("filtro"),
 		Especial:   c.FormBool("especial"),
 	}
-	err := dpaquete.InsertarCampo(cam, s.ddd)
+	err := appdominio.InsertarCampo(cam, s.ddd)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (s *servidor) updateCampo(c *gecko.Context) error {
 		Filtro:     c.FormBool("filtro"),
 		Especial:   c.FormBool("especial"),
 	}
-	err := dpaquete.ActualizarCampo(cam.CampoID, cam, s.ddd)
+	err := appdominio.ActualizarCampo(cam.CampoID, cam, s.ddd)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (s *servidor) updateCampo(c *gecko.Context) error {
 }
 
 func (s *servidor) reordenarCampo(c *gecko.Context) error {
-	err := dpaquete.ReordenarCampo(c.PathInt("campo_id"), c.FormInt("newPosicion"), s.ddd)
+	err := appdominio.ReordenarCampo(c.PathInt("campo_id"), c.FormInt("newPosicion"), s.ddd)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func (s *servidor) postEnumCampo(c *gecko.Context) error {
 			Descripcion: textutils.PrimeraMayusc(v.Descripcion),
 		})
 	}
-	err = dpaquete.ActualizarOpcionesDeCampoEnum(c.PathInt("campo_id"), nuevosValores, s.ddd)
+	err = appdominio.ActualizarOpcionesDeCampoEnum(c.PathInt("campo_id"), nuevosValores, s.ddd)
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func (s *servidor) postEnumCampo(c *gecko.Context) error {
 }
 
 func (s *servidor) deleteCampo(c *gecko.Context) error {
-	err := dpaquete.EliminarCampo(c.PathInt("campo_id"), s.ddd)
+	err := appdominio.EliminarCampo(c.PathInt("campo_id"), s.ddd)
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func (s *servidor) deleteCampo(c *gecko.Context) error {
 }
 
 func (s *servidor) fixOrdenDeCampos(c *gecko.Context) error {
-	err := dpaquete.FixPosicionDeCampos(c.PathInt("tabla_id"), s.ddd)
+	err := appdominio.FixPosicionDeCampos(c.PathInt("tabla_id"), s.ddd)
 	if err != nil {
 		return err
 	}

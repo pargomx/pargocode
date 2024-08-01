@@ -1,7 +1,7 @@
 package main
 
 import (
-	"monorepo/dpaquete"
+	"monorepo/appdominio"
 
 	"github.com/pargomx/gecko"
 )
@@ -11,7 +11,7 @@ func (s *servidor) getPaquetes(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	PaquetesConEntidades := []dpaquete.Paquete{}
+	PaquetesConEntidades := []appdominio.Paquete{}
 	for _, paq := range paquetes {
 		tablas, err := s.ddd.ListTablasByPaqueteID(paq.PaqueteID)
 		if err != nil {
@@ -21,7 +21,7 @@ func (s *servidor) getPaquetes(c *gecko.Context) error {
 		if err != nil {
 			return err
 		}
-		PaquetesConEntidades = append(PaquetesConEntidades, dpaquete.Paquete{Paquete: paq, Tablas: tablas, Consultas: consultas})
+		PaquetesConEntidades = append(PaquetesConEntidades, appdominio.Paquete{Paquete: paq, Tablas: tablas, Consultas: consultas})
 	}
 
 	data := map[string]any{

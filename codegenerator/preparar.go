@@ -1,4 +1,4 @@
-package gencode
+package codegenerator
 
 import (
 	"embed"

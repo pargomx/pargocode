@@ -1,4 +1,4 @@
-package dpaquete
+package appdominio
 
 import "monorepo/ddd"
 

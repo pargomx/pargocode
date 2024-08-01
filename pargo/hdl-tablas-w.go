@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"html"
+	"monorepo/appdominio"
 	"monorepo/ddd"
-	"monorepo/dpaquete"
 	"monorepo/textutils"
 	"time"
 
@@ -27,7 +27,7 @@ func (s *servidor) postTablaNueva(c *gecko.Context) error {
 		Descripcion:  c.FormVal("descripcion"),
 		Directrices:  c.FormValue("directrices"),
 	}
-	err := dpaquete.AgregarTabla(tbl, s.ddd)
+	err := appdominio.AgregarTabla(tbl, s.ddd)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (s *servidor) putTabla(c *gecko.Context) error {
 		Descripcion:  c.FormVal("descripcion"),
 		Directrices:  c.FormValue("directrices"),
 	}
-	err := dpaquete.ActualizarTabla(tbl.TablaID, tbl, s.ddd)
+	err := appdominio.ActualizarTabla(tbl.TablaID, tbl, s.ddd)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (s *servidor) eliminarTabla(c *gecko.Context) error {
 // ========== GENERAR ============================================= //
 
 func (s *servidor) generarDeTabla(c *gecko.Context) error {
-	tbl, err := dpaquete.GetTabla(c.PathInt("tabla_id"), s.ddd)
+	tbl, err := appdominio.GetTabla(c.PathInt("tabla_id"), s.ddd)
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func (s *servidor) generarDeTabla(c *gecko.Context) error {
 }
 
 func (s *servidor) generarDeTablaArchivos(c *gecko.Context) error {
-	tbl, err := dpaquete.GetTabla(c.PathInt("tabla_id"), s.ddd)
+	tbl, err := appdominio.GetTabla(c.PathInt("tabla_id"), s.ddd)
 	if err != nil {
 		return err
 	}

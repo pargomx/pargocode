@@ -1,8 +1,8 @@
 package main
 
 import (
+	"monorepo/appdominio"
 	"monorepo/ddd"
-	"monorepo/dpaquete"
 	"monorepo/textutils"
 
 	"github.com/pargomx/gecko"
@@ -13,7 +13,7 @@ func (s *servidor) agregarPaquete(c *gecko.Context) error {
 		PaqueteID: ddd.NewPaqueteID(),
 		Nombre:    textutils.QuitarAcentos(c.PromptLower()),
 	}
-	err := dpaquete.AgregarPaquete(paq, s.ddd)
+	err := appdominio.AgregarPaquete(paq, s.ddd)
 	if err != nil {
 		return err
 	}
@@ -21,7 +21,7 @@ func (s *servidor) agregarPaquete(c *gecko.Context) error {
 }
 
 func (s *servidor) eliminarPaquete(c *gecko.Context) error {
-	err := dpaquete.EliminarPaquete(c.PathInt("paquete_id"), s.ddd)
+	err := appdominio.EliminarPaquete(c.PathInt("paquete_id"), s.ddd)
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func (s *servidor) actualizarPaquete(c *gecko.Context) error {
 		Nombre:      c.FormVal("nombre"),
 		Descripcion: c.FormVal("descripcion"),
 	}
-	err := dpaquete.ActualizarPaquete(paq, s.ddd)
+	err := appdominio.ActualizarPaquete(paq, s.ddd)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (s *servidor) generarDePaqueteArchivos(c *gecko.Context) error {
 	}
 	reporte := "ARCHIVOS GENERADOS:\n\n"
 	errores := []error{}
-	tablas, consultas, err := dpaquete.GetTablasYConsultas(paq.PaqueteID, s.ddd)
+	tablas, consultas, err := appdominio.GetTablasYConsultas(paq.PaqueteID, s.ddd)
 	if err != nil {
 		return err
 	}

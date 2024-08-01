@@ -1,7 +1,7 @@
 package main
 
 import (
-	"monorepo/dpaquete"
+	"monorepo/appdominio"
 
 	"github.com/pargomx/gecko"
 )
@@ -23,7 +23,7 @@ func (s *servidor) getEnumCampo(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	campoConEnums := dpaquete.CampoTabla{
+	campoConEnums := appdominio.CampoTabla{
 		Campo:           *cam,
 		ValoresPosibles: enums,
 	}
