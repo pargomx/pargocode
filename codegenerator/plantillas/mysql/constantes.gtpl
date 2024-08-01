@@ -6,7 +6,7 @@ const columnas{{ .NombreItem }} string = "{{ .CamposAsSnakeList ", " }}"
 
 // Origen de los datos de {{ .Paquete.Nombre }}.{{ .NombreItem }}
 //
-// {{ .SqlFromClause "\n// "}}
+//  {{ .SqlFromClause "\n// "}}
 const from{{ .NombreItem }} string = "{{ .SqlFromClause " " }}"
 
 {{ if .SqlGroupClause " " }}

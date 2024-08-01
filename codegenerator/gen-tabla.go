@@ -167,8 +167,12 @@ func (s *Generador) GenerarDeTablaMySQLDirectriz(tbl *appdominio.Tabla, buf io.W
 		return err
 	}
 
-	scanRow := true
-	scanRows := true
+	var generado struct {
+		scanRow  bool
+		scanRows bool
+		existe   bool
+	}
+
 	filtros := tbl.TieneCamposFiltro()
 
 	for _, directriz := range tbl.Directrices() {
@@ -184,32 +188,38 @@ func (s *Generador) GenerarDeTablaMySQLDirectriz(tbl *appdominio.Tabla, buf io.W
 		case "insert_update":
 			err = s.GenerarDeTabla(tbl, "mysql/tbl-insert_update", buf, true)
 		case "delete":
+			if !generado.existe {
+				if err = s.GenerarDeTabla(tbl, "mysql/existe", buf, true); err != nil {
+					return err
+				}
+				generado.existe = false
+			}
 			err = s.GenerarDeTabla(tbl, "mysql/tbl-delete", buf, true)
 
 		case "fetch":
-			if scanRow {
+			if !generado.scanRow {
 				if err = s.GenerarDeTabla(tbl, "mysql/scan-row", buf, true); err != nil {
 					return err
 				}
-				scanRow = false
+				generado.scanRow = true
 			}
 			err = s.GenerarDeTabla(tbl, "mysql/fetch", buf, true)
 
 		case "get":
-			if scanRow {
+			if !generado.scanRow {
 				if err = s.GenerarDeTabla(tbl, "mysql/scan-row", buf, true); err != nil {
 					return err
 				}
-				scanRow = false
+				generado.scanRow = true
 			}
 			err = s.GenerarDeTabla(tbl, "mysql/get", buf, true)
 
 		case "get_by":
-			if scanRow {
+			if !generado.scanRow {
 				if err = s.GenerarDeTabla(tbl, "mysql/scan-row", buf, true); err != nil {
 					return err
 				}
-				scanRow = false
+				generado.scanRow = true
 			}
 			for _, v := range directriz.Values() {
 				campo, err := tbl.BuscarCampo(v)
@@ -221,11 +231,11 @@ func (s *Generador) GenerarDeTablaMySQLDirectriz(tbl *appdominio.Tabla, buf io.W
 			err = s.GenerarDeTabla(tbl, "mysql/get_by", buf, true)
 
 		case "list":
-			if scanRows {
+			if generado.scanRows {
 				if err = s.GenerarDeTabla(tbl, "mysql/scan-rows", buf, true); err != nil {
 					return err
 				}
-				scanRows = false
+				generado.scanRows = true
 			}
 			if filtros {
 				if err = s.GenerarDeTabla(tbl, "mysql/tbl-filtros", buf, true); err != nil {
@@ -236,11 +246,11 @@ func (s *Generador) GenerarDeTablaMySQLDirectriz(tbl *appdominio.Tabla, buf io.W
 			err = s.GenerarDeTabla(tbl, "mysql/list", buf, true)
 
 		case "list_by":
-			if scanRows {
+			if generado.scanRows {
 				if err = s.GenerarDeTabla(tbl, "mysql/scan-rows", buf, true); err != nil {
 					return err
 				}
-				scanRows = false
+				generado.scanRows = true
 			}
 			if filtros {
 				if err = s.GenerarDeTabla(tbl, "mysql/tbl-filtros", buf, true); err != nil {

@@ -244,7 +244,7 @@ func (c CampoTabla) ifZeroReturnErr(razón string, nombreVariable string, return
 		comparacion += "nil, "
 	}
 
-	comparacion += fmt.Sprintf(`gko.ErrDatoInvalido().Msg("%v sin especificar").Ctx(op, "%v")`, c.NombreCampo, razón)
+	comparacion += fmt.Sprintf(`gko.ErrDatoIndef().Op(op).Msg("%v sin especificar").Str("%v")`, c.NombreCampo, razón)
 
 	comparacion += "\n}\n"
 

@@ -1,6 +1,6 @@
 {{ with $.TablaOrConsulta -}}
 func (s *Repositorio) List{{ .NombreItems }}({{ if .CamposFiltro }}filtros *Filtros{{ .NombreItem }}{{ end }}) ([]{{ .Paquete.Nombre }}.{{ .NombreItem }}, error) {
-	const op string = "mysql{{ .Paquete.Nombre }}.List{{ .NombreItems }}"
+	const op string = "List{{ .NombreItems }}"
 	{{ if .CamposFiltro -}}
 	argumentos := []any{}
 	where := ""

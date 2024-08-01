@@ -2,7 +2,7 @@
 // Get{{ .NombreItem }}By{{ range .CamposSeleccionados }}{{ .NombreCampo }}{{ end }} devuelve un {{ .NombreItem }} de la DB.
 // Error si no encuentra ninguno, o si encuentra más de uno.
 func (s *Repositorio) Get{{ .NombreItem }}By{{ range .CamposSeleccionados }}{{ .NombreCampo }}{{ end }}({{ .CamposSeleccionadosAsFuncParams }}) (*{{ .Paquete.Nombre }}.{{ .NombreItem }}, error) {
-	const op string = "mysql{{ .Paquete.Nombre }}.Get{{ .NombreItem }}By{{ range .CamposSeleccionados }}{{ .NombreCampo }}{{ end }}"
+	const op string = "Get{{ .NombreItem }}By{{ range .CamposSeleccionados }}{{ .NombreCampo }}{{ end }}"
 	{{ range .CamposSeleccionados }}{{ .IfZeroReturnNilAndErr "param_indefinido" "" }}{{ end -}}
 	row := s.db.QueryRow(
 		"SELECT " + columnas{{ .NombreItem }} + " " + from{{ .NombreItem }} +
@@ -10,6 +10,10 @@ func (s *Repositorio) Get{{ .NombreItem }}By{{ range .CamposSeleccionados }}{{ .
 		{{ .CamposSeleccionadosAsArguments "" }},
 	)
 	{{ .NombreAbrev }} := &{{ .Paquete.Nombre }}.{{ .NombreItem }}{}
-	return {{ .NombreAbrev }}, s.scanRow{{ .NombreItem }}(row, {{ .NombreAbrev }}, op)
+	err := s.scanRow{{ .NombreItem }}(row, {{ .NombreAbrev }})
+	if err != nil {
+		return gko.Err(err).Op(op)
+	}
+	return {{ .NombreAbrev }}, nil
 }
 {{- end }}

@@ -1,7 +1,7 @@
 {{ with $.TablaOrConsulta -}}
 {{ if .CamposFiltro -}}
 func (s *Repositorio) List{{ .NombreItems }}By{{ range .CamposSeleccionados }}{{ .NombreCampo }}{{ end }}({{ .CamposSeleccionadosAsFuncParams }}, filtros *Filtros{{ .NombreItem }}) ([]{{ .Paquete.Nombre }}.{{ .NombreItem }}, error) {
-	const op string = "mysql{{ .Paquete.Nombre }}.List{{ .NombreItems }}By{{ range .CamposSeleccionados }}{{ .NombreCampo }}{{ end }}"
+	const op string = "List{{ .NombreItems }}By{{ range .CamposSeleccionados }}{{ .NombreCampo }}{{ end }}"
 	{{ range .CamposSeleccionados }}{{ .IfZeroReturnNilAndErr "param_indefinido" "" }}{{ end -}}
 	where := "{{ .CamposSeleccionadosAsSqlWhere }}"
 	argumentos := []any{}
@@ -33,7 +33,7 @@ func (s *Repositorio) List{{ .NombreItems }}By{{ range .CamposSeleccionados }}{{
 }
 {{ else -}}
 func (s *Repositorio) List{{ .NombreItems }}By{{ range .CamposSeleccionados }}{{ .NombreCampo }}{{ end }}({{ .CamposSeleccionadosAsFuncParams }}) ([]{{ .Paquete.Nombre }}.{{ .NombreItem }}, error) {
-	const op string = "mysql{{ .Paquete.Nombre }}.List{{ .NombreItems }}By{{ range .CamposSeleccionados }}{{ .NombreCampo }}{{ end }}"
+	const op string = "List{{ .NombreItems }}By{{ range .CamposSeleccionados }}{{ .NombreCampo }}{{ end }}"
 	{{ range .CamposSeleccionados }}{{ .IfZeroReturnNilAndErr "param_indefinido" "" }}{{ end -}}
 	rows, err := s.db.Query(
 		"SELECT " + columnas{{ .NombreItem }} + " " + from{{ .NombreItem }} +

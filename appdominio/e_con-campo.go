@@ -124,7 +124,7 @@ func (cam CampoConsulta) ifZeroReturnErr(razón string, nombreVariable string, r
 		comparacion += "nil, "
 	}
 
-	comparacion += fmt.Sprintf(`gko.ErrDatoInvalido().Msg("%v sin especificar").Ctx(op, "%v")`, cam.NombreCampo, razón)
+	comparacion += fmt.Sprintf(`gko.ErrDatoIndef().Op(op).Msg("%v sin especificar").Str("%v")`, cam.NombreCampo, razón)
 
 	comparacion += "\n}\n"
 

@@ -1,23 +1,10 @@
 func (s *Repositorio) Delete{{ .Tabla.NombreItem }}({{ .Tabla.PrimaryKeysAsFuncParams }}) error {
-	const op string = "mysql{{ .Tabla.Paquete.Nombre }}.Delete{{ .Tabla.NombreItem }}"
+	const op string = "Delete{{ .Tabla.NombreItem }}"
 	{{ range .Tabla.PrimaryKeys }}{{ .IfZeroReturnErr "pk_indefinida" "" }}{{ end -}}
-	// Verificar que solo se borre un registro.
-	var num int
-	err := s.db.QueryRow("SELECT COUNT({{ .Tabla.PrimerCampo.NombreColumna }}) FROM {{ .Tabla.NombreRepo }} {{ .Tabla.PrimaryKeysAsSqlWhere }}",
-		{{ .Tabla.PrimaryKeysAsArguments "" }},
-	).Scan(&num)
+	err := s.Existe{{ .Tabla.NombreItem }}({{ .Tabla.PrimaryKeysAsArguments "" }})
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return gko.ErrNoEncontrado().Err({{ .Tabla.Paquete.Nombre }}.Err{{ .Tabla.NombreItem }}NotFound).Op(op)
-		}
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.Err(err).Op(op)
 	}
-	if num > 1 {
-		return gko.ErrInesperado().Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
-	} else if num == 0 {
-		return gko.ErrNoEncontrado().Err({{ .Tabla.Paquete.Nombre }}.Err{{ .Tabla.NombreItem }}NotFound).Op(op).Msg("cero resultados")
-	}
-	// Eliminar registro
 	_, err = s.db.Exec(
 		"DELETE FROM {{ .Tabla.NombreRepo }} {{ .Tabla.PrimaryKeysAsSqlWhere }}",
 		{{ .Tabla.PrimaryKeysAsArguments "" }},
