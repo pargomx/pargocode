@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"strings"
 
-	"monorepo/domain_driven_design/ddd"
+	"monorepo/ddd"
 
 	"github.com/pargomx/gecko/gko"
 )

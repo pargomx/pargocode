@@ -1,6 +1,6 @@
 package dpaquete
 
-import "monorepo/domain_driven_design/ddd"
+import "monorepo/ddd"
 
 type Repositorio interface {
 	GetPaquete(paqueteID int) (*ddd.Paquete, error)

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"monorepo/domain_driven_design/dpaquete"
+	"monorepo/dpaquete"
 	"monorepo/fileutils"
 	"monorepo/textutils"
 	"os"

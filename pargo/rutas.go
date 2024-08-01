@@ -8,11 +8,11 @@ import (
 	"syscall"
 
 	"monorepo/assets"
-	"monorepo/domain_driven_design/gencode"
-	"monorepo/domain_driven_design/sqliteddd"
+	"monorepo/gencode"
 	"monorepo/htmltmpl"
 	"monorepo/migraciones"
 	"monorepo/sqlitedb"
+	"monorepo/sqliteddd"
 
 	"github.com/pargomx/gecko"
 	"github.com/pargomx/gecko/gko"

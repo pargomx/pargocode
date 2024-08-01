@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"monorepo/domain_driven_design/ddd"
-	"monorepo/domain_driven_design/dpaquete"
+	"monorepo/ddd"
+	"monorepo/dpaquete"
 	"monorepo/textutils"
 	"strings"
 

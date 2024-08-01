@@ -2,7 +2,7 @@ package dpaquete
 
 import (
 	"fmt"
-	"monorepo/domain_driven_design/ddd"
+	"monorepo/ddd"
 )
 
 type Consulta struct {

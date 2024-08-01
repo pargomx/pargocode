@@ -2,7 +2,7 @@ package sqliteddd
 
 import (
 	"database/sql"
-	"monorepo/domain_driven_design/ddd"
+	"monorepo/ddd"
 	"strings"
 
 	"github.com/pargomx/gecko/gko"

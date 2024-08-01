@@ -2,7 +2,7 @@ package dpaquete
 
 import (
 	"errors"
-	"monorepo/domain_driven_design/ddd"
+	"monorepo/ddd"
 	"strings"
 )
 

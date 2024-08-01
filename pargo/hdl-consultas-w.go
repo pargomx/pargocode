@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"monorepo/domain_driven_design/ddd"
-	"monorepo/domain_driven_design/dpaquete"
-	"monorepo/domain_driven_design/sqliteddd"
+	"monorepo/ddd"
+	"monorepo/dpaquete"
+	"monorepo/sqliteddd"
 	"time"
 
 	"github.com/pargomx/gecko"

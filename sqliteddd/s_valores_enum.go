@@ -1,7 +1,7 @@
 package sqliteddd
 
 import (
-	"monorepo/domain_driven_design/ddd"
+	"monorepo/ddd"
 
 	"github.com/pargomx/gecko/gko"
 )

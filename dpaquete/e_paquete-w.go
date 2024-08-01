@@ -1,7 +1,7 @@
 package dpaquete
 
 import (
-	"monorepo/domain_driven_design/ddd"
+	"monorepo/ddd"
 	"monorepo/textutils"
 	"strings"
 
