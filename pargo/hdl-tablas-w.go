@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"html"
 	"monorepo/appdominio"
-	"monorepo/codegenerator"
 	"monorepo/ddd"
 	"monorepo/textutils"
 	"time"
@@ -76,35 +74,4 @@ func (s *servidor) eliminarTabla(c *gecko.Context) error {
 	}
 	gko.LogInfof("Tabla '%s' eliminada", tbl.NombreRepo)
 	return c.Redir("/paquetes")
-}
-
-// ================================================================ //
-// ========== GENERAR ============================================= //
-
-func (s *servidor) generarDeTabla(c *gecko.Context) error {
-	tbl, err := codegenerator.GetTabla(c.PathInt("tabla_id"), s.ddd)
-	if err != nil {
-		return err
-	}
-	codigo, err := codeGenerator.GenerarDeTablaString(tbl, c.QueryVal("tipo"))
-	if err != nil {
-		return err
-	}
-	if c.EsHTMX() {
-		return c.StatusOk(html.EscapeString(codigo))
-	}
-	return c.StatusOk(codigo)
-}
-
-func (s *servidor) generarDeTablaArchivos(c *gecko.Context) error {
-	tbl, err := codegenerator.GetTabla(c.PathInt("tabla_id"), s.ddd)
-	if err != nil {
-		return err
-	}
-	call := codeGenerator.TblGenerarArchivos(tbl, c.PathVal("tipo"))
-	err = call.Generar()
-	if err != nil {
-		return err
-	}
-	return c.StatusOk("Código generado en " + call.Destino())
 }

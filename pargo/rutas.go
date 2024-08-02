@@ -32,14 +32,12 @@ type configs struct {
 	databasePath string // Default: _pargo/pargo.sqlite
 }
 
-// Generador de código
-var codeGenerator *codegenerator.Generador
-
 type servidor struct {
-	cfg   configs
-	gecko *gecko.Gecko
-	db    *sqlitedb.SqliteDB
-	ddd   *sqliteddd.Repositorio
+	cfg           configs
+	gecko         *gecko.Gecko
+	db            *sqlitedb.SqliteDB
+	ddd           *sqliteddd.Repositorio
+	codeGenerator *codegenerator.Generador
 }
 
 func main() {
@@ -69,7 +67,7 @@ func main() {
 	s.ddd = sqliteddd.NuevoRepositorio(s.db)
 
 	// Generador de código
-	codeGenerator, err = codegenerator.NuevoGeneradorDeCodigo()
+	s.codeGenerator, err = codegenerator.NuevoGeneradorDeCodigo(s.ddd)
 	if err != nil {
 		gko.FatalError(err)
 	}
