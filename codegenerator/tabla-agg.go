@@ -4,6 +4,13 @@ import (
 	"monorepo/ddd"
 )
 
+type tblGenCall struct {
+	tbl      *Tabla
+	filename string
+	tipo     string
+	mkdir    bool
+}
+
 type Tabla struct {
 	Tabla   ddd.Tabla
 	Campos  []CampoTabla

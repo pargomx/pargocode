@@ -60,11 +60,9 @@ func (gen *Generador) QryGenerarArchivos(qry *Consulta, tipo string) qryGenCall 
 	case "mysql":
 		c.filename = filepath.Join(qry.Paquete.Directorio, "mysql"+qry.Paquete.Nombre,
 			"q_"+qry.Consulta.NombreItem+".go")
-		c.tipo = "mysql-directriz"
 
-	case "sqlite", "sqlite-directriz":
+	case "sqlite":
 		c.filename = filepath.Join(qry.Paquete.Directorio, "sqlite"+qry.Paquete.Nombre, "s_"+qry.Consulta.NombreItem+"_gen.go")
-		c.tipo = "mysql-directriz"
 
 	}
 	c.filename = strings.TrimSuffix(c.filename, "/") // debe ser relativa desde workdir
@@ -199,14 +197,12 @@ func (s *Generador) GenerarDeConsultaString(consulta *Consulta, tipo string) (st
 	buf := &bytes.Buffer{}
 	var err error
 	switch tipo {
-	case "mysql":
-		err = s.GenerarDeConsultaAllMySQL(consulta, buf)
 
 	case "entidad":
 		tipo = "go/qry_struct"
 		err = s.GenerarDeConsultaNew(consulta, tipo, buf, false)
 
-	case "mysql-directriz":
+	case "mysql":
 		err = s.GenerarDeConsultaMySQLDirectriz(consulta, buf)
 
 	default:
@@ -224,8 +220,7 @@ func (s *Generador) GenerarDeConsultaStringNew(consulta *Consulta, tipo string) 
 		tipo = "go/qry_struct"
 		err = s.GenerarDeConsultaNew(consulta, tipo, buf, false)
 
-	case "mysql", "mysql-directriz":
-		tipo = "mysql-directriz"
+	case "mysql", "sqlite":
 		err = s.GenerarDeConsultaMySQLDirectriz(consulta, buf)
 
 	default:

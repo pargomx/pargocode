@@ -33,11 +33,11 @@ type configs struct {
 }
 
 type servidor struct {
-	cfg           configs
-	gecko         *gecko.Gecko
-	db            *sqlitedb.SqliteDB
-	ddd           *sqliteddd.Repositorio
-	codeGenerator *codegenerator.Generador
+	cfg       configs
+	gecko     *gecko.Gecko
+	db        *sqlitedb.SqliteDB
+	ddd       *sqliteddd.Repositorio
+	generador *codegenerator.Generador
 }
 
 func main() {
@@ -67,7 +67,7 @@ func main() {
 	s.ddd = sqliteddd.NuevoRepositorio(s.db)
 
 	// Generador de código
-	s.codeGenerator, err = codegenerator.NuevoGeneradorDeCodigo(s.ddd)
+	s.generador, err = codegenerator.NuevoGeneradorDeCodigo(s.ddd)
 	if err != nil {
 		gko.FatalError(err)
 	}

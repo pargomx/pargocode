@@ -2,7 +2,6 @@ package main
 
 import (
 	"html"
-	"monorepo/codegenerator"
 
 	"github.com/pargomx/gecko"
 )
@@ -11,11 +10,11 @@ import (
 // ========== TABLA =============================================== //
 
 func (s *servidor) generarDeTabla(c *gecko.Context) error {
-	tbl, err := s.codeGenerator.GetTabla(c.PathInt("tabla_id"))
+	gen, err := s.generador.DeTabla(c.PathInt("tabla_id"))
 	if err != nil {
 		return err
 	}
-	codigo, err := tbl.GenerarDeTablaString(c.QueryVal("tipo"))
+	codigo, err := gen.GenerarToString(c.QueryVal("tipo"))
 	if err != nil {
 		return err
 	}
@@ -26,36 +25,35 @@ func (s *servidor) generarDeTabla(c *gecko.Context) error {
 }
 
 func (s *servidor) generarDeTablaArchivos(c *gecko.Context) error {
-	tbl, err := s.codeGenerator.GetTabla(c.PathInt("tabla_id"))
+	gen, err := s.generador.DeTabla(c.PathInt("tabla_id"))
 	if err != nil {
 		return err
 	}
-	call := tbl.TblGenerarArchivos(c.PathVal("tipo"))
-	err = call.Generar()
+	err = gen.GenerarToFile(c.PathVal("tipo"))
 	if err != nil {
 		return err
 	}
-	return c.StatusOk("Código generado en " + call.Destino())
+	return c.StatusOk("Código generado en " + gen.GetInfoDestino(c.PathVal("tipo")))
 }
 
 // ================================================================ //
 // ========== CONSULTA ============================================ //
 
 func (s *servidor) generarDeConsulta(c *gecko.Context) error {
-	Consulta, err := codegenerator.GetConsulta(c.PathInt("consulta_id"), s.ddd)
+	Consulta, err := s.generador.GetConsulta(c.PathInt("consulta_id"))
 	if err != nil {
 		return err
 	}
 
 	if c.QueryVal("modo") == "archivo" {
-		err = s.codeGenerator.QryGenerarArchivos(Consulta, c.QueryVal("tipo")).Generar()
+		err = s.generador.QryGenerarArchivos(Consulta, c.QueryVal("tipo")).Generar()
 		if err != nil {
 			return err
 		}
 		return c.StatusOk("Generado")
 	}
 
-	codigo, err := s.codeGenerator.GenerarDeConsultaStringNew(Consulta, c.QueryVal("tipo"))
+	codigo, err := s.generador.GenerarDeConsultaStringNew(Consulta, c.QueryVal("tipo"))
 	if err != nil {
 		return err
 	}
@@ -75,20 +73,19 @@ func (s *servidor) generarDePaqueteArchivos(c *gecko.Context) error {
 	}
 	reporte := "ARCHIVOS GENERADOS:\n\n"
 	errores := []error{}
-	tablas, consultas, err := codegenerator.GetTablasYConsultas(paq.PaqueteID, s.ddd)
+	tablas, consultas, err := s.generador.GetTablasYConsultas(paq.PaqueteID)
 	if err != nil {
 		return err
 	}
 	for _, tbl := range tablas {
-		call := tbl.TblGenerarArchivos(c.PathVal("tipo"))
-		reporte += call.Destino() + "\n"
-		err = call.Generar()
+		reporte += tbl.GetInfoDestino(c.PathVal("tipo")) + "\n"
+		err := tbl.GenerarToFile(c.PathVal("tipo"))
 		if err != nil {
 			errores = append(errores, err)
 		}
 	}
 	for _, con := range consultas {
-		call := s.codeGenerator.QryGenerarArchivos(&con, c.PathVal("tipo"))
+		call := s.generador.QryGenerarArchivos(&con, c.PathVal("tipo"))
 		reporte += call.Destino() + "\n"
 		err = call.Generar()
 		if err != nil {

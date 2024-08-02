@@ -25,28 +25,32 @@ type Repositorio interface {
 // ================================================================ //
 // ========== PAQUETE ============================================= //
 
-func GetTablasYConsultas(paqueteID int, repo Repositorio) ([]Tabla, []Consulta, error) {
+func (s *Generador) GetTablasYConsultas(paqueteID int) ([]tblGenCall, []Consulta, error) {
 	op := gko.Op("GetTablasYConsultas")
-	tablas, err := repo.ListTablasByPaqueteID(paqueteID)
+	tablas, err := s.db.ListTablasByPaqueteID(paqueteID)
 	if err != nil {
 		return nil, nil, op.Err(err)
 	}
-	Tablas := []Tabla{}
+	Tablas := []tblGenCall{}
 	for _, t := range tablas {
-		tbl, err := getTabla(t.TablaID, repo)
+		tbl, err := s.getTabla(t.TablaID)
 		if err != nil {
 			return nil, nil, op.Err(err)
 		}
-		Tablas = append(Tablas, *tbl)
+		call := tblGenCall{
+			tbl: tbl,
+		}
+		call.tbl.Generador = s
+		Tablas = append(Tablas, call)
 	}
 
-	consultas, err := repo.ListConsultasByPaqueteID(paqueteID)
+	consultas, err := s.db.ListConsultasByPaqueteID(paqueteID)
 	if err != nil {
 		return nil, nil, op.Err(err)
 	}
 	Consultas := []Consulta{}
 	for _, c := range consultas {
-		consulta, err := GetConsulta(c.ConsultaID, repo)
+		consulta, err := s.GetConsulta(c.ConsultaID)
 		if err != nil {
 			return nil, nil, op.Err(err)
 		}
@@ -58,14 +62,26 @@ func GetTablasYConsultas(paqueteID int, repo Repositorio) ([]Tabla, []Consulta, 
 // ================================================================ //
 // ========== TABLA =============================================== //
 
-func getTabla(tablaID int, repo Repositorio) (*Tabla, error) {
+func (s *Generador) DeTabla(tablaID int) (tblGenCall, error) {
+	tbl, err := s.getTabla(tablaID)
+	if err != nil {
+		return tblGenCall{}, err
+	}
+	tbl.Generador = s
+	tblGenCall := tblGenCall{
+		tbl: tbl,
+	}
+	return tblGenCall, nil
+}
+
+func (s *Generador) getTabla(tablaID int) (*Tabla, error) {
 
 	op := gko.Op("GetAgregadoTabla").Ctx("tablaID", tablaID)
-	tabla, err := repo.GetTabla(tablaID)
+	tabla, err := s.db.GetTabla(tablaID)
 	if err != nil {
 		return nil, op.Err(err)
 	}
-	paquete, err := repo.GetPaquete(tabla.PaqueteID)
+	paquete, err := s.db.GetPaquete(tabla.PaqueteID)
 	if err != nil {
 		return nil, op.Err(err)
 	}
@@ -73,7 +89,7 @@ func getTabla(tablaID int, repo Repositorio) (*Tabla, error) {
 		Tabla:   *tabla,
 		Paquete: *paquete,
 	}
-	campos, err := repo.ListCamposByTablaID(tabla.TablaID)
+	campos, err := s.db.ListCamposByTablaID(tabla.TablaID)
 	if err != nil {
 		return nil, op.Err(err)
 	}
@@ -110,18 +126,18 @@ func getTabla(tablaID int, repo Repositorio) (*Tabla, error) {
 			Posicion:        c.Posicion,
 		}
 		if c.Especial {
-			campo.ValoresPosibles, err = repo.GetValoresEnum(c.CampoID)
+			campo.ValoresPosibles, err = s.db.GetValoresEnum(c.CampoID)
 			if err != nil {
 				return nil, op.Err(err)
 			}
 		}
 
 		if c.ReferenciaCampo != nil {
-			campo.CampoFK, err = repo.GetCampo(*c.ReferenciaCampo)
+			campo.CampoFK, err = s.db.GetCampo(*c.ReferenciaCampo)
 			if err != nil {
 				return nil, op.Err(err).Op("get_fk")
 			}
-			campo.TablaFK, err = repo.GetTabla(campo.CampoFK.TablaID)
+			campo.TablaFK, err = s.db.GetTabla(campo.CampoFK.TablaID)
 			if err != nil {
 				return nil, op.Err(err).Op("get_fk")
 			}
@@ -142,26 +158,26 @@ func getTabla(tablaID int, repo Repositorio) (*Tabla, error) {
 // ================================================================ //
 // ========== CONSULTA ============================================ //
 
-func GetConsulta(consultaID int, repo Repositorio) (*Consulta, error) {
+func (s *Generador) GetConsulta(consultaID int) (*Consulta, error) {
 	ctx := gko.Op("GetAgregadoConsulta").Ctx("consultaID", consultaID)
-	consulta, err := repo.GetConsulta(consultaID)
+	consulta, err := s.db.GetConsulta(consultaID)
 	if err != nil {
 		return nil, ctx.Err(err)
 	}
-	paquete, err := repo.GetPaquete(consulta.PaqueteID)
+	paquete, err := s.db.GetPaquete(consulta.PaqueteID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetPaqueteDeConsulta")
 	}
-	tablaFrom, err := getTabla(consulta.TablaID, repo)
+	tablaFrom, err := s.getTabla(consulta.TablaID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetTablaDeOrigen")
 	}
 
-	relaciones, err := repo.ListConsultaRelacionesByConsultaID(consulta.ConsultaID)
+	relaciones, err := s.db.ListConsultaRelacionesByConsultaID(consulta.ConsultaID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetRelacionesDeConsulta")
 	}
-	campos, err := repo.ListConsultaCamposByConsultaID(consulta.ConsultaID)
+	campos, err := s.db.ListConsultaCamposByConsultaID(consulta.ConsultaID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetCamposDeConsulta")
 	}
@@ -192,15 +208,15 @@ func GetConsulta(consultaID int, repo Repositorio) (*Consulta, error) {
 		}
 		// Traer info de origen si aplica
 		if campo.CampoID != nil {
-			cam, err := repo.GetCampo(*campo.CampoID)
+			cam, err := s.db.GetCampo(*campo.CampoID)
 			if err != nil {
 				return nil, ctx.Err(err)
 			}
-			tbl, err := repo.GetTabla(cam.TablaID)
+			tbl, err := s.db.GetTabla(cam.TablaID)
 			if err != nil {
 				return nil, ctx.Err(err)
 			}
-			paq, err := repo.GetPaquete(tbl.PaqueteID)
+			paq, err := s.db.GetPaquete(tbl.PaqueteID)
 			if err != nil {
 				return nil, ctx.Err(err)
 			}
@@ -213,7 +229,7 @@ func GetConsulta(consultaID int, repo Repositorio) (*Consulta, error) {
 	}
 
 	for _, relacion := range relaciones {
-		joinTbl, err := getTabla(relacion.JoinTablaID, repo)
+		joinTbl, err := s.getTabla(relacion.JoinTablaID)
 		if err != nil {
 			return nil, ctx.Err(err)
 		}
@@ -228,7 +244,7 @@ func GetConsulta(consultaID int, repo Repositorio) (*Consulta, error) {
 			Join:        *joinTbl,
 		}
 		if relacion.FromTablaID != 0 {
-			fromTbl, err := getTabla(relacion.FromTablaID, repo)
+			fromTbl, err := s.getTabla(relacion.FromTablaID)
 			if err != nil {
 				return nil, ctx.Err(err)
 			}

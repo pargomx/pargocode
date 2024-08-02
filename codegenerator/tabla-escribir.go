@@ -9,23 +9,22 @@ import (
 	"github.com/pargomx/gecko/gko"
 )
 
-type tblGenCall struct {
-	filename string
-	tipo     string
-	tbl      *Tabla
-	gen      *Generador
-	mkdir    bool
-}
-
-func (c tblGenCall) Destino() string {
-	if c.mkdir {
-		return c.filename + " (creará directorio)"
+func (c tblGenCall) GenerarToFile(tipo string) error {
+	c.tipo = tipo
+	c.filename = c.getDestino()
+	if !fileutils.Existe(filepath.Dir(c.filename)) {
+		c.mkdir = true
 	}
-	return c.filename
-}
+	if tipo == "sqlite" {
+		if !fileutils.Existe(filepath.Join(c.tbl.Paquete.Directorio, "sqlite"+c.tbl.Paquete.Nombre, "servicio_repo.go")) {
+			err := c.GenerarToFile("sqlite/servicio")
+			if err != nil {
+				gko.LogError(err)
+			}
+		}
+	}
 
-func (c tblGenCall) Generar() error {
-	codigo, err := c.tbl.GenerarDeTablaString(c.tipo)
+	codigo, err := c.GenerarToString(c.tipo)
 	if err != nil {
 		return err
 	}
@@ -38,42 +37,43 @@ func (c tblGenCall) Generar() error {
 	return fileutils.GuardarGoCode(c.filename, codigo)
 }
 
-func (tbl *Tabla) TblGenerarArchivos(tipo string) tblGenCall {
-	c := tblGenCall{
-		filename: "generado.go",
-		tipo:     tipo,
-		tbl:      tbl,
-		gen:      tbl.Generador,
-	}
-	switch tipo {
-	case "entidad":
-		c.filename = filepath.Join(tbl.Paquete.Directorio, tbl.Paquete.Nombre, "t_"+tbl.Tabla.Kebab+".go")
+// ================================================================ //
+// ================================================================ //
 
-	case "mysql", "mysql-directriz":
-		c.filename = filepath.Join(tbl.Paquete.Directorio, "mysql"+tbl.Paquete.Nombre, "s_"+tbl.Tabla.NombreRepo+"_gen.go")
-		c.tipo = "mysql-directriz"
-
-	case "sqlite", "sqlite-directriz":
-		c.filename = filepath.Join(tbl.Paquete.Directorio, "sqlite"+tbl.Paquete.Nombre, "s_"+tbl.Tabla.NombreRepo+"_gen.go")
-		c.tipo = "mysql-directriz"
-
-		if !fileutils.Existe(filepath.Join(tbl.Paquete.Directorio, "sqlite"+tbl.Paquete.Nombre, "servicio_repo.go")) {
-			err := tbl.TblGenerarArchivos("sqlite/servicio").Generar()
-			if err != nil {
-				gko.LogError(err)
-			}
-		}
-
-	case "sqlite/servicio":
-		c.filename = filepath.Join(tbl.Paquete.Directorio, "sqlite"+tbl.Paquete.Nombre, "servicio_repo.go")
-
-	case "mysql/servicio":
-		c.filename = filepath.Join(tbl.Paquete.Directorio, "mysql"+tbl.Paquete.Nombre, "servicio_repo.go")
-
-	}
-	c.filename = strings.TrimSuffix(c.filename, "/") // debe ser relativa desde workdir
+func (c tblGenCall) GetInfoDestino(tipo string) string {
+	c.tipo = tipo
+	c.filename = c.getDestino()
 	if !fileutils.Existe(filepath.Dir(c.filename)) {
 		c.mkdir = true
 	}
-	return c
+	if c.mkdir {
+		return c.filename + " (creará directorio)"
+	}
+	return c.filename
+}
+
+func (c tblGenCall) getDestino() string {
+	destino := ""
+	switch c.tipo {
+	case "entidad":
+		destino = filepath.Join(c.tbl.Paquete.Directorio, c.tbl.Paquete.Nombre, "t_"+c.tbl.Tabla.Kebab+".go")
+
+	case "mysql":
+		destino = filepath.Join(c.tbl.Paquete.Directorio, "mysql"+c.tbl.Paquete.Nombre, "s_"+c.tbl.Tabla.NombreRepo+"_gen.go")
+
+	case "sqlite":
+		destino = filepath.Join(c.tbl.Paquete.Directorio, "sqlite"+c.tbl.Paquete.Nombre, "s_"+c.tbl.Tabla.NombreRepo+"_gen.go")
+
+	case "sqlite/servicio":
+		destino = filepath.Join(c.tbl.Paquete.Directorio, "sqlite"+c.tbl.Paquete.Nombre, "servicio_repo.go")
+
+	case "mysql/servicio":
+		destino = filepath.Join(c.tbl.Paquete.Directorio, "mysql"+c.tbl.Paquete.Nombre, "servicio_repo.go")
+
+	default:
+		destino = "generado.go"
+	}
+	destino = strings.TrimSuffix(destino, "/") // debe ser un archivo
+	destino = strings.TrimPrefix(destino, "/") // debe ser relativa desde workdir
+	return destino
 }

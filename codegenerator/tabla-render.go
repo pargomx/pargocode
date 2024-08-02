@@ -8,36 +8,36 @@ import (
 	"github.com/pargomx/gecko/gko"
 )
 
-func (tbl *Tabla) renderDeTabla(tipo string, buf io.Writer, separador bool) (err error) {
-	op := gko.Op("renderDeTabla").Ctx("tipo", tipo)
-	if tbl == nil {
+func (c tblGenCall) renderToBuffer(tmpl string, buf io.Writer, separador bool) (err error) {
+	op := gko.Op("tbl.renderToBuffer").Ctx("tipo", c.tipo)
+	if c.tbl == nil {
 		return op.Msg("tabla es nil")
 	}
-	op.Ctx("tabla", tbl.Tabla.NombreRepo)
-	if tbl.NombreItem() == "" {
+	op.Ctx("tabla", c.tbl.Tabla.NombreRepo)
+	if c.tbl.NombreItem() == "" {
 		return op.Msg("nombre de modelo indefinido")
 	}
-	if len(tbl.Campos) == 0 {
+	if len(c.tbl.Campos) == 0 {
 		return op.Msg("debe haber al menos una columna")
 	}
-	if len(tbl.PrimaryKeys()) == 0 {
+	if len(c.tbl.PrimaryKeys()) == 0 {
 		return op.Msg("debe haber al menos una clave primaria")
 	}
-	if tipo == "mysql/list_by" && len(tbl.CamposSeleccionados) == 0 {
+	if tmpl == "mysql/list_by" && len(c.tbl.CamposSeleccionados) == 0 {
 		return op.Msg("no se seleccionón ningún campo para list_by")
 	}
-	if tipo == "mysql/get_by" && len(tbl.CamposSeleccionados) == 0 {
+	if tmpl == "mysql/get_by" && len(c.tbl.CamposSeleccionados) == 0 {
 		return op.Msg("no se seleccionón ningún campo para get_by")
 	}
 	data := map[string]any{
-		"TablaOrConsulta": tbl,
-		"Tabla":           tbl,
+		"TablaOrConsulta": c.tbl,
+		"Tabla":           c.tbl,
 	}
-	if tipo == "mysql/servicio" || tipo == "sqlite/servicio" {
+	if tmpl == "mysql/servicio" || tmpl == "sqlite/servicio" {
 		separador = false // nunca porque es header
 	}
 	if separador {
-		textutils.ImprimirSeparador(buf, strings.ToUpper(tipo))
+		textutils.ImprimirSeparador(buf, strings.ToUpper(tmpl))
 	}
 
 	switch {
@@ -48,16 +48,16 @@ func (tbl *Tabla) renderDeTabla(tipo string, buf io.Writer, separador bool) (err
 	//		}
 	//		return s.renderer.HaciaBufferGo(tipo, data, buf)
 
-	case strings.HasPrefix(tipo, "html"):
-		return tbl.Generador.renderer.HaciaBufferHTML(tipo, data, buf)
+	case strings.HasPrefix(tmpl, "html"):
+		return c.tbl.Generador.renderer.HaciaBufferHTML(tmpl, data, buf)
 
-	case strings.Contains(tipo, "create_table"):
+	case strings.Contains(tmpl, "create_table"):
 		//	if err := yamlutils.PopularTablaFKs(tbl); err != nil { // TODO: JOIN
 		//		return ctx.Err(err)
 		//	}
-		return tbl.Generador.renderer.HaciaBuffer(tipo, data, buf)
+		return c.tbl.Generador.renderer.HaciaBuffer(tmpl, data, buf)
 
 	default:
-		return tbl.Generador.renderer.HaciaBufferGo(tipo, data, buf)
+		return c.tbl.Generador.renderer.HaciaBufferGo(tmpl, data, buf)
 	}
 }

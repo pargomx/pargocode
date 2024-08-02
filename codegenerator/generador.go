@@ -29,15 +29,3 @@ func NuevoGeneradorDeCodigo(repo Repositorio) (*Generador, error) {
 	}, nil
 
 }
-
-// ================================================================ //
-// ================================================================ //
-
-func (s *Generador) GetTabla(tablaID int) (*Tabla, error) {
-	tbl, err := getTabla(tablaID, s.db)
-	if err != nil {
-		return nil, err
-	}
-	tbl.Generador = s
-	return tbl, nil
-}
