@@ -22,7 +22,7 @@ func GuardarGoCodeConfirm(filename string, codigo string) error {
 
 func GuardarGoCode(filename string, codigo string) error {
 	if !OuptutToConsole && !OutputToFile {
-		gko.FatalExit("No se especificó a donde mandar el resultado: fileutils.OuptutToConsole/OutputToFile es false")
+		gko.ErrNoDisponible().Msg("No se especificó a donde mandar el resultado: fileutils.OuptutToConsole/OutputToFile es false")
 	}
 	if OuptutToConsole {
 		gko.LogEventof("Imprimiendo:")
@@ -30,6 +30,9 @@ func GuardarGoCode(filename string, codigo string) error {
 	}
 	if !OutputToFile {
 		return nil
+	}
+	if !Existe("go.mod") {
+		return gko.ErrNoDisponible().Str("Pargo no parece estar en la raíz de un proyecto Go")
 	}
 
 	fileOut, err := os.Create(filename)
