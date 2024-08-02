@@ -13,9 +13,6 @@ import (
 	"github.com/pargomx/gecko/gko"
 )
 
-// ================================================================ //
-// ========== ARCHIVOS ============================================ //
-
 type tblGenCall struct {
 	filename string
 	tipo     string
