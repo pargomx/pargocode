@@ -2,7 +2,7 @@ package main
 
 import (
 	"html"
-	"monorepo/appdominio"
+	"monorepo/codegenerator"
 
 	"github.com/pargomx/gecko"
 )
@@ -11,20 +11,20 @@ import (
 // ========== GENERAR ============================================= //
 
 func (s *servidor) generarDeConsulta(c *gecko.Context) error {
-	agregadoConsulta, err := appdominio.GetConsulta(c.PathInt("consulta_id"), s.ddd)
+	Consulta, err := codegenerator.GetConsulta(c.PathInt("consulta_id"), s.ddd)
 	if err != nil {
 		return err
 	}
 
 	if c.QueryVal("modo") == "archivo" {
-		err = codeGenerator.QryGenerarArchivos(agregadoConsulta, c.QueryVal("tipo")).Generar()
+		err = codeGenerator.QryGenerarArchivos(Consulta, c.QueryVal("tipo")).Generar()
 		if err != nil {
 			return err
 		}
 		return c.StatusOk("Generado")
 	}
 
-	codigo, err := codeGenerator.GenerarDeConsultaStringNew(agregadoConsulta, c.QueryVal("tipo"))
+	codigo, err := codeGenerator.GenerarDeConsultaStringNew(Consulta, c.QueryVal("tipo"))
 	if err != nil {
 		return err
 	}

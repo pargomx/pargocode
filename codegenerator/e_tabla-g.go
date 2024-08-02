@@ -1,4 +1,4 @@
-package appdominio
+package codegenerator
 
 import (
 	"fmt"

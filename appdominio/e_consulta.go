@@ -1,7 +1,6 @@
 package appdominio
 
 import (
-	"fmt"
 	"monorepo/ddd"
 )
 
@@ -47,89 +46,3 @@ type CampoConsulta struct {
 	OrigenPaquete *ddd.Paquete
 	OrigenCampo   *ddd.Campo
 }
-
-// ================================================================ //
-// ================================================================ //
-
-func (con *Consulta) NombreItem() string {
-	return con.Consulta.NombreItem
-}
-func (con *Consulta) NombreItems() string {
-	return con.Consulta.NombreItems
-}
-func (con *Consulta) NombreAbrev() string {
-	return con.Consulta.Abrev
-}
-
-func (con *Consulta) Directrices() []Directriz {
-	return ToDirectrices(con.Consulta.Directrices)
-}
-
-func (con *Consulta) BuscarCampo(nombre string) (*CampoConsulta, error) {
-	if nombre == "" {
-		return nil, fmt.Errorf("nombre de campo a buscar en la consulta vacío")
-	}
-	for _, campo := range con.Campos {
-		if campo.NombreCampo == nombre {
-			return &campo, nil
-		}
-		if campo.AliasSql == nombre {
-			return &campo, nil
-		}
-		if campo.Expresion == nombre {
-			return &campo, nil
-		}
-	}
-	return nil, fmt.Errorf("campo no encontrado: %v", nombre)
-}
-
-func (con *Consulta) TieneCamposFiltro() bool {
-	for _, campo := range con.Campos {
-		if campo.Filtro {
-			return true
-		}
-	}
-	return false
-}
-
-func (con *Consulta) CamposFiltro() []CampoConsulta {
-	campos := []CampoConsulta{}
-	for _, campo := range con.Campos {
-		if campo.Filtro {
-			campos = append(campos, campo)
-		}
-	}
-	return campos
-}
-
-func (con *Consulta) TieneCamposGroupBy() bool {
-	for _, campo := range con.Campos {
-		if campo.GroupBy {
-			return true
-		}
-	}
-	return false
-}
-
-func (con *Consulta) CamposGroupBy() []CampoConsulta {
-	campos := []CampoConsulta{}
-	for _, campo := range con.Campos {
-		if campo.GroupBy {
-			campos = append(campos, campo)
-		}
-	}
-	return campos
-}
-
-func (con *Consulta) PrimaryKeys() []CampoConsulta {
-	campos := []CampoConsulta{}
-	for _, campo := range con.Campos {
-		if campo.Pk {
-			campos = append(campos, campo)
-		}
-	}
-	return campos
-}
-
-// ================================================================ //
-// ================================================================ //

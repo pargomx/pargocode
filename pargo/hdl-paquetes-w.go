@@ -2,6 +2,7 @@ package main
 
 import (
 	"monorepo/appdominio"
+	"monorepo/codegenerator"
 	"monorepo/ddd"
 	"monorepo/textutils"
 
@@ -53,7 +54,7 @@ func (s *servidor) generarDePaqueteArchivos(c *gecko.Context) error {
 	}
 	reporte := "ARCHIVOS GENERADOS:\n\n"
 	errores := []error{}
-	tablas, consultas, err := appdominio.GetTablasYConsultas(paq.PaqueteID, s.ddd)
+	tablas, consultas, err := codegenerator.GetTablasYConsultas(paq.PaqueteID, s.ddd)
 	if err != nil {
 		return err
 	}

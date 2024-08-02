@@ -1,4 +1,4 @@
-package appdominio
+package codegenerator
 
 import (
 	"fmt"
@@ -6,9 +6,6 @@ import (
 
 	"github.com/pargomx/gecko/gko"
 )
-
-// ================================================================ //
-// ================================================================ //
 
 func (cam CampoConsulta) EsNullable() bool {
 	return cam.EsPointer()

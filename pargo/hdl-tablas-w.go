@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html"
 	"monorepo/appdominio"
+	"monorepo/codegenerator"
 	"monorepo/ddd"
 	"monorepo/textutils"
 	"time"
@@ -81,7 +82,7 @@ func (s *servidor) eliminarTabla(c *gecko.Context) error {
 // ========== GENERAR ============================================= //
 
 func (s *servidor) generarDeTabla(c *gecko.Context) error {
-	tbl, err := appdominio.GetTabla(c.PathInt("tabla_id"), s.ddd)
+	tbl, err := codegenerator.GetTabla(c.PathInt("tabla_id"), s.ddd)
 	if err != nil {
 		return err
 	}
@@ -96,7 +97,7 @@ func (s *servidor) generarDeTabla(c *gecko.Context) error {
 }
 
 func (s *servidor) generarDeTablaArchivos(c *gecko.Context) error {
-	tbl, err := appdominio.GetTabla(c.PathInt("tabla_id"), s.ddd)
+	tbl, err := codegenerator.GetTabla(c.PathInt("tabla_id"), s.ddd)
 	if err != nil {
 		return err
 	}
