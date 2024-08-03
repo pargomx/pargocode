@@ -8,7 +8,7 @@ type Consulta struct {
 	Paquete     ddd.Paquete
 	Consulta    ddd.Consulta
 	TablaOrigen ddd.Tabla
-	From        Tabla
+	From        tabla
 	Campos      []CampoConsulta
 	Relaciones  []Relacion
 
@@ -24,8 +24,8 @@ type Relacion struct {
 	JoinOn      string
 	FromTablaID int
 
-	Join Tabla
-	From *Tabla
+	Join tabla
+	From *tabla
 }
 
 type CampoConsulta struct {

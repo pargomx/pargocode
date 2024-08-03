@@ -93,7 +93,7 @@ func main() {
 	s.gecko.PUT("/paquetes/{paquete_id}", s.actualizarPaquete)
 	s.gecko.DEL("/paquetes/{paquete_id}", s.eliminarPaquete)
 	s.gecko.GET("/paquetes/{paquete_id}", s.getMapaEntidadRelacionPaquete)
-	s.gecko.GET("/paquetes/{paquete_id}/generar/{tipo}", s.generarDePaqueteArchivos)
+	// s.gecko.GET("/paquetes/{paquete_id}/generar/{tipo}", s.generarDePaqueteArchivos)
 
 	s.gecko.GET("/tablas", s.getPaquetes)              // 1. Tablas en el proyecto
 	s.gecko.GET("/tablas/nueva", s.getTablaNueva)      // 2. Formulario para nueva tabla
@@ -104,7 +104,6 @@ func main() {
 	s.gecko.POS("/tablas/{tabla_id}/campos", s.postCampo)
 	s.gecko.PUT("/tablas/{tabla_id}/campos", s.putCampo)
 	s.gecko.GET("/tablas/{tabla_id}/generar", s.generarDeTabla)
-	s.gecko.PUT("/tablas/{tabla_id}/generar/{tipo}", s.generarDeTablaArchivos)
 	s.gecko.POS("/tablas/{tabla_id}/campos_ordenar", s.fixOrdenDeCampos)
 
 	s.gecko.PUT("/campos/{campo_id}", s.updateCampo)

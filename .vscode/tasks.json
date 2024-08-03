@@ -22,8 +22,8 @@
 
 		{
 			"label": "ejecutar", "detail": "Ejecutar app aquí mismo",
-			"command": "pargo -p 5151",
-			"type": "shell", "presentation": { "echo": false, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
+			"command": "pargo -dir ../pargoh",
+			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
 			"isBackground": true,
 			"dependsOrder": "sequence", "dependsOn": ["install pargo"]
 		},

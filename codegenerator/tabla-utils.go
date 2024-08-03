@@ -12,36 +12,36 @@ import (
 // ================================================================ //
 // ================================================================ //
 
-func (tbl *Tabla) NombreRepo() string {
+func (tbl *tabla) NombreRepo() string {
 	return tbl.Tabla.NombreRepo
 }
-func (tbl *Tabla) NombreItem() string {
+func (tbl *tabla) NombreItem() string {
 	return tbl.Tabla.NombreItem
 }
-func (tbl *Tabla) NombreItems() string {
+func (tbl *tabla) NombreItems() string {
 	return tbl.Tabla.NombreItems
 }
-func (tbl *Tabla) NombreAbrev() string {
+func (tbl *tabla) NombreAbrev() string {
 	return tbl.Tabla.Abrev
 }
-func (tbl *Tabla) NombreNominativo() string {
+func (tbl *tabla) NombreNominativo() string {
 	if tbl.Tabla.EsFemenino {
 		return "la " + strings.ToLower(tbl.Tabla.Humano)
 	}
 	return "el " + strings.ToLower(tbl.Tabla.Humano)
 }
 
-func (tbl *Tabla) Directrices() []Directriz {
+func (tbl *tabla) Directrices() []Directriz {
 	return ToDirectrices(tbl.Tabla.Directrices)
 }
 
-func (tbl *Tabla) TablaOrigen() ddd.Tabla {
+func (tbl *tabla) TablaOrigen() ddd.Tabla {
 	return tbl.Tabla
 }
 
 // Devuelve una compia del campo si la tabla lo tiene.
 // Evalúa nombre Kebab, Snake, Camel, Humano.
-func (tbl *Tabla) BuscarCampo(nombre string) (*CampoTabla, error) {
+func (tbl *tabla) BuscarCampo(nombre string) (*CampoTabla, error) {
 	if nombre == "" {
 		return nil, errors.New("no se puede buscar campo sin especificar nombre")
 	}
@@ -57,11 +57,11 @@ func (tbl *Tabla) BuscarCampo(nombre string) (*CampoTabla, error) {
 	return nil, errors.New("la tabla '" + tbl.Tabla.NombreRepo + "' no tiene campo '" + nombre + "'")
 }
 
-func (tbl *Tabla) PrimerCampo() CampoTabla {
+func (tbl *tabla) PrimerCampo() CampoTabla {
 	return tbl.Campos[0]
 }
 
-func (tbl *Tabla) TieneCamposFiltro() bool {
+func (tbl *tabla) TieneCamposFiltro() bool {
 	for _, campo := range tbl.Campos {
 		if campo.Campo.Filtro {
 			return true
@@ -70,7 +70,7 @@ func (tbl *Tabla) TieneCamposFiltro() bool {
 	return false
 }
 
-func (tbl *Tabla) CamposFiltro() []CampoTabla {
+func (tbl *tabla) CamposFiltro() []CampoTabla {
 	campos := []CampoTabla{}
 	for _, campo := range tbl.Campos {
 		if campo.Campo.Filtro {
@@ -81,7 +81,7 @@ func (tbl *Tabla) CamposFiltro() []CampoTabla {
 }
 
 // Retorna una copia de todos los campos PK.
-func (tbl *Tabla) PrimaryKeys() []CampoTabla {
+func (tbl *tabla) PrimaryKeys() []CampoTabla {
 	res := []CampoTabla{}
 	for _, c := range tbl.Campos {
 		if c.Campo.PrimaryKey {
@@ -92,7 +92,7 @@ func (tbl *Tabla) PrimaryKeys() []CampoTabla {
 }
 
 // Retorna una copia de todos los campos FK.
-func (tbl *Tabla) ForeignKeys() []CampoTabla {
+func (tbl *tabla) ForeignKeys() []CampoTabla {
 	res := []CampoTabla{}
 	for _, c := range tbl.Campos {
 		if c.Campo.ForeignKey {
@@ -102,7 +102,7 @@ func (tbl *Tabla) ForeignKeys() []CampoTabla {
 	return res
 }
 
-func (tbl *Tabla) UniqueKeys() []CampoTabla {
+func (tbl *tabla) UniqueKeys() []CampoTabla {
 	res := []CampoTabla{}
 	for _, c := range tbl.Campos {
 		if c.Campo.Unique() {
@@ -112,7 +112,7 @@ func (tbl *Tabla) UniqueKeys() []CampoTabla {
 	return res
 }
 
-func (tbl *Tabla) CamposEspeciales() []CampoTabla {
+func (tbl *tabla) CamposEspeciales() []CampoTabla {
 	res := []CampoTabla{}
 	for _, c := range tbl.Campos {
 		if c.Campo.Especial {
@@ -122,7 +122,7 @@ func (tbl *Tabla) CamposEspeciales() []CampoTabla {
 	return res
 }
 
-func (tbl *Tabla) CamposEditables() []CampoTabla {
+func (tbl *tabla) CamposEditables() []CampoTabla {
 	res := []CampoTabla{}
 	for _, c := range tbl.Campos {
 		if !c.Campo.ReadOnly() {
@@ -133,7 +133,7 @@ func (tbl *Tabla) CamposEditables() []CampoTabla {
 }
 
 // Retorna los campos que son requeridos para escribir (required y PKs).
-func (tbl *Tabla) CamposRequeridosOrPK() []CampoTabla {
+func (tbl *tabla) CamposRequeridosOrPK() []CampoTabla {
 	res := []CampoTabla{}
 	for _, c := range tbl.Campos {
 		if c.Required() || c.PrimaryKey {
@@ -156,10 +156,10 @@ func TablaCamposAsSnakeList(campos []CampoTabla, separador string) (s string) {
 	return strings.TrimSuffix(s, separador)
 }
 
-func (tbl Tabla) CamposAsSnakeList(separador string) (lista string) {
+func (tbl tabla) CamposAsSnakeList(separador string) (lista string) {
 	return TablaCamposAsSnakeList(tbl.Campos, separador)
 }
-func (tbl Tabla) CamposEditablesAsSnakeList(separador string) (lista string) {
+func (tbl tabla) CamposEditablesAsSnakeList(separador string) (lista string) {
 	return TablaCamposAsSnakeList(tbl.CamposEditables(), separador)
 }
 
@@ -175,7 +175,7 @@ func CamposAsSnakeEqPlaceholder(campos []CampoTabla) (s string) {
 	return strings.TrimSuffix(s, ", ")
 }
 
-func (tbl Tabla) CamposEditablesAsSnakeEqPlaceholder() (lista string) {
+func (tbl tabla) CamposEditablesAsSnakeEqPlaceholder() (lista string) {
 	return CamposAsSnakeEqPlaceholder(tbl.CamposEditables())
 }
 
@@ -191,7 +191,7 @@ func CamposAsPlaceholders(campos []CampoTabla) (s string) {
 	return strings.TrimSuffix(s, ", ")
 }
 
-func (tbl Tabla) CamposEditablesAsPlaceholders() (lista string) {
+func (tbl tabla) CamposEditablesAsPlaceholders() (lista string) {
 	return CamposAsPlaceholders(tbl.CamposEditables())
 }
 
@@ -225,10 +225,10 @@ func CamposTablaAsSqlWhere(campos []CampoTabla, incluirTabla bool) (s string) {
 	return s
 }
 
-func (tbl Tabla) PrimaryKeysAsSqlWhere() (QryWhere string) {
+func (tbl tabla) PrimaryKeysAsSqlWhere() (QryWhere string) {
 	return CamposTablaAsSqlWhere(tbl.PrimaryKeys(), false)
 }
-func (tbl Tabla) CamposSeleccionadosAsSqlWhere() (ArgsFunc string) {
+func (tbl tabla) CamposSeleccionadosAsSqlWhere() (ArgsFunc string) {
 	return CamposTablaAsSqlWhere(tbl.CamposSeleccionados, false)
 }
 
@@ -244,10 +244,10 @@ func CamposTablaAsFuncParams(campos []CampoTabla) (s string) {
 	return strings.TrimSuffix(s, ", ")
 }
 
-func (tbl Tabla) PrimaryKeysAsFuncParams() (ArgsFunc string) {
+func (tbl tabla) PrimaryKeysAsFuncParams() (ArgsFunc string) {
 	return CamposTablaAsFuncParams(tbl.PrimaryKeys())
 }
-func (tbl Tabla) CamposSeleccionadosAsFuncParams() (ArgsFunc string) {
+func (tbl tabla) CamposSeleccionadosAsFuncParams() (ArgsFunc string) {
 	return CamposTablaAsFuncParams(tbl.CamposSeleccionados)
 }
 
@@ -281,38 +281,38 @@ func CamposTablaAsArguments(campos []CampoTabla, nombreVariable string) (s strin
 	return strings.TrimSuffix(s, ", ")
 }
 
-func (tbl Tabla) PrimaryKeysAsArguments(nombreVariable string) (ArgsWhere string) {
+func (tbl tabla) PrimaryKeysAsArguments(nombreVariable string) (ArgsWhere string) {
 	return CamposTablaAsArguments(tbl.PrimaryKeys(), nombreVariable)
 }
-func (tbl Tabla) CamposEditablesAsArguments(nombreVariable string) (lista string) {
+func (tbl tabla) CamposEditablesAsArguments(nombreVariable string) (lista string) {
 	return CamposTablaAsArguments(tbl.CamposEditables(), nombreVariable)
 }
-func (tbl Tabla) CamposSeleccionadosAsArguments(nombreVariable string) (lista string) {
+func (tbl tabla) CamposSeleccionadosAsArguments(nombreVariable string) (lista string) {
 	return CamposTablaAsArguments(tbl.CamposSeleccionados, nombreVariable)
 }
 
 // ================================================================ //
 // ================================================================ //
 
-func (tbl *Tabla) SqlFromClause(separador string) string {
+func (tbl *tabla) SqlFromClause(separador string) string {
 	return "FROM " + tbl.Tabla.NombreRepo + " "
 }
 
 // compatibilidad con mysql-scan
-func (tbl *Tabla) SqlGroupClause(separador string) string {
+func (tbl *tabla) SqlGroupClause(separador string) string {
 	return ""
 }
 
 // ================================================================ //
 // ========== Scan ================================================ //
 
-func (tbl *Tabla) ScanTempVars() string {
+func (tbl *tabla) ScanTempVars() string {
 	return ScanTempVarsTabla(tbl.Campos)
 }
-func (tbl *Tabla) ScanArgs() string {
+func (tbl *tabla) ScanArgs() string {
 	return ScanArgsTabla(tbl.Campos, tbl.Tabla.Abrev)
 }
-func (tbl *Tabla) ScanSetters() string {
+func (tbl *tabla) ScanSetters() string {
 	return ScanSettersTabla(tbl.Campos, tbl.Tabla.Abrev)
 }
 

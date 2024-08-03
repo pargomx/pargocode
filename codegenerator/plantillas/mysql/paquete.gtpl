@@ -1,1 +1,1 @@
-package mysql{{ .TablaOrConsulta.Paquete.Nombre }}
+package {{ if .TablaOrConsulta.Sqlite }}sqlite{{ else }}mysql{{ end }}{{ .TablaOrConsulta.Paquete.Nombre }}
