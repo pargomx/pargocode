@@ -44,9 +44,9 @@ type genDest struct {
 }
 
 type genJob struct {
-	tmpl      string // nombre de la plantilla a renderizar
-	separador bool   // agregar comentario separador
-	// titulo    string       // título del bloque
+	tmpl string // nombre de la plantilla a renderizar
+	// separador bool         // agregar comentario separador
+	titulo string       // título del bloque para separador
 	campos []CampoTabla // campos seleccionados
 }
 
@@ -107,7 +107,7 @@ func (c *tblGenerator) PrepararJob(tipo string) *tblGenerator {
 	case "sqlite":
 		c.addJobsRepoSQL(true)
 	default:
-		c.addJob(tipo, "generado.go", false, nil)
+		c.addJob(tipo, "generado.go", "", nil)
 	}
 	return c
 }
@@ -129,7 +129,8 @@ func (c *tblGenerator) DescribirJobs() {
 // ========== PREPARAR TRABAJO PENDIENTE ========================== //
 
 // Agregar un trabjo a la lista de pendientes con el destino adecuado.
-func (c *tblGenerator) addJob(tmpl string, destino string, separador bool, campos []string) {
+// El título es opcional y se usa para agregar un comentario separador.
+func (c *tblGenerator) addJob(tmpl string, destino string, titulo string, campos []string) {
 	op := gko.Op("addJob").Ctx("tmpl", tmpl)
 	if c.tbl == nil {
 		c.addErr(op.Str("tabla no definida"))
@@ -156,8 +157,8 @@ func (c *tblGenerator) addJob(tmpl string, destino string, separador bool, campo
 		return
 	}
 	job := genJob{
-		tmpl:      tmpl,
-		separador: separador,
+		tmpl:   tmpl,
+		titulo: titulo,
 	}
 	// agregar campos seleccionados si aplica
 	for _, v := range campos {
@@ -205,9 +206,9 @@ func (c *tblGenerator) addDestino(filename string) (int, error) {
 func (c *tblGenerator) addJobsEntidad() {
 	destino := filepath.Join(c.tbl.Paquete.Directorio,
 		c.tbl.Paquete.Nombre, "t_"+c.tbl.Tabla.Kebab+".go")
-	c.addJob("go/tbl_struct", destino, false, nil)
-	c.addJob("go/tbl_errores", destino, false, nil)
-	c.addJob("go/tbl_propiedades", destino, false, nil)
+	c.addJob("go/tbl_struct", destino, "", nil)
+	c.addJob("go/tbl_errores", destino, "", nil)
+	c.addJob("go/tbl_propiedades", destino, "", nil)
 }
 
 // ================================================================ //
@@ -223,10 +224,10 @@ func (c *tblGenerator) addJobsRepoSQL(sqlite bool) {
 
 	// Si el paquete aún no tiene el archivo de servicio, se agrega.
 	if sqlite && !fileutils.Existe(filepath.Join(c.tbl.Paquete.Directorio, "sqlite"+c.tbl.Paquete.Nombre, "servicio_repo.go")) {
-		c.addJob("sqlite/servicio", filepath.Join(c.tbl.Paquete.Directorio, "sqlite"+c.tbl.Paquete.Nombre, "servicio_repo.go"), false, nil)
+		c.addJob("sqlite/servicio", filepath.Join(c.tbl.Paquete.Directorio, "sqlite"+c.tbl.Paquete.Nombre, "servicio_repo.go"), "", nil)
 
 	} else if !sqlite && !fileutils.Existe(filepath.Join(c.tbl.Paquete.Directorio, "mysql"+c.tbl.Paquete.Nombre, "servicio_repo.go")) {
-		c.addJob("mysql/servicio", filepath.Join(c.tbl.Paquete.Directorio, "mysql"+c.tbl.Paquete.Nombre, "servicio_repo.go"), false, nil)
+		c.addJob("mysql/servicio", filepath.Join(c.tbl.Paquete.Directorio, "mysql"+c.tbl.Paquete.Nombre, "servicio_repo.go"), "", nil)
 	}
 
 	// Destino diferente dependiendo si es repo mysql o sqlite.
@@ -239,49 +240,52 @@ func (c *tblGenerator) addJobsRepoSQL(sqlite bool) {
 			"mysql"+c.tbl.Paquete.Nombre, "s_"+c.tbl.Tabla.NombreRepo+"_gen.go")
 	}
 
-	c.addJob("mysql/paquete", destino, false, nil)
-	c.addJob("mysql/constantes", destino, false, nil)
-
+	c.addJob("mysql/paquete", destino, "", nil)
 	for _, directriz := range c.tbl.Directrices() {
 		switch directriz.Key() {
 		case "insert":
-			c.addJob("mysql/tbl-insert", destino, true, nil)
+			c.addJob("mysql/tbl-insert", destino, directriz.Key(), nil)
 
 		case "update":
-			c.addJob("mysql/tbl-update", destino, true, nil)
+			c.addJob("mysql/tbl-update", destino, directriz.Key(), nil)
 
 		case "insert_update":
-			c.addJob("mysql/tbl-insert_update", destino, true, nil)
+			c.addJob("mysql/tbl-insert_update", destino, directriz.Key(), nil)
 
 		case "delete":
-			c.addJob("mysql/existe", destino, true, nil)
-			c.addJob("mysql/tbl-delete", destino, true, nil)
+			c.addJob("mysql/existe", destino, "EXISTE", nil)
+			c.addJob("mysql/tbl-delete", destino, "DELETE", nil)
 
 		case "fetch":
-			c.addJob("mysql/scan-row", destino, true, nil)
-			c.addJob("mysql/fetch", destino, true, nil)
+			c.addJob("mysql/constantes", destino, "CONSTANTES", nil)
+			c.addJob("mysql/scan-row", destino, "SCAN", nil)
+			c.addJob("mysql/fetch", destino, "FETCH", nil)
 
 		case "get":
-			c.addJob("mysql/scan-row", destino, true, nil)
-			c.addJob("mysql/get", destino, true, nil)
+			c.addJob("mysql/constantes", destino, "CONSTANTES", nil)
+			c.addJob("mysql/scan-row", destino, "SCAN", nil)
+			c.addJob("mysql/get", destino, "GET", nil)
 
 		case "list":
 			if c.tbl.TieneCamposFiltro() {
-				c.addJob("mysql/tbl-filtros", destino, true, nil)
+				c.addJob("mysql/tbl-filtros", destino, "FILTROS", nil)
 			}
-			c.addJob("mysql/scan-rows", destino, true, nil)
-			c.addJob("mysql/list", destino, true, nil)
+			c.addJob("mysql/constantes", destino, "CONSTANTES", nil)
+			c.addJob("mysql/scan-rows", destino, "SCAN", nil)
+			c.addJob("mysql/list", destino, "LIST", nil)
 
 		case "get_by":
-			c.addJob("mysql/scan-row", destino, true, nil)
-			c.addJob("mysql/get_by", destino, true, directriz.Values())
+			c.addJob("mysql/constantes", destino, "CONSTANTES", nil)
+			c.addJob("mysql/scan-row", destino, "SCAN", nil)
+			c.addJob("mysql/get_by", destino, "GET_BY", directriz.Values())
 
 		case "list_by":
 			if c.tbl.TieneCamposFiltro() {
-				c.addJob("mysql/tbl-filtros", destino, true, nil)
+				c.addJob("mysql/tbl-filtros", destino, "FILTROS", nil)
 			}
-			c.addJob("mysql/scan-rows", destino, true, nil)
-			c.addJob("mysql/list_by", destino, true, directriz.Values())
+			c.addJob("mysql/constantes", destino, "CONSTANTES", nil)
+			c.addJob("mysql/scan-rows", destino, "SCAN", nil)
+			c.addJob("mysql/list_by", destino, "LIST_BY", directriz.Values())
 
 		default:
 			c.addErr(op.Msgf("directriz no reconocida: '%v'", directriz.Key()))
@@ -330,8 +334,8 @@ func (c *tblGenerator) Generar() (err error) {
 				"TablaOrConsulta": c.tbl,
 				"Tabla":           c.tbl,
 			}
-			if job.separador {
-				textutils.ImprimirSeparador(c.destinos[i].buf, strings.ToUpper(job.tmpl))
+			if job.titulo != "" {
+				textutils.ImprimirSeparador(c.destinos[i].buf, strings.ToUpper(job.titulo))
 			}
 
 			switch {
