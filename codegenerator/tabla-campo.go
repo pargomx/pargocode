@@ -235,9 +235,12 @@ func (c CampoTabla) ifZeroReturnErr(razón string, nombreVariable string, return
 	case c.EsPropiedadExtendida():
 		comparacion += ".Es" + c.NombreCampo + "Indefinido() "
 
+	case c.EsBool() && !c.Nullable:
+		return "" // No se verifica que un bool sea zero value
+
 	default:
 		gko.LogWarnf("No se verificará que %v no sea Zero value", c.NombreCampo)
-		return `\\` + " TODO: verificar que " + c.NombreCampo + " no esté indefinido"
+		return "// TODO: verificar que " + c.NombreCampo + " no esté indefinido\n"
 	}
 
 	comparacion += " {\n" + "\t\t" + "return "

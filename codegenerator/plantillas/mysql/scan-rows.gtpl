@@ -7,14 +7,14 @@ func (s *Repositorio) scanRows{{ .NombreItem }}(rows *sql.Rows, op string) ([]{{
 	items := []{{ .Paquete.Nombre }}.{{ .NombreItem }}{}
 	for rows.Next() {
 		{{ .NombreAbrev }} := {{ .Paquete.Nombre }}.{{ .NombreItem }}{}
-		{{ .ScanTempVars }}
+		{{- .ScanTempVars }}
 		err := rows.Scan(
 			{{ .ScanArgs }},
 		)
 		if err != nil {
 			return nil, gko.ErrInesperado().Err(err).Op(op)
 		}
-		{{ .ScanSetters }}
+		{{- .ScanSetters }}
 		items = append(items, {{ .NombreAbrev }})
 	}
 	return items, nil

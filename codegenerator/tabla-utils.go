@@ -347,7 +347,7 @@ func ScanTempVarsTabla(campos []CampoTabla) string {
 			gko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
 		}
 	}
-	return strings.TrimPrefix(res, "\n\t")
+	return res
 }
 
 // ================================================================ //
@@ -506,5 +506,5 @@ func ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 			// ================================================================ //
 		}
 	}
-	return strings.TrimPrefix(res, "\n\t")
+	return res
 }

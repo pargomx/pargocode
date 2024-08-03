@@ -13,6 +13,6 @@ func (s *Repositorio) Fetch{{ .NombreItem }}({{ .PrimaryKeysAsFuncParams }}, {{ 
 	if err != nil {
 		return gko.Err(err).Op(op)
 	}
-	return 
+	return nil
 }
 {{- end }}

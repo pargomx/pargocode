@@ -112,7 +112,7 @@ func (cam CampoConsulta) ifZeroReturnErr(razón string, nombreVariable string, r
 
 	default:
 		gko.LogWarnf("cam.NombreCampo: No se verificará que %v no sea Zero value", cam.NombreCampo)
-		return `\\` + " TODO: verificar que " + cam.NombreCampo + " no esté indefinido"
+		return "// TODO: verificar que " + cam.NombreCampo + " no esté indefinido\n"
 	}
 
 	comparacion += " {\n" + "\t\t" + "return "
@@ -214,7 +214,7 @@ func ScanTempVars(campos []CampoConsulta) string {
 			gko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
 		}
 	}
-	return strings.TrimPrefix(res, "\n\t")
+	return res
 }
 
 // ================================================================ //
@@ -373,5 +373,5 @@ func ScanSetters(campos []CampoConsulta, itemVar string) string {
 			// ================================================================ //
 		}
 	}
-	return strings.TrimPrefix(res, "\n\t")
+	return res
 }

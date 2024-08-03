@@ -33,6 +33,7 @@ type tabla struct {
 	CamposSeleccionados []CampoTabla
 
 	Sqlite bool
+	MySQL  bool
 }
 
 type genDest struct {
@@ -218,6 +219,7 @@ func (c *tblGenerator) addJobsRepoSQL(sqlite bool) {
 	}
 
 	c.tbl.Sqlite = sqlite
+	c.tbl.MySQL = !sqlite
 
 	// Si el paquete aún no tiene el archivo de servicio, se agrega.
 	if sqlite && !fileutils.Existe(filepath.Join(c.tbl.Paquete.Directorio, "sqlite"+c.tbl.Paquete.Nombre, "servicio_repo.go")) {

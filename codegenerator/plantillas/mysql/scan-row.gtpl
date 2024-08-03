@@ -1,7 +1,7 @@
 {{ with $.TablaOrConsulta -}}
 // Utilizar luego de un sql.QueryRow(). No es necesario hacer row.Close()
 func (s *Repositorio) scanRow{{ .NombreItem }}(row *sql.Row, {{ .NombreAbrev }} *{{ .Paquete.Nombre }}.{{ .NombreItem }}) error {
-	{{ .ScanTempVars }}
+	{{- .ScanTempVars }}
 	err := row.Scan(
 		{{ .ScanArgs }},
 	)
@@ -11,7 +11,7 @@ func (s *Repositorio) scanRow{{ .NombreItem }}(row *sql.Row, {{ .NombreAbrev }} 
 		}
 		return gko.ErrInesperado().Err(err)
 	}
-	{{ .ScanSetters }}
+	{{- .ScanSetters }}
 	return nil
 }
 {{- end }}

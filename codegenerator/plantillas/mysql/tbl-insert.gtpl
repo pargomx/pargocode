@@ -10,6 +10,7 @@ func (s *Repositorio) Insert{{ .Tabla.NombreItem }}({{ .Tabla.NombreAbrev }} {{ 
 		{{ .Tabla.CamposEditablesAsArguments .Tabla.NombreAbrev }},
 	)
 	if err != nil {
+		{{ if .Tabla.MySQL -}}
 		if strings.HasPrefix(err.Error(),"Error 1062 (23000)"){
 			return gko.ErrYaExiste().Err(err).Op(op)
 		} else if strings.HasPrefix(err.Error(), "Error 1452 (23000)") {
@@ -17,6 +18,9 @@ func (s *Repositorio) Insert{{ .Tabla.NombreItem }}({{ .Tabla.NombreAbrev }} {{ 
 		} else {
 			return gko.ErrInesperado().Err(err).Op(op)
 		}
+		{{ else -}}
+		return gko.ErrAlEscribir().Err(err).Op(op)
+		{{- end }}
 	}
 	return nil
 }

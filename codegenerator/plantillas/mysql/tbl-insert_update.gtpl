@@ -5,7 +5,7 @@ func (s *Repositorio) InsertUpdate{{ .Tabla.NombreItem }}({{ .Tabla.NombreAbrev 
 		{{ if .PrimaryKey }}{{ .IfZeroReturnErr "pk_indefinida" $.Tabla.NombreAbrev -}}
 		{{ else }}{{ .IfZeroReturnErr "required_sin_valor" $.Tabla.NombreAbrev }}{{ end -}}
 	{{ end -}}
-	_, err = s.db.Exec("INSERT INTO {{ .Tabla.NombreRepo }} "+
+	_, err := s.db.Exec("INSERT INTO {{ .Tabla.NombreRepo }} "+
 		"({{ .Tabla.CamposEditablesAsSnakeList ", " }}) "+
 		"VALUES ({{ .Tabla.CamposEditablesAsPlaceholders }}) ",
 		{{ .Tabla.CamposEditablesAsArguments .Tabla.NombreAbrev }},

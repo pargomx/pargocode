@@ -12,7 +12,7 @@ func (s *Repositorio) Get{{ .NombreItem }}By{{ range .CamposSeleccionados }}{{ .
 	{{ .NombreAbrev }} := &{{ .Paquete.Nombre }}.{{ .NombreItem }}{}
 	err := s.scanRow{{ .NombreItem }}(row, {{ .NombreAbrev }})
 	if err != nil {
-		return gko.Err(err).Op(op)
+		return nil, gko.Err(err).Op(op)
 	}
 	return {{ .NombreAbrev }}, nil
 }
