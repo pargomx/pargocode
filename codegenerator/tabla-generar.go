@@ -368,10 +368,21 @@ func (c *tblGenerator) ToFile() (err error) {
 			if err != nil {
 				return op.Err(err)
 			}
-			c.addHecho(filepath.Dir(dest.filename) + " (creado directorio)")
+			c.addHecho(filepath.Dir("[NEW_DIR] " + dest.filename))
 		}
-		fileutils.GuardarGoCode(dest.filename, dest.buf.String())
-		c.addHecho(dest.filename + " (generado)")
+		sobreescrito := false
+		if fileutils.Existe(dest.filename) {
+			sobreescrito = true
+		}
+		err = fileutils.GuardarGoCode(dest.filename, dest.buf.String())
+		if err != nil {
+			return op.Err(err)
+		}
+		if sobreescrito {
+			c.addHecho("[REWRITE] " + dest.filename)
+		} else {
+			c.addHecho("[NEWFILE] " + dest.filename)
+		}
 	}
 	return nil
 }
