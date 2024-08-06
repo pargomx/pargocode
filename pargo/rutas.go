@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"monorepo/assets"
-	"monorepo/codegenerator"
 	"monorepo/htmltmpl"
 	"monorepo/migraciones"
 	"monorepo/sqlitedb"
@@ -33,11 +32,10 @@ type configs struct {
 }
 
 type servidor struct {
-	cfg       configs
-	gecko     *gecko.Gecko
-	db        *sqlitedb.SqliteDB
-	ddd       *sqliteddd.Repositorio
-	generador *codegenerator.Generador
+	cfg   configs
+	gecko *gecko.Gecko
+	db    *sqlitedb.SqliteDB
+	ddd   *sqliteddd.Repositorio
 }
 
 func main() {
@@ -65,12 +63,6 @@ func main() {
 		gko.FatalError(err)
 	}
 	s.ddd = sqliteddd.NuevoRepositorio(s.db)
-
-	// Generador de código
-	s.generador, err = codegenerator.NuevoGeneradorDeCodigo(s.ddd)
-	if err != nil {
-		gko.FatalError(err)
-	}
 
 	tpls, err := plantillas.NuevoServicioPlantillasEmbebidas(htmltmpl.PlantillasFS, "")
 	if err != nil {

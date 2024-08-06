@@ -25,14 +25,14 @@ type Repositorio interface {
 // ================================================================ //
 // ========== TABLA =============================================== //
 
-func (gen *Generador) getTabla(tablaID int) (*tabla, error) {
+func getTabla(repo Repositorio, tablaID int) (*tabla, error) {
 
 	op := gko.Op("GetAgregadoTabla").Ctx("tablaID", tablaID)
-	tbl, err := gen.db.GetTabla(tablaID)
+	tbl, err := repo.GetTabla(tablaID)
 	if err != nil {
 		return nil, op.Err(err)
 	}
-	paquete, err := gen.db.GetPaquete(tbl.PaqueteID)
+	paquete, err := repo.GetPaquete(tbl.PaqueteID)
 	if err != nil {
 		return nil, op.Err(err)
 	}
@@ -40,7 +40,7 @@ func (gen *Generador) getTabla(tablaID int) (*tabla, error) {
 		Tabla:   *tbl,
 		Paquete: *paquete,
 	}
-	campos, err := gen.db.ListCamposByTablaID(tbl.TablaID)
+	campos, err := repo.ListCamposByTablaID(tbl.TablaID)
 	if err != nil {
 		return nil, op.Err(err)
 	}
@@ -77,18 +77,18 @@ func (gen *Generador) getTabla(tablaID int) (*tabla, error) {
 			Posicion:        c.Posicion,
 		}
 		if c.Especial {
-			campo.ValoresPosibles, err = gen.db.GetValoresEnum(c.CampoID)
+			campo.ValoresPosibles, err = repo.GetValoresEnum(c.CampoID)
 			if err != nil {
 				return nil, op.Err(err)
 			}
 		}
 
 		if c.ReferenciaCampo != nil {
-			campo.CampoFK, err = gen.db.GetCampo(*c.ReferenciaCampo)
+			campo.CampoFK, err = repo.GetCampo(*c.ReferenciaCampo)
 			if err != nil {
 				return nil, op.Err(err).Op("get_fk")
 			}
-			campo.TablaFK, err = gen.db.GetTabla(campo.CampoFK.TablaID)
+			campo.TablaFK, err = repo.GetTabla(campo.CampoFK.TablaID)
 			if err != nil {
 				return nil, op.Err(err).Op("get_fk")
 			}
@@ -109,26 +109,26 @@ func (gen *Generador) getTabla(tablaID int) (*tabla, error) {
 // ================================================================ //
 // ========== CONSULTA ============================================ //
 
-func (gen *Generador) getConsulta(consultaID int) (*consulta, error) {
+func getConsulta(repo Repositorio, consultaID int) (*consulta, error) {
 	ctx := gko.Op("getConsulta").Ctx("consultaID", consultaID)
-	con, err := gen.db.GetConsulta(consultaID)
+	con, err := repo.GetConsulta(consultaID)
 	if err != nil {
 		return nil, ctx.Err(err)
 	}
-	paquete, err := gen.db.GetPaquete(con.PaqueteID)
+	paquete, err := repo.GetPaquete(con.PaqueteID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetPaqueteDeConsulta")
 	}
-	tablaFrom, err := gen.getTabla(con.TablaID)
+	tablaFrom, err := getTabla(repo, con.TablaID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetTablaDeOrigen")
 	}
 
-	relaciones, err := gen.db.ListConsultaRelacionesByConsultaID(con.ConsultaID)
+	relaciones, err := repo.ListConsultaRelacionesByConsultaID(con.ConsultaID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetRelacionesDeConsulta")
 	}
-	campos, err := gen.db.ListConsultaCamposByConsultaID(con.ConsultaID)
+	campos, err := repo.ListConsultaCamposByConsultaID(con.ConsultaID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetCamposDeConsulta")
 	}
@@ -159,15 +159,15 @@ func (gen *Generador) getConsulta(consultaID int) (*consulta, error) {
 		}
 		// Traer info de origen si aplica
 		if campo.CampoID != nil {
-			cam, err := gen.db.GetCampo(*campo.CampoID)
+			cam, err := repo.GetCampo(*campo.CampoID)
 			if err != nil {
 				return nil, ctx.Err(err)
 			}
-			tbl, err := gen.db.GetTabla(cam.TablaID)
+			tbl, err := repo.GetTabla(cam.TablaID)
 			if err != nil {
 				return nil, ctx.Err(err)
 			}
-			paq, err := gen.db.GetPaquete(tbl.PaqueteID)
+			paq, err := repo.GetPaquete(tbl.PaqueteID)
 			if err != nil {
 				return nil, ctx.Err(err)
 			}
@@ -180,7 +180,7 @@ func (gen *Generador) getConsulta(consultaID int) (*consulta, error) {
 	}
 
 	for _, relacion := range relaciones {
-		joinTbl, err := gen.getTabla(relacion.JoinTablaID)
+		joinTbl, err := getTabla(repo, relacion.JoinTablaID)
 		if err != nil {
 			return nil, ctx.Err(err)
 		}
@@ -195,7 +195,7 @@ func (gen *Generador) getConsulta(consultaID int) (*consulta, error) {
 			Join:        *joinTbl,
 		}
 		if relacion.FromTablaID != 0 {
-			fromTbl, err := gen.getTabla(relacion.FromTablaID)
+			fromTbl, err := getTabla(repo, relacion.FromTablaID)
 			if err != nil {
 				return nil, ctx.Err(err)
 			}

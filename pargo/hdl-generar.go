@@ -2,6 +2,7 @@ package main
 
 import (
 	"html"
+	"monorepo/codegenerator"
 	"strings"
 
 	"github.com/pargomx/gecko"
@@ -11,7 +12,7 @@ import (
 // ========== TABLA =============================================== //
 
 func (s *servidor) generarDeTabla(c *gecko.Context) error {
-	gen, err := s.generador.DeTabla(c.PathInt("tabla_id"))
+	gen, err := codegenerator.NuevoDeTabla(s.ddd, c.PathInt("tabla_id"))
 	if err != nil {
 		return err
 	}
@@ -38,7 +39,7 @@ func (s *servidor) generarDeTabla(c *gecko.Context) error {
 // ========== CONSULTA ============================================ //
 
 func (s *servidor) generarDeConsulta(c *gecko.Context) error {
-	gen, err := s.generador.DeConsulta(c.PathInt("consulta_id"))
+	gen, err := codegenerator.NuevoDeConsulta(s.ddd, c.PathInt("consulta_id"))
 	if err != nil {
 		return err
 	}
@@ -62,19 +63,15 @@ func (s *servidor) generarDeConsulta(c *gecko.Context) error {
 }
 
 // ================================================================ //
-// ================================================================ //
+// ========== PAQUETE ============================================= //
 
 func (s *servidor) generarDePaqueteArchivos(c *gecko.Context) error {
-	paq, err := s.ddd.GetPaquete(c.PathInt("paquete_id"))
+	generadores, err := codegenerator.NuevoDePaquete(s.ddd, c.PathInt("paquete_id"))
 	if err != nil {
 		return err
 	}
 	reporte := "ARCHIVOS GENERADOS:\n\n"
 	errores := []error{}
-	generadores, err := s.generador.DePaquete(paq.PaqueteID)
-	if err != nil {
-		return err
-	}
 	for _, gen := range generadores {
 		err = gen.PrepararJob(c.FormVal("tipo")).Generar()
 		if err != nil {

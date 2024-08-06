@@ -2,10 +2,12 @@ package codegenerator
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"monorepo/ddd"
 	"monorepo/fileutils"
 	"monorepo/textutils"
+	"monorepo/tmplutils"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,16 +16,35 @@ import (
 )
 
 // ================================================================ //
-// ========== GENERADOR DE TABLA ================================== //
+// ========== GENERADOR DE CÓDIGO ================================= //
+
+//go:embed plantillas
+var plantillasFS embed.FS
 
 type generador struct {
-	gen *Generador
-	tbl *tabla
-	con *consulta
+	renderer *tmplutils.Renderer
 
 	destinos []genDest
 	hechos   []string
 	errores  []error
+
+	tbl *tabla
+	con *consulta
+}
+
+type genDest struct {
+	jobs     []genJob      // trabajos por realizar
+	buf      *bytes.Buffer // buffer para escribir el código
+	filename string        // nombre del archivo destino (si aplica)
+	mkdir    bool          // crear directorio si no existe
+}
+
+type genJob struct {
+	tmpl      string          // nombre de la plantilla a renderizar
+	titulo    string          // título del bloque para separador
+	custom    *customList     // parámetros para consulta custom
+	camposTbl []CampoTabla    // campos seleccionados
+	camposCon []CampoConsulta // campos seleccionados
 }
 
 type tabla struct {
@@ -53,21 +74,6 @@ type consulta struct {
 	MySQL  bool
 }
 
-type genDest struct {
-	jobs     []genJob      // trabajos por realizar
-	buf      *bytes.Buffer // buffer para escribir el código
-	filename string        // nombre del archivo destino (si aplica)
-	mkdir    bool          // crear directorio si no existe
-}
-
-type genJob struct {
-	tmpl      string          // nombre de la plantilla a renderizar
-	titulo    string          // título del bloque para separador
-	custom    *customList     // parámetros para consulta custom
-	camposTbl []CampoTabla    // campos seleccionados
-	camposCon []CampoConsulta // campos seleccionados
-}
-
 // ================================================================ //
 
 func (c *generador) addErr(err error) {
@@ -95,60 +101,83 @@ func (c *generador) GetHechos() []string {
 // ========== ORIGEN DEL GENERADOR DE CÓDIGO ====================== //
 
 // Nuevo generador de código para una tabla.
-func (gen *Generador) DeTabla(tablaID int) (*generador, error) {
-	tbl, err := gen.getTabla(tablaID)
+func NuevoDeTabla(repo Repositorio, tablaID int) (*generador, error) {
+	op := gko.Op("codegen.NuevoDeTabla")
+	renderer, err := tmplutils.NuevoRenderer(plantillasFS, "plantillas")
 	if err != nil {
-		return nil, err
+		return nil, op.Err(err)
+	}
+	if repo == nil {
+		return nil, op.Str("repo es nil")
+	}
+	tbl, err := getTabla(repo, tablaID)
+	if err != nil {
+		return nil, op.Err(err)
 	}
 	tblGenCall := generador{
-		gen: gen,
-		tbl: tbl,
+		renderer: renderer,
+		tbl:      tbl,
 	}
 	return &tblGenCall, nil
 }
 
-func (gen *Generador) DeConsulta(consultaID int) (*generador, error) {
-	con, err := gen.getConsulta(consultaID)
+func NuevoDeConsulta(repo Repositorio, consultaID int) (*generador, error) {
+	op := gko.Op("codegen.NuevoDeConsulta")
+	renderer, err := tmplutils.NuevoRenderer(plantillasFS, "plantillas")
 	if err != nil {
-		return nil, err
+		return nil, op.Err(err)
+	}
+	if repo == nil {
+		return nil, op.Str("repo es nil")
+	}
+	con, err := getConsulta(repo, consultaID)
+	if err != nil {
+		return nil, op.Err(err)
 	}
 	tblGenCall := generador{
-		gen: gen,
-		con: con,
+		renderer: renderer,
+		con:      con,
 	}
 	return &tblGenCall, nil
 }
 
-func (gen *Generador) DePaquete(paqueteID int) ([]generador, error) {
-	op := gko.Op("GetTablasYConsultas")
+func NuevoDePaquete(repo Repositorio, paqueteID int) ([]generador, error) {
+	op := gko.Op("codegen.NuevoDePaquete")
+	renderer, err := tmplutils.NuevoRenderer(plantillasFS, "plantillas")
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if repo == nil {
+		return nil, op.Str("repo es nil")
+	}
 	Generadores := []generador{}
-	tablas, err := gen.db.ListTablasByPaqueteID(paqueteID)
+	tablas, err := repo.ListTablasByPaqueteID(paqueteID)
 	if err != nil {
 		return nil, op.Err(err)
 	}
 	for _, t := range tablas {
-		tbl, err := gen.getTabla(t.TablaID)
+		tbl, err := getTabla(repo, t.TablaID)
 		if err != nil {
 			return nil, op.Err(err)
 		}
 		call := generador{
-			tbl: tbl,
-			gen: gen,
+			renderer: renderer,
+			tbl:      tbl,
 		}
 		Generadores = append(Generadores, call)
 	}
-	consultas, err := gen.db.ListConsultasByPaqueteID(paqueteID)
+	consultas, err := repo.ListConsultasByPaqueteID(paqueteID)
 	if err != nil {
 		return nil, op.Err(err)
 	}
 	for _, c := range consultas {
-		con, err := gen.getConsulta(c.ConsultaID)
+		con, err := getConsulta(repo, c.ConsultaID)
 		if err != nil {
 			return nil, op.Err(err)
 		}
 		call := generador{
-			con: con,
-			gen: gen,
+			renderer: renderer,
+			con:      con,
 		}
 		Generadores = append(Generadores, call)
 	}
@@ -577,16 +606,16 @@ func (c *generador) Generar() (err error) {
 
 			switch {
 			case strings.HasPrefix(job.tmpl, "html"):
-				err = c.gen.renderer.HaciaBufferHTML(job.tmpl, data, c.destinos[i].buf)
+				err = c.renderer.HaciaBufferHTML(job.tmpl, data, c.destinos[i].buf)
 
 			case strings.Contains(job.tmpl, "create_table"):
-				err = c.gen.renderer.HaciaBuffer(job.tmpl, data, c.destinos[i].buf)
+				err = c.renderer.HaciaBuffer(job.tmpl, data, c.destinos[i].buf)
 
 			case strings.Contains(job.tmpl, "query"):
-				err = c.gen.renderer.HaciaBuffer(job.tmpl, data, c.destinos[i].buf)
+				err = c.renderer.HaciaBuffer(job.tmpl, data, c.destinos[i].buf)
 
 			default:
-				err = c.gen.renderer.HaciaBufferGo(job.tmpl, data, c.destinos[i].buf)
+				err = c.renderer.HaciaBufferGo(job.tmpl, data, c.destinos[i].buf)
 			}
 			if err != nil {
 				return op.Err(err)
