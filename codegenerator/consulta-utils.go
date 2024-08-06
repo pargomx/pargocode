@@ -7,21 +7,21 @@ import (
 	"github.com/pargomx/gecko/gko"
 )
 
-func (con *Consulta) NombreItem() string {
+func (con *consulta) NombreItem() string {
 	return con.Consulta.NombreItem
 }
-func (con *Consulta) NombreItems() string {
+func (con *consulta) NombreItems() string {
 	return con.Consulta.NombreItems
 }
-func (con *Consulta) NombreAbrev() string {
+func (con *consulta) NombreAbrev() string {
 	return con.Consulta.Abrev
 }
 
-func (con *Consulta) Directrices() []Directriz {
+func (con *consulta) Directrices() []Directriz {
 	return ToDirectrices(con.Consulta.Directrices)
 }
 
-func (con *Consulta) BuscarCampo(nombre string) (*CampoConsulta, error) {
+func (con *consulta) BuscarCampo(nombre string) (*CampoConsulta, error) {
 	if nombre == "" {
 		return nil, fmt.Errorf("nombre de campo a buscar en la consulta vacío")
 	}
@@ -39,7 +39,7 @@ func (con *Consulta) BuscarCampo(nombre string) (*CampoConsulta, error) {
 	return nil, fmt.Errorf("campo no encontrado: %v", nombre)
 }
 
-func (con *Consulta) TieneCamposFiltro() bool {
+func (con *consulta) TieneCamposFiltro() bool {
 	for _, campo := range con.Campos {
 		if campo.Filtro {
 			return true
@@ -48,7 +48,7 @@ func (con *Consulta) TieneCamposFiltro() bool {
 	return false
 }
 
-func (con *Consulta) CamposFiltro() []CampoConsulta {
+func (con *consulta) CamposFiltro() []CampoConsulta {
 	campos := []CampoConsulta{}
 	for _, campo := range con.Campos {
 		if campo.Filtro {
@@ -58,7 +58,7 @@ func (con *Consulta) CamposFiltro() []CampoConsulta {
 	return campos
 }
 
-func (con *Consulta) TieneCamposGroupBy() bool {
+func (con *consulta) TieneCamposGroupBy() bool {
 	for _, campo := range con.Campos {
 		if campo.GroupBy {
 			return true
@@ -67,7 +67,7 @@ func (con *Consulta) TieneCamposGroupBy() bool {
 	return false
 }
 
-func (con *Consulta) CamposGroupBy() []CampoConsulta {
+func (con *consulta) CamposGroupBy() []CampoConsulta {
 	campos := []CampoConsulta{}
 	for _, campo := range con.Campos {
 		if campo.GroupBy {
@@ -77,7 +77,7 @@ func (con *Consulta) CamposGroupBy() []CampoConsulta {
 	return campos
 }
 
-func (con *Consulta) PrimaryKeys() []CampoConsulta {
+func (con *consulta) PrimaryKeys() []CampoConsulta {
 	campos := []CampoConsulta{}
 	for _, campo := range con.Campos {
 		if campo.Pk {
@@ -100,7 +100,7 @@ func (con *Consulta) PrimaryKeys() []CampoConsulta {
 // Si es un campo calculado entonces pone la expresión dada.
 //
 // Ej. usu.UsuarioID, prg.Titulo
-func (consulta *Consulta) camposAsSnakeList(campos []CampoConsulta, separador string) (res string) {
+func (consulta *consulta) camposAsSnakeList(campos []CampoConsulta, separador string) (res string) {
 	for _, c := range campos {
 		switch {
 		case c.Expresion == "":
@@ -126,11 +126,11 @@ func (consulta *Consulta) camposAsSnakeList(campos []CampoConsulta, separador st
 	return strings.TrimSuffix(res, separador)
 }
 
-func (con *Consulta) CamposAsSnakeList(separador string) string {
+func (con *consulta) CamposAsSnakeList(separador string) string {
 	return con.camposAsSnakeList(con.Campos, separador)
 }
 
-func (consulta *Consulta) SqlGroupClause(separador string) string {
+func (consulta *consulta) SqlGroupClause(separador string) string {
 	if !consulta.TieneCamposGroupBy() {
 		return ""
 	}
@@ -140,7 +140,7 @@ func (consulta *Consulta) SqlGroupClause(separador string) string {
 	return "GROUP BY " + consulta.camposAsSnakeList(consulta.CamposGroupBy(), separador)
 }
 
-func (consulta *Consulta) SqlFromClause(sep string) string {
+func (consulta *consulta) SqlFromClause(sep string) string {
 
 	fromSQL := fmt.Sprintf("FROM %v %v", consulta.TablaOrigen.NombreRepo, consulta.TablaOrigen.Abrev)
 
@@ -213,33 +213,33 @@ func (r Relacion) onString() string {
 
 // ================================================================ //
 
-func (consulta Consulta) PrimaryKeysAsSqlWhere() (QryWhere string) {
+func (consulta consulta) PrimaryKeysAsSqlWhere() (QryWhere string) {
 	return CamposAsSqlWhere(consulta.PrimaryKeys(), true)
 }
-func (consulta Consulta) CamposSeleccionadosAsSqlWhere() (ArgsFunc string) {
+func (consulta consulta) CamposSeleccionadosAsSqlWhere() (ArgsFunc string) {
 	return CamposAsSqlWhere(consulta.CamposSeleccionados, true)
 }
 
-func (consulta Consulta) PrimaryKeysAsFuncParams() (ArgsFunc string) {
+func (consulta consulta) PrimaryKeysAsFuncParams() (ArgsFunc string) {
 	return CamposAsFuncParams(consulta.PrimaryKeys())
 }
-func (consulta Consulta) CamposSeleccionadosAsFuncParams() (ArgsFunc string) {
+func (consulta consulta) CamposSeleccionadosAsFuncParams() (ArgsFunc string) {
 	return CamposAsFuncParams(consulta.CamposSeleccionados)
 }
 
-func (consulta Consulta) PrimaryKeysAsArguments(nombreVariable string) (ArgsWhere string) {
+func (consulta consulta) PrimaryKeysAsArguments(nombreVariable string) (ArgsWhere string) {
 	return CamposAsArguments(consulta.PrimaryKeys(), nombreVariable)
 }
-func (consulta Consulta) CamposSeleccionadosAsArguments(nombreVariable string) (lista string) {
+func (consulta consulta) CamposSeleccionadosAsArguments(nombreVariable string) (lista string) {
 	return CamposAsArguments(consulta.CamposSeleccionados, nombreVariable)
 }
 
-func (consulta Consulta) ScanTempVars() string {
+func (consulta consulta) ScanTempVars() string {
 	return ScanTempVars(consulta.Campos)
 }
-func (consulta Consulta) ScanArgs() string {
+func (consulta consulta) ScanArgs() string {
 	return ScanArgs(consulta.Campos, consulta.Consulta.Abrev)
 }
-func (consulta Consulta) ScanSetters() string {
+func (consulta consulta) ScanSetters() string {
 	return ScanSetters(consulta.Campos, consulta.Consulta.Abrev)
 }

@@ -16,9 +16,10 @@ import (
 // ================================================================ //
 // ========== GENERADOR DE TABLA ================================== //
 
-type tblGenerator struct {
+type generador struct {
 	gen *Generador
 	tbl *tabla
+	con *consulta
 
 	destinos []genDest
 	hechos   []string
@@ -37,6 +38,21 @@ type tabla struct {
 	MySQL  bool
 }
 
+type consulta struct {
+	Paquete     ddd.Paquete
+	Consulta    ddd.Consulta
+	TablaOrigen ddd.Tabla
+	From        tabla
+	Campos      []CampoConsulta
+	Relaciones  []Relacion
+
+	CamposSeleccionados []CampoConsulta
+	CustomList          *customList
+
+	Sqlite bool
+	MySQL  bool
+}
+
 type genDest struct {
 	jobs     []genJob      // trabajos por realizar
 	buf      *bytes.Buffer // buffer para escribir el código
@@ -45,20 +61,21 @@ type genDest struct {
 }
 
 type genJob struct {
-	tmpl   string       // nombre de la plantilla a renderizar
-	titulo string       // título del bloque para separador
-	campos []CampoTabla // campos seleccionados
-	custom *customList  // parámetros para consulta custom
+	tmpl      string          // nombre de la plantilla a renderizar
+	titulo    string          // título del bloque para separador
+	custom    *customList     // parámetros para consulta custom
+	camposTbl []CampoTabla    // campos seleccionados
+	camposCon []CampoConsulta // campos seleccionados
 }
 
 // ================================================================ //
 
-func (c *tblGenerator) addErr(err error) {
+func (c *generador) addErr(err error) {
 	if err != nil {
 		c.errores = append(c.errores, err)
 	}
 }
-func (c *tblGenerator) Errs() string {
+func (c *generador) Errs() string {
 	txt := ""
 	for _, err := range c.errores {
 		txt += err.Error() + "\n"
@@ -67,27 +84,75 @@ func (c *tblGenerator) Errs() string {
 	return txt
 }
 
-func (c *tblGenerator) addHecho(hecho string) {
+func (c *generador) addHecho(hecho string) {
 	c.hechos = append(c.hechos, hecho)
 }
-func (c *tblGenerator) GetHechos() []string {
+func (c *generador) GetHechos() []string {
 	return c.hechos
 }
 
 // ================================================================ //
-// ========== NUEVO GENERADOR PARA TABLA ========================== //
+// ========== ORIGEN DEL GENERADOR DE CÓDIGO ====================== //
 
 // Nuevo generador de código para una tabla.
-func (gen *Generador) DeTabla(tablaID int) (*tblGenerator, error) {
+func (gen *Generador) DeTabla(tablaID int) (*generador, error) {
 	tbl, err := gen.getTabla(tablaID)
 	if err != nil {
 		return nil, err
 	}
-	tblGenCall := tblGenerator{
+	tblGenCall := generador{
 		gen: gen,
 		tbl: tbl,
 	}
 	return &tblGenCall, nil
+}
+
+func (gen *Generador) DeConsulta(consultaID int) (*generador, error) {
+	con, err := gen.getConsulta(consultaID)
+	if err != nil {
+		return nil, err
+	}
+	tblGenCall := generador{
+		gen: gen,
+		con: con,
+	}
+	return &tblGenCall, nil
+}
+
+func (gen *Generador) DePaquete(paqueteID int) ([]generador, error) {
+	op := gko.Op("GetTablasYConsultas")
+	Generadores := []generador{}
+	tablas, err := gen.db.ListTablasByPaqueteID(paqueteID)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	for _, t := range tablas {
+		tbl, err := gen.getTabla(t.TablaID)
+		if err != nil {
+			return nil, op.Err(err)
+		}
+		call := generador{
+			tbl: tbl,
+			gen: gen,
+		}
+		Generadores = append(Generadores, call)
+	}
+	consultas, err := gen.db.ListConsultasByPaqueteID(paqueteID)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	for _, c := range consultas {
+		con, err := gen.getConsulta(c.ConsultaID)
+		if err != nil {
+			return nil, op.Err(err)
+		}
+		call := generador{
+			con: con,
+			gen: gen,
+		}
+		Generadores = append(Generadores, call)
+	}
+	return Generadores, nil
 }
 
 // ================================================================ //
@@ -95,7 +160,7 @@ func (gen *Generador) DeTabla(tablaID int) (*tblGenerator, error) {
 
 // Definir qué se va a generar. Dependiendo de lo solicitado se mandará guardar
 // al lugar adecuado. Pueden ser diferentes archivos o buffers de destino.
-func (c *tblGenerator) PrepararJob(tipo string) *tblGenerator {
+func (c *generador) PrepararJob(tipo string) *generador {
 	if tipo == "" {
 		c.addErr(gko.ErrDatoIndef().Str("tipo de trabajo indefinido").Op("PrepararJob"))
 		return c
@@ -104,9 +169,17 @@ func (c *tblGenerator) PrepararJob(tipo string) *tblGenerator {
 	case "entidad":
 		c.addJobsEntidad()
 	case "mysql":
-		c.addJobsRepoSQL(false)
+		if c.tbl != nil {
+			c.addJobsRepoSQLTabla(false)
+		} else if c.con != nil {
+			c.addJobsRepoSQLConsulta(false)
+		}
 	case "sqlite":
-		c.addJobsRepoSQL(true)
+		if c.tbl != nil {
+			c.addJobsRepoSQLTabla(true)
+		} else if c.con != nil {
+			c.addJobsRepoSQLConsulta(true)
+		}
 	default:
 		c.addJob(tipo, "generado.go", "")
 	}
@@ -114,7 +187,7 @@ func (c *tblGenerator) PrepararJob(tipo string) *tblGenerator {
 }
 
 // Imprime en consola los trabajos del generador.
-func (c *tblGenerator) DescribirJobs() {
+func (c *generador) DescribirJobs() {
 	porHacer := ""
 	for _, dest := range c.destinos {
 		porHacer += fmt.Sprintf("\033[34m%v\033[0m\n", dest.filename)
@@ -131,10 +204,10 @@ func (c *tblGenerator) DescribirJobs() {
 
 // Agregar un trabjo a la lista de pendientes con el destino adecuado.
 // El título es opcional y se usa para agregar un comentario separador.
-func (c *tblGenerator) addJob(tmpl string, destino string, titulo string) *genJob {
+func (c *generador) addJob(tmpl string, destino string, titulo string) *genJob {
 	op := gko.Op("addJob").Ctx("tmpl", tmpl)
-	if c.tbl == nil {
-		c.addErr(op.Str("tabla no definida"))
+	if c.tbl == nil && c.con == nil {
+		c.addErr(op.Str("tabla o consulta indefinida"))
 		return nil
 	}
 	if tmpl == "" {
@@ -172,21 +245,32 @@ func (job *genJob) setCustomList(custom *customList) {
 }
 
 // agregar campos seleccionados para get_by y list_by
-func (job *genJob) setCamposSelec(c *tblGenerator, campos []string) {
-	for _, v := range campos {
-		campo, err := c.tbl.BuscarCampo(v)
-		if err != nil {
-			c.addErr(gko.Op("withCampos").Err(err).Ctx("tbl", c.tbl.NombreRepo()))
-			continue
+func (job *genJob) setCamposSelec(c *generador, campos []string) {
+	if c.tbl != nil {
+		for _, v := range campos {
+			campo, err := c.tbl.BuscarCampo(v)
+			if err != nil {
+				c.addErr(gko.Op("withCampos").Err(err).Ctx("tbl", c.tbl.NombreRepo()))
+				continue
+			}
+			job.camposTbl = append(job.camposTbl, *campo)
 		}
-		job.campos = append(job.campos, *campo)
+	} else if c.con != nil {
+		for _, v := range campos {
+			campo, err := c.con.BuscarCampo(v)
+			if err != nil {
+				c.addErr(gko.Op("withCampos").Err(err).Ctx("con", c.con.Consulta.NombreItem))
+				continue
+			}
+			job.camposCon = append(job.camposCon, *campo)
+		}
 	}
 }
 
 // ================================================================ //
 
 // Devuelve el idx del addDestino declarado (lo agrega si no existe).
-func (c *tblGenerator) addDestino(filename string) (int, error) {
+func (c *generador) addDestino(filename string) (int, error) {
 	filename = strings.TrimSuffix(filename, "/") // debe ser un archivo
 	filename = strings.TrimPrefix(filename, "/") // debe ser relativa desde workdir
 	if filename == "" {
@@ -214,22 +298,31 @@ func (c *tblGenerator) addDestino(filename string) (int, error) {
 // ================================================================ //
 // ========== COLECCIONES DE TRABAJO ============================== //
 
-func (c *tblGenerator) addJobsEntidad() {
-	destino := filepath.Join(c.tbl.Paquete.Directorio,
-		c.tbl.Paquete.Nombre, "t_"+c.tbl.Tabla.Kebab+".go")
-	c.addJob("go/tbl_struct", destino, "")
-	c.addJob("go/tbl_errores", destino, "")
-	c.addJob("go/tbl_propiedades", destino, "")
+func (c *generador) addJobsEntidad() {
+	if c.tbl != nil {
+		destino := filepath.Join(c.tbl.Paquete.Directorio, c.tbl.Paquete.Nombre, "t_"+c.tbl.Tabla.Kebab+".go")
+		c.addJob("go/tbl_struct", destino, "")
+		c.addJob("go/tbl_errores", destino, "")
+		c.addJob("go/tbl_propiedades", destino, "")
+
+	} else if c.con != nil {
+		destino := filepath.Join(c.con.Paquete.Directorio, c.con.Paquete.Nombre, "q_"+c.con.Consulta.NombreItem+".go")
+		c.addJob("go/tbl_struct", destino, "")
+	}
 }
 
 // ================================================================ //
 
-func (c *tblGenerator) addJobsRepoSQL(sqlite bool) {
-	op := gko.Op("addJobsRepoSQL").Ctx("tabla", c.tbl.Tabla.NombreRepo)
+func (c *generador) addJobsRepoSQLTabla(sqlite bool) {
+	op := gko.Op("addJobsRepoSQL")
+	if c.tbl == nil {
+		c.addErr(op.Str("tabla es nil"))
+		return
+	}
+	op.Ctx("tabla", c.tbl.Tabla.NombreRepo)
 	if len(c.tbl.Directrices()) == 0 {
 		c.addErr(op.Str("no hay directrices"))
 	}
-
 	c.tbl.Sqlite = sqlite
 	c.tbl.MySQL = !sqlite
 
@@ -304,9 +397,92 @@ func (c *tblGenerator) addJobsRepoSQL(sqlite bool) {
 				c.addErr(op.Err(err))
 				continue
 			}
-			c.addJob("mysql/list_custom", destino, "LIST "+customList.CompFunc).setCustomList(customList)
 			c.addJob("mysql/constantes", destino, "CONSTANTES")
 			c.addJob("mysql/scan-rows", destino, "SCAN")
+			c.addJob("mysql/list_custom", destino, "LIST "+customList.CompFunc).setCustomList(customList)
+
+		default:
+			c.addErr(op.Msgf("directriz no reconocida: '%v'", directriz.Key()))
+		}
+	}
+}
+
+// ================================================================ //
+
+func (c *generador) addJobsRepoSQLConsulta(sqlite bool) {
+	op := gko.Op("addJobsConsultaRepoSQL")
+	if c.con == nil {
+		c.addErr(op.Str("consulta es nil"))
+		return
+	}
+	op.Ctx("consulta", c.con.Consulta.NombreItem)
+	if len(c.con.Directrices()) == 0 {
+		c.addErr(op.Str("no hay directrices"))
+	}
+	c.con.Sqlite = sqlite
+	c.con.MySQL = !sqlite
+
+	// Si el paquete aún no tiene el archivo de servicio, se agrega.
+	if sqlite && !fileutils.Existe(filepath.Join(c.con.Paquete.Directorio, "sqlite"+c.con.Paquete.Nombre, "servicio_repo.go")) {
+		c.addJob("sqlite/servicio", filepath.Join(c.con.Paquete.Directorio, "sqlite"+c.con.Paquete.Nombre, "servicio_repo.go"), "")
+	} else if !sqlite && !fileutils.Existe(filepath.Join(c.con.Paquete.Directorio, "mysql"+c.con.Paquete.Nombre, "servicio_repo.go")) {
+		c.addJob("mysql/servicio", filepath.Join(c.con.Paquete.Directorio, "mysql"+c.con.Paquete.Nombre, "servicio_repo.go"), "")
+	}
+
+	// Destino diferente dependiendo si es repo mysql o sqlite.
+	destino := "generado.go"
+	if sqlite {
+		destino = filepath.Join(c.con.Paquete.Directorio,
+			"sqlite"+c.con.Paquete.Nombre, "s_"+c.con.Consulta.NombreItem+"_gen.go")
+	} else {
+		destino = filepath.Join(c.con.Paquete.Directorio,
+			"mysql"+c.con.Paquete.Nombre, "s_"+c.con.Consulta.NombreItem+"_gen.go")
+	}
+
+	c.addJob("mysql/paquete", destino, "")
+	for _, directriz := range c.con.Directrices() {
+		switch directriz.Key() {
+
+		case "fetch":
+			c.addJob("mysql/constantes", destino, "CONSTANTES")
+			c.addJob("mysql/scan-row", destino, "SCAN")
+			c.addJob("mysql/fetch", destino, "FETCH")
+
+		case "get":
+			c.addJob("mysql/constantes", destino, "CONSTANTES")
+			c.addJob("mysql/scan-row", destino, "SCAN")
+			c.addJob("mysql/get", destino, "GET")
+
+		case "list":
+			if c.con.TieneCamposFiltro() {
+				c.addJob("mysql/qry-filtros", destino, "FILTROS "+c.con.Consulta.NombreItem)
+			}
+			c.addJob("mysql/constantes", destino, "CONSTANTES")
+			c.addJob("mysql/scan-rows", destino, "SCAN")
+			c.addJob("mysql/list", destino, "LIST")
+
+		case "get_by":
+			c.addJob("mysql/constantes", destino, "CONSTANTES")
+			c.addJob("mysql/scan-row", destino, "SCAN")
+			c.addJob("mysql/get_by", destino, "GET_BY").setCamposSelec(c, directriz.Values())
+
+		case "list_by":
+			if c.con.TieneCamposFiltro() {
+				c.addJob("mysql/qry-filtros", destino, "FILTROS "+c.con.Consulta.NombreItem)
+			}
+			c.addJob("mysql/constantes", destino, "CONSTANTES")
+			c.addJob("mysql/scan-rows", destino, "SCAN")
+			c.addJob("mysql/list_by", destino, "LIST_BY").setCamposSelec(c, directriz.Values())
+
+		case "list_custom":
+			customList, err := directriz.CustomList()
+			if err != nil {
+				c.addErr(op.Err(err))
+				continue
+			}
+			c.addJob("mysql/constantes", destino, "CONSTANTES")
+			c.addJob("mysql/scan-rows", destino, "SCAN")
+			c.addJob("mysql/list_custom", destino, "LIST "+customList.CompFunc).setCustomList(customList)
 
 		default:
 			c.addErr(op.Msgf("directriz no reconocida: '%v'", directriz.Key()))
@@ -318,49 +494,81 @@ func (c *tblGenerator) addJobsRepoSQL(sqlite bool) {
 // ========== RENDERIZAR TRABAJOS ================================= //
 
 // Valida y ejecuta todos los trabajos de generación de código en buffer.
-func (c *tblGenerator) Generar() (err error) {
+func (c *generador) Generar() (err error) {
 	op := gko.Op("tblgen.Generar")
 	if len(c.errores) > 0 {
 		return op.Msg(c.Errs())
 	}
-	if c.tbl == nil {
-		return op.Msg("tabla es nil")
+	if c.tbl == nil && c.con == nil {
+		return op.Msg("tabla o consulta es nil")
 	}
 	if len(c.destinos) == 0 {
 		return op.Msg("no hay trabajos por realizar")
 	}
-	op.Ctx("tabla", c.tbl.Tabla.NombreRepo)
-	if c.tbl.NombreItem() == "" {
-		return op.Msg("nombre de modelo indefinido")
+
+	// Validar tabla
+	if c.tbl != nil {
+		op.Ctx("tabla", c.tbl.Tabla.NombreRepo)
+		if c.tbl.NombreItem() == "" {
+			return op.Msg("nombre de tabla indefinido")
+		}
+		if len(c.tbl.Campos) == 0 {
+			return op.Msg("debe haber al menos una columna")
+		}
+		if len(c.tbl.PrimaryKeys()) == 0 {
+			return op.Msg("debe haber al menos una clave primaria")
+		}
 	}
-	if len(c.tbl.Campos) == 0 {
-		return op.Msg("debe haber al menos una columna")
+
+	// Validar consulta
+	if c.con != nil {
+		op.Ctx("consulta", c.con.Consulta.NombreItem)
+		if c.con.Consulta.NombreItem == "" {
+			return op.Msg("nombre de consulta indefinido")
+		}
+		if len(c.con.Campos) == 0 {
+			return op.Msg("debe haber al menos una columna")
+		}
 	}
-	if len(c.tbl.PrimaryKeys()) == 0 {
-		return op.Msg("debe haber al menos una clave primaria")
-	}
+
+	// Generar todos los trabajos pendientes en buffer para cada destino.
 	for i := range c.destinos {
-		// Generar todos los trabajos pendientes en buffer
 		for _, job := range c.destinos[i].jobs {
-			if job.tmpl == "mysql/list_by" && len(job.campos) == 0 {
-				return op.Msg("no se seleccionón ningún campo para list_by")
-			}
-			if job.tmpl == "mysql/get_by" && len(job.campos) == 0 {
-				return op.Msg("no se seleccionón ningún campo para get_by")
-			}
-			c.tbl.CamposSeleccionados = nil
-			c.tbl.CamposSeleccionados = job.campos
-			c.tbl.CustomList = nil
-			c.tbl.CustomList = job.custom
+			data := map[string]any{}
 
-			if job.custom != nil {
-				gko.LogOkeyf("ListCustom%v(%v)", job.custom.CompFunc, job.custom.ArgsFunc)
-				gko.LogOkeyf("'SELECT X FROM Y %v', %v", job.custom.CompSQL, job.custom.ArgsSQL)
+			if c.tbl != nil {
+				if job.tmpl == "mysql/list_by" && len(job.camposTbl) == 0 {
+					return op.Msg("no se seleccionón ningún campo para list_by")
+				}
+				if job.tmpl == "mysql/get_by" && len(job.camposTbl) == 0 {
+					return op.Msg("no se seleccionón ningún campo para get_by")
+				}
+				c.tbl.CamposSeleccionados = nil
+				c.tbl.CamposSeleccionados = job.camposTbl
+				c.tbl.CustomList = nil
+				c.tbl.CustomList = job.custom
+				data = map[string]any{
+					"TablaOrConsulta": c.tbl,
+					"Tabla":           c.tbl,
+				}
 			}
 
-			data := map[string]any{
-				"TablaOrConsulta": c.tbl,
-				"Tabla":           c.tbl,
+			if c.con != nil {
+				if job.tmpl == "mysql/list_by" && len(job.camposCon) == 0 {
+					return op.Msg("no se seleccionón ningún campo para list_by")
+				}
+				if job.tmpl == "mysql/get_by" && len(job.camposCon) == 0 {
+					return op.Msg("no se seleccionón ningún campo para get_by")
+				}
+				c.con.CamposSeleccionados = nil
+				c.con.CamposSeleccionados = job.camposCon
+				c.con.CustomList = nil
+				c.con.CustomList = job.custom
+				data = map[string]any{
+					"TablaOrConsulta":  c.con,
+					"Consulta":         c.con,
+					"AgregadoConsulta": c.con,
+				}
 			}
 
 			if job.titulo != "" {
@@ -372,6 +580,9 @@ func (c *tblGenerator) Generar() (err error) {
 				err = c.gen.renderer.HaciaBufferHTML(job.tmpl, data, c.destinos[i].buf)
 
 			case strings.Contains(job.tmpl, "create_table"):
+				err = c.gen.renderer.HaciaBuffer(job.tmpl, data, c.destinos[i].buf)
+
+			case strings.Contains(job.tmpl, "query"):
 				err = c.gen.renderer.HaciaBuffer(job.tmpl, data, c.destinos[i].buf)
 
 			default:
@@ -389,7 +600,7 @@ func (c *tblGenerator) Generar() (err error) {
 // ========== ESCRIBIR ============================================ //
 
 // Guarda los buffers generados en los archivos correspondientes.
-func (c *tblGenerator) ToFile() (err error) {
+func (c *generador) ToFile() (err error) {
 	op := gko.Op("tblgen.ToFile")
 	for _, dest := range c.destinos {
 		if dest.mkdir {
@@ -416,7 +627,7 @@ func (c *tblGenerator) ToFile() (err error) {
 	return nil
 }
 
-func (c *tblGenerator) ToString() string {
+func (c *generador) ToString() string {
 	var buf bytes.Buffer
 	for _, dest := range c.destinos {
 		textutils.ImprimirSeparador(&buf, dest.filename)

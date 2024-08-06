@@ -4,17 +4,6 @@ import (
 	"monorepo/ddd"
 )
 
-type Consulta struct {
-	Paquete     ddd.Paquete
-	Consulta    ddd.Consulta
-	TablaOrigen ddd.Tabla
-	From        tabla
-	Campos      []CampoConsulta
-	Relaciones  []Relacion
-
-	CamposSeleccionados []CampoConsulta // Multiuso. Default vacío.
-}
-
 type Relacion struct {
 	ConsultaID  int
 	Posicion    int
@@ -41,7 +30,7 @@ type CampoConsulta struct {
 	GroupBy     bool
 	Descripcion string
 
-	Consulta      *Consulta
+	Consulta      *consulta
 	OrigenTabla   *ddd.Tabla
 	OrigenPaquete *ddd.Paquete
 	OrigenCampo   *ddd.Campo

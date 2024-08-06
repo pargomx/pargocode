@@ -23,43 +23,6 @@ type Repositorio interface {
 }
 
 // ================================================================ //
-// ========== PAQUETE ============================================= //
-
-func (gen *Generador) GetTablasYConsultas(paqueteID int) ([]tblGenerator, []Consulta, error) {
-	op := gko.Op("GetTablasYConsultas")
-	tablas, err := gen.db.ListTablasByPaqueteID(paqueteID)
-	if err != nil {
-		return nil, nil, op.Err(err)
-	}
-	Tablas := []tblGenerator{}
-	for _, t := range tablas {
-		tbl, err := gen.getTabla(t.TablaID)
-		if err != nil {
-			return nil, nil, op.Err(err)
-		}
-		call := tblGenerator{
-			tbl: tbl,
-		}
-		call.gen = gen
-		Tablas = append(Tablas, call)
-	}
-
-	consultas, err := gen.db.ListConsultasByPaqueteID(paqueteID)
-	if err != nil {
-		return nil, nil, op.Err(err)
-	}
-	Consultas := []Consulta{}
-	for _, c := range consultas {
-		consulta, err := gen.GetConsulta(c.ConsultaID)
-		if err != nil {
-			return nil, nil, op.Err(err)
-		}
-		Consultas = append(Consultas, *consulta)
-	}
-	return Tablas, Consultas, nil
-}
-
-// ================================================================ //
 // ========== TABLA =============================================== //
 
 func (gen *Generador) getTabla(tablaID int) (*tabla, error) {
@@ -146,33 +109,33 @@ func (gen *Generador) getTabla(tablaID int) (*tabla, error) {
 // ================================================================ //
 // ========== CONSULTA ============================================ //
 
-func (gen *Generador) GetConsulta(consultaID int) (*Consulta, error) {
-	ctx := gko.Op("GetAgregadoConsulta").Ctx("consultaID", consultaID)
-	consulta, err := gen.db.GetConsulta(consultaID)
+func (gen *Generador) getConsulta(consultaID int) (*consulta, error) {
+	ctx := gko.Op("getConsulta").Ctx("consultaID", consultaID)
+	con, err := gen.db.GetConsulta(consultaID)
 	if err != nil {
 		return nil, ctx.Err(err)
 	}
-	paquete, err := gen.db.GetPaquete(consulta.PaqueteID)
+	paquete, err := gen.db.GetPaquete(con.PaqueteID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetPaqueteDeConsulta")
 	}
-	tablaFrom, err := gen.getTabla(consulta.TablaID)
+	tablaFrom, err := gen.getTabla(con.TablaID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetTablaDeOrigen")
 	}
 
-	relaciones, err := gen.db.ListConsultaRelacionesByConsultaID(consulta.ConsultaID)
+	relaciones, err := gen.db.ListConsultaRelacionesByConsultaID(con.ConsultaID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetRelacionesDeConsulta")
 	}
-	campos, err := gen.db.ListConsultaCamposByConsultaID(consulta.ConsultaID)
+	campos, err := gen.db.ListConsultaCamposByConsultaID(con.ConsultaID)
 	if err != nil {
 		return nil, ctx.Err(err).Op("GetCamposDeConsulta")
 	}
 
-	agregado := Consulta{
+	agregado := consulta{
 		Paquete:     *paquete,
-		Consulta:    *consulta,
+		Consulta:    *con,
 		TablaOrigen: tablaFrom.Tabla,
 		From:        *tablaFrom,
 		// Campos:      camposConOrigen,
