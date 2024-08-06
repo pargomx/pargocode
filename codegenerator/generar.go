@@ -336,7 +336,7 @@ func (c *generador) addJobsEntidad() {
 
 	} else if c.con != nil {
 		destino := filepath.Join(c.con.Paquete.Directorio, c.con.Paquete.Nombre, "q_"+c.con.Consulta.NombreItem+".go")
-		c.addJob("go/tbl_struct", destino, "")
+		c.addJob("go/qry_struct", destino, "")
 	}
 }
 
