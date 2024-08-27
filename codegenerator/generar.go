@@ -9,6 +9,7 @@ import (
 	"monorepo/textutils"
 	"monorepo/tmplutils"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -337,6 +338,16 @@ func (c *generador) addJobsEntidad() {
 	} else if c.con != nil {
 		destino := filepath.Join(c.con.Paquete.Directorio, c.con.Paquete.Nombre, "q_"+c.con.Consulta.NombreItem+".go")
 		c.addJob("go/qry_struct", destino, "")
+
+		// Renombrar archivo generado con nombre antiguo con git mv.
+		oldFilename := filepath.Join(c.con.Paquete.Directorio, c.con.Paquete.Nombre, c.con.TablaOrigen.NombreRepo+"_extendido.go")
+		if fileutils.Existe(oldFilename) {
+			gko.LogWarn("Renombrando archivo antiguo: " + oldFilename)
+			err := exec.Command("git", "mv", oldFilename, destino).Run()
+			if err != nil {
+				gko.FatalError(err)
+			}
+		}
 	}
 }
 
@@ -466,6 +477,17 @@ func (c *generador) addJobsRepoSQLConsulta(sqlite bool) {
 	} else {
 		destino = filepath.Join(c.con.Paquete.Directorio,
 			"mysql"+c.con.Paquete.Nombre, "s_"+c.con.Consulta.NombreItem+"_gen.go")
+
+		// Renombrar archivo generado con nombre antiguo con git mv.
+		oldFilename := filepath.Join(c.con.Paquete.Directorio,
+			"mysql"+c.con.Paquete.Nombre, c.con.TablaOrigen.NombreRepo+"_extendido.go")
+		if fileutils.Existe(oldFilename) {
+			gko.LogWarn("Renombrando archivo antiguo: " + oldFilename)
+			err := exec.Command("git", "mv", oldFilename, destino).Run()
+			if err != nil {
+				gko.FatalError(err)
+			}
+		}
 	}
 
 	c.addJob("mysql/paquete", destino, "")
