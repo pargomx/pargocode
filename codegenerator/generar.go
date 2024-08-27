@@ -331,23 +331,15 @@ func (c *generador) addDestino(filename string) (int, error) {
 func (c *generador) addJobsEntidad() {
 	if c.tbl != nil {
 		destino := filepath.Join(c.tbl.Paquete.Directorio, c.tbl.Paquete.Nombre, "t_"+c.tbl.Tabla.Kebab+".go")
+		oldFilename(filepath.Join(c.tbl.Paquete.Directorio, c.tbl.Paquete.Nombre, c.tbl.Tabla.Kebab+".go"), destino)
 		c.addJob("go/tbl_struct", destino, "")
 		c.addJob("go/tbl_errores", destino, "")
 		c.addJob("go/tbl_propiedades", destino, "")
 
 	} else if c.con != nil {
 		destino := filepath.Join(c.con.Paquete.Directorio, c.con.Paquete.Nombre, "q_"+c.con.Consulta.NombreItem+".go")
+		oldFilename(filepath.Join(c.con.Paquete.Directorio, c.con.Paquete.Nombre, c.con.TablaOrigen.NombreRepo+"_extendido.go"), destino)
 		c.addJob("go/qry_struct", destino, "")
-
-		// Renombrar archivo generado con nombre antiguo con git mv.
-		oldFilename := filepath.Join(c.con.Paquete.Directorio, c.con.Paquete.Nombre, c.con.TablaOrigen.NombreRepo+"_extendido.go")
-		if fileutils.Existe(oldFilename) {
-			gko.LogWarn("Renombrando archivo antiguo: " + oldFilename)
-			err := exec.Command("git", "mv", oldFilename, destino).Run()
-			if err != nil {
-				gko.FatalError(err)
-			}
-		}
 	}
 }
 
@@ -377,11 +369,10 @@ func (c *generador) addJobsRepoSQLTabla(sqlite bool) {
 	// Destino diferente dependiendo si es repo mysql o sqlite.
 	destino := "generado.go"
 	if sqlite {
-		destino = filepath.Join(c.tbl.Paquete.Directorio,
-			"sqlite"+c.tbl.Paquete.Nombre, "s_"+c.tbl.Tabla.NombreRepo+"_gen.go")
+		destino = filepath.Join(c.tbl.Paquete.Directorio, "sqlite"+c.tbl.Paquete.Nombre, "s_"+c.tbl.Tabla.NombreRepo+"_gen.go")
 	} else {
-		destino = filepath.Join(c.tbl.Paquete.Directorio,
-			"mysql"+c.tbl.Paquete.Nombre, "s_"+c.tbl.Tabla.NombreRepo+"_gen.go")
+		destino = filepath.Join(c.tbl.Paquete.Directorio, "mysql"+c.tbl.Paquete.Nombre, "s_"+c.tbl.Tabla.NombreRepo+"_gen.go")
+		oldFilename(filepath.Join(c.tbl.Paquete.Directorio, "mysql"+c.tbl.Paquete.Nombre, c.tbl.Tabla.Kebab+".go"), destino)
 	}
 
 	c.addJob("mysql/paquete", destino, "")
@@ -472,22 +463,10 @@ func (c *generador) addJobsRepoSQLConsulta(sqlite bool) {
 	// Destino diferente dependiendo si es repo mysql o sqlite.
 	destino := "generado.go"
 	if sqlite {
-		destino = filepath.Join(c.con.Paquete.Directorio,
-			"sqlite"+c.con.Paquete.Nombre, "s_"+c.con.Consulta.NombreItem+"_gen.go")
+		destino = filepath.Join(c.con.Paquete.Directorio, "sqlite"+c.con.Paquete.Nombre, "s_"+c.con.Consulta.NombreItem+"_gen.go")
 	} else {
-		destino = filepath.Join(c.con.Paquete.Directorio,
-			"mysql"+c.con.Paquete.Nombre, "s_"+c.con.Consulta.NombreItem+"_gen.go")
-
-		// Renombrar archivo generado con nombre antiguo con git mv.
-		oldFilename := filepath.Join(c.con.Paquete.Directorio,
-			"mysql"+c.con.Paquete.Nombre, c.con.TablaOrigen.NombreRepo+"_extendido.go")
-		if fileutils.Existe(oldFilename) {
-			gko.LogWarn("Renombrando archivo antiguo: " + oldFilename)
-			err := exec.Command("git", "mv", oldFilename, destino).Run()
-			if err != nil {
-				gko.FatalError(err)
-			}
-		}
+		destino = filepath.Join(c.con.Paquete.Directorio, "mysql"+c.con.Paquete.Nombre, "s_"+c.con.Consulta.NombreItem+"_gen.go")
+		oldFilename(filepath.Join(c.con.Paquete.Directorio, "mysql"+c.con.Paquete.Nombre, c.con.TablaOrigen.NombreRepo+"_extendido.go"), destino)
 	}
 
 	c.addJob("mysql/paquete", destino, "")
@@ -685,4 +664,16 @@ func (c *generador) ToString() string {
 		buf.WriteString(dest.buf.String())
 	}
 	return buf.String()
+}
+
+// Renombrar archivo generado con nombre antiguo con git mv.
+func oldFilename(oldFilename, newFilename string) {
+	if !fileutils.Existe(oldFilename) {
+		return
+	}
+	gko.LogWarn("Renombrando archivo antiguo: " + oldFilename)
+	err := exec.Command("git", "mv", oldFilename, newFilename).Run()
+	if err != nil {
+		gko.FatalError(err)
+	}
 }
