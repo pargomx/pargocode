@@ -7,6 +7,10 @@ import (
 	"github.com/pargomx/gecko/gko"
 )
 
+func (cam CampoConsulta) EsConsulta() bool {
+	return true
+}
+
 func (cam CampoConsulta) EsNullable() bool {
 	return cam.EsPointer()
 }
@@ -285,7 +289,8 @@ func ScanSetters(campos []CampoConsulta, itemVar string) string {
 
 		case c.EsPropiedadExtendida(): // ej. usu.TipoGo = usuario.SetTipoDB(tipo)
 
-			res += itemVar + "." + c.NombreCampo + " = " + c.OrigenPaquete.Nombre + ".Set" + c.TipoGo + "DB(" + c.Variable() + ")"
+			tipo := strings.TrimPrefix(c.TipoGo, c.OrigenPaquete.Nombre+".")
+			res += itemVar + "." + c.NombreCampo + " = " + c.OrigenPaquete.Nombre + ".Set" + tipo + "DB(" + c.Variable() + ")"
 
 			// ================================================================ //
 

@@ -28,6 +28,13 @@
 			"dependsOrder": "sequence", "dependsOn": ["install pargo"]
 		},
 		{
+			"label": "ejecutar feciar", "detail": "",
+			"command": "pargo -dir ../../feciar",
+			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
+			"isBackground": true,
+			"dependsOrder": "sequence", "dependsOn": ["install pargo"]
+		},
+		{
 			"label": "ejecutar tw", "detail": "Compilar estilos Tailwind y luego ejecutar app",
 			"command": "pargo -p 5151",
 			"type": "shell", "presentation": { "echo": false, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },

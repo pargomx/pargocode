@@ -3,7 +3,7 @@
 {{ if .EsBool -}}
 if filtros.{{ .NombreCampo }} != nil {
 	argumentos = append(argumentos, *filtros.{{ .NombreCampo }})
-	where += " AND {{ if .EsConsulta }}{{ .Tabla.NombreAbrev }}.{{ end }}{{ .NombreColumna }} = ?"
+	where += " AND {{ if .EsConsulta }}{{ .Expresion }}{{ else }}{{ .NombreColumna }}{{ end }} = ?"
 }
 
 {{- else -}}
@@ -11,7 +11,7 @@ if filtros.{{ .NombreCampo }} != nil {
 if len(filtros.{{ .NombreCampo }}) == 1 {
 
 	{{- if .EsPropiedadExtendida }}
-	if !filtros.{{ .NombreCampo }}[0].Es({{ .Tabla.Paquete.Nombre }}.{{ .Tipo }}Todos) {
+	if !filtros.{{ .NombreCampo }}[0].Es({{ .TipoGo }}Todos) {
 	{{- else if .EsNumero }}
 	if filtros.{{ .NombreCampo }}[0] != 0 {
 	{{- else if .EsString }}
@@ -20,7 +20,7 @@ if len(filtros.{{ .NombreCampo }}) == 1 {
 	if true { // No implementado para este tipo de dato.
 	{{- end }}
 		argumentos = append(argumentos, filtros.{{ .NombreCampo }}[0]{{ if .EsPropiedadExtendida }}.String{{ end }})
-		where += " AND {{ if .EsConsulta }}{{ .Tabla.NombreAbrev }}.{{ end }}{{ .NombreColumna }} = ?"
+		where += " AND {{ if .EsConsulta }}{{ .Expresion }}{{ else }}{{ .NombreColumna }}{{ end }} = ?"
 	}
 } else if len(filtros.{{ .NombreCampo }}) != 0 { // Varios filtros para mismo campo...
 	var where{{ .NombreCampo }} = " AND ("   // temp por si se anula el filtro.
@@ -28,7 +28,7 @@ if len(filtros.{{ .NombreCampo }}) == 1 {
 	for i, {{ .Variable }} := range filtros.{{ .NombreCampo }} {
 
 	{{- if .EsPropiedadExtendida }}
-		if {{ .Variable }}.Es({{ .Tabla.Paquete.Nombre }}.{{ .Tipo }}Todos) {
+		if {{ .Variable }}.Es({{ .TipoGo }}Todos) {
 	{{- else if .EsNumero }}
 		if {{ .Variable }} == 0 {
 	{{- else if .EsString }}
@@ -39,7 +39,7 @@ if len(filtros.{{ .NombreCampo }}) == 1 {
 			break // Cualquier aparición anula el filtro.
 		}
 		args{{ .NombreCampo }} = append(args{{ .NombreCampo }}, {{ .Variable }}{{ if .EsPropiedadExtendida }}.String{{ end }}) // Argumento para Query
-		where{{ .NombreCampo }} += "{{ if .EsConsulta }}{{ .Tabla.NombreAbrev }}.{{ end }}{{ .NombreColumna }} = ?"
+		where{{ .NombreCampo }} += "{{ if .EsConsulta }}{{ .Expresion }}{{ else }}{{ .NombreColumna }}{{ end }} = ?"
 		if i != len(filtros.{{ .NombreCampo }})-1 { // No es el último.
 			where{{ .NombreCampo }} += " OR "
 			continue // Seguimos en el mismo campo.
