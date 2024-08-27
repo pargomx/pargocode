@@ -55,6 +55,11 @@ func (cam CampoConsulta) EsPropiedadExtendida() bool {
 // ================================================================ //
 // ================================================================ //
 
+// Le quita el nombre del paquete si es el paquete actual.
+func (cam CampoConsulta) TipoGoStruct() string {
+	return strings.TrimPrefix(cam.TipoGo, cam.Consulta.Paquete.Nombre+".")
+}
+
 // Ej: "fechaModif", "usuarioID"
 func (cam CampoConsulta) Variable() string {
 	return strings.ToLower(cam.NombreCampo[:1]) + cam.NombreCampo[1:]

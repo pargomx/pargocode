@@ -4,6 +4,6 @@ package {{ $.Consulta.Paquete.Nombre }}
 type {{ $.Consulta.NombreItem }} struct {
 {{- range $.Consulta.Campos }}
 	//  `{{ .Expresion }}`
-	{{ .NombreCampo }} {{ .TipoGo }}
+	{{ .NombreCampo }} {{ .TipoGoStruct }}
 {{- end }}
 }
