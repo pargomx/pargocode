@@ -234,6 +234,8 @@ func (c *generador) DescribirJobs() {
 
 // Agregar un trabjo a la lista de pendientes con el destino adecuado.
 // El título es opcional y se usa para agregar un comentario separador.
+// Si ya se había agregado un trabajo con el mismo tmpl, destino y título
+// se devolverá el trabajo existente sin agregar uno nuevo.
 func (c *generador) addJob(tmpl string, destino string, titulo string) *genJob {
 	op := gko.Op("addJob").Ctx("tmpl", tmpl)
 	if c.tbl == nil && c.con == nil {
@@ -412,7 +414,7 @@ func (c *generador) addJobsRepoSQLTabla(sqlite bool) {
 		case "get_by":
 			c.addJob("mysql/constantes", destino, "CONSTANTES")
 			c.addJob("mysql/scan-row", destino, "SCAN")
-			c.addJob("mysql/get_by", destino, "GET_BY").setCamposSelec(c, directriz.Values())
+			c.addJob("mysql/get_by", destino, "GET_BY "+strings.Join(directriz.Values(), " ")).setCamposSelec(c, directriz.Values())
 
 		case "list_by":
 			if c.tbl.TieneCamposFiltro() {
@@ -420,7 +422,7 @@ func (c *generador) addJobsRepoSQLTabla(sqlite bool) {
 			}
 			c.addJob("mysql/constantes", destino, "CONSTANTES")
 			c.addJob("mysql/scan-rows", destino, "SCAN")
-			c.addJob("mysql/list_by", destino, "LIST_BY").setCamposSelec(c, directriz.Values())
+			c.addJob("mysql/list_by", destino, "LIST_BY "+strings.Join(directriz.Values(), " ")).setCamposSelec(c, directriz.Values())
 
 		case "list_custom":
 			customList, err := directriz.CustomList()
@@ -494,7 +496,7 @@ func (c *generador) addJobsRepoSQLConsulta(sqlite bool) {
 		case "get_by":
 			c.addJob("mysql/constantes", destino, "CONSTANTES")
 			c.addJob("mysql/scan-row", destino, "SCAN")
-			c.addJob("mysql/get_by", destino, "GET_BY").setCamposSelec(c, directriz.Values())
+			c.addJob("mysql/get_by", destino, "GET_BY "+strings.Join(directriz.Values(), " ")).setCamposSelec(c, directriz.Values())
 
 		case "list_by":
 			if c.con.TieneCamposFiltro() {
@@ -502,7 +504,7 @@ func (c *generador) addJobsRepoSQLConsulta(sqlite bool) {
 			}
 			c.addJob("mysql/constantes", destino, "CONSTANTES")
 			c.addJob("mysql/scan-rows", destino, "SCAN")
-			c.addJob("mysql/list_by", destino, "LIST_BY").setCamposSelec(c, directriz.Values())
+			c.addJob("mysql/list_by", destino, "LIST_BY "+strings.Join(directriz.Values(), " ")).setCamposSelec(c, directriz.Values())
 
 		case "list_custom":
 			customList, err := directriz.CustomList()
