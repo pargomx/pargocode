@@ -11,7 +11,7 @@ if filtros.{{ .NombreCampo }} != nil {
 if len(filtros.{{ .NombreCampo }}) == 1 {
 
 	{{- if .EsPropiedadExtendida }}
-	if !filtros.{{ .NombreCampo }}[0].Es({{ .TipoGo }}Todos) {
+	if !filtros.{{ .NombreCampo }}[0].Es({{ if not .EsConsulta }}{{ .Paquete.Nombre }}.{{ end }}{{ .TipoGo }}Todos) {
 	{{- else if .EsNumero }}
 	if filtros.{{ .NombreCampo }}[0] != 0 {
 	{{- else if .EsString }}
@@ -28,7 +28,7 @@ if len(filtros.{{ .NombreCampo }}) == 1 {
 	for i, {{ .Variable }} := range filtros.{{ .NombreCampo }} {
 
 	{{- if .EsPropiedadExtendida }}
-		if {{ .Variable }}.Es({{ .TipoGo }}Todos) {
+		if {{ .Variable }}.Es({{ if not .EsConsulta }}{{ .Paquete.Nombre }}.{{ end }}{{ .TipoGo }}Todos) {
 	{{- else if .EsNumero }}
 		if {{ .Variable }} == 0 {
 	{{- else if .EsString }}

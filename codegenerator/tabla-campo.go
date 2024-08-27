@@ -46,6 +46,10 @@ type CampoTabla struct {
 
 // ================================================================ //
 
+func (c CampoTabla) EsConsulta() bool {
+	return false
+}
+
 func (c CampoTabla) DefaultSQL() string {
 	return c.DefaultSql
 }
