@@ -117,7 +117,7 @@ func (s *servidor) postEnumCampo(c *gecko.Context) error {
 		nuevosValores = append(nuevosValores, ddd.ValorEnum{
 			Numero:      i + 1,
 			Etiqueta:    textutils.PrimeraMayusc(v.Etiqueta),
-			Clave:       textutils.QuitarAcentos(strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(v.Clave, " ", "-"), "_", "-"))),
+			Clave:       textutils.QuitarAcentos(strings.ToUpper(strings.ReplaceAll(strings.ReplaceAll(v.Clave, " ", "-"), "-", "_"))),
 			Descripcion: textutils.PrimeraMayusc(v.Descripcion),
 		})
 	}
