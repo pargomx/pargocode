@@ -61,7 +61,7 @@ type customList struct {
 	ArgsSQL  string // parámetros del query: "param1,param1,param2"
 }
 
-// Ejemplo custom: "custom_l:BySomeValue:param1,param2:JOIN s WHERE x > 2 ORDER BY x:param1,param1,param2"
+// Ejemplo custom: "list_custom:BySomeValue:param1,param2:JOIN s WHERE x > 2 ORDER BY x:param1,param1,param2"
 func (d Directriz) CustomList() (*customList, error) {
 	str := strings.TrimSpace(d.String())
 	kv := strings.Split(str, ":")
