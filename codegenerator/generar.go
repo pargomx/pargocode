@@ -389,6 +389,9 @@ func (c *generador) addJobsRepoSQLTabla(sqlite bool) {
 		case "insert_update":
 			c.addJob("mysql/tbl-insert_update", destino, "INSERT_UPDATE")
 
+		case "existe":
+			c.addJob("mysql/existe", destino, "EXISTE")
+
 		case "delete":
 			c.addJob("mysql/existe", destino, "EXISTE")
 			c.addJob("mysql/tbl-delete", destino, "DELETE")
