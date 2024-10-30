@@ -55,11 +55,21 @@ func validarCampo(cam *ddd.Campo, repo Repositorio) error {
 
 	// Si es clave foránea, traer la referencia.
 	if cam.ForeignKey {
-		fk, err := repo.GetCampoPrimaryKey(cam.NombreColumna)
+		var fk *ddd.Campo
+		if cam.ReferenciaCampo != nil {
+			fk, err = repo.GetCampo(*cam.ReferenciaCampo)
+		} else {
+			fk, err = repo.GetCampoPrimaryKey(cam.NombreColumna)
+		}
 		if err != nil {
 			return err
 		}
 		cam.ReferenciaCampo = &fk.CampoID
+		cam.TipoGo = fk.TipoGo
+		cam.TipoSql = fk.TipoSql
+		cam.Nullable = fk.Nullable
+		cam.MaxLenght = fk.MaxLenght
+		cam.Uns = fk.Uns
 	} else {
 		cam.ReferenciaCampo = nil
 	}
@@ -278,12 +288,14 @@ func ActualizarCampo(campoID int, new ddd.Campo, repo Repositorio) error {
 	cam.Uns = new.Uns
 	cam.MaxLenght = new.MaxLenght
 	cam.PrimaryKey = new.PrimaryKey
-	cam.ForeignKey = new.ForeignKey
 	cam.Uq = new.Uq
 	cam.Req = new.Req
 	cam.Ro = new.Ro
 	cam.Filtro = new.Filtro
 	cam.Especial = new.Especial
+
+	cam.ForeignKey = new.ForeignKey
+	cam.ReferenciaCampo = new.ReferenciaCampo
 
 	err = validarCampo(cam, repo)
 	if err != nil {

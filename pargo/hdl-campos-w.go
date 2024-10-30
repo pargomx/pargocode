@@ -81,6 +81,11 @@ func (s *servidor) updateCampo(c *gecko.Context) error {
 		Filtro:     c.FormBool("filtro"),
 		Especial:   c.FormBool("especial"),
 	}
+	refCampo := c.FormInt("campo_fk")
+	if refCampo > 0 {
+		cam.ForeignKey = true
+		cam.ReferenciaCampo = &refCampo
+	}
 	err := appdominio.ActualizarCampo(cam.CampoID, cam, s.ddd)
 	if err != nil {
 		return err
