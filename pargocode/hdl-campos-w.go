@@ -72,7 +72,7 @@ func (s *servidor) updateCampo(c *gecko.Context) error {
 
 		Nullable:   !c.FormBool("not_null"),
 		Uns:        c.FormBool("unsinged"),
-		MaxLenght:  c.FormInt("max_lenght"),
+		MaxLenght:  c.FormInt("maxlenght"),
 		PrimaryKey: c.FormBool("pk"),
 		ForeignKey: c.FormBool("fk"),
 		Uq:         c.FormBool("unique"),
