@@ -28,7 +28,7 @@ func (s *servidor) crearConsulta(c *gecko.Context) error {
 		return err
 	}
 	gko.LogOkeyf("Consulta %v creada %v", con.ConsultaID, time.Now().Format("03:04:05pm"))
-	return c.RedirectHTMX("/consultas/%v", con.ConsultaID)
+	return c.Redirf("/consultas/%v", con.ConsultaID)
 }
 
 func (s *servidor) actualizarConsulta(c *gecko.Context) error {

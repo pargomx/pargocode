@@ -31,8 +31,8 @@
 			{{ end }}
 			
 			<div class="flex gap-2">
-				<button class="inline-block w-full px-1 border-2 border-teal-700 rounded-full hover:bg-cyan-700" type="button" hx-get="/tablas/nueva?paquete_id={{ .Paquete.PaqueteID }}" hx-prompt="Nombre humano de la nueva tabla" title="Agregar tabla"><i class="fa-solid fa-plus"></i></button>
-				<button class="inline-block w-full px-1 border-2 border-violet-700 rounded-full hover:bg-cyan-700" type="button" hx-get="/consultas/nueva?paquete_id={{ .Paquete.PaqueteID }}" hx-prompt="Nombre humano de la nueva consulta" title="Agregar consulta"><i class="fa-solid fa-plus"></i></button>
+				<button class="inline-block w-full px-1 border-2 border-teal-700 rounded-full hover:bg-cyan-700" type="button" hx-get="/tablas/nueva?paquete_id={{ .Paquete.PaqueteID }}" hx-prompt="Nombre para la entidad (singular y ortografía)" title="Agregar entidad (tabla)"><i class="fa-solid fa-plus"></i></button>
+				<button class="inline-block w-full px-1 border-2 border-violet-700 rounded-full hover:bg-cyan-700" type="button" hx-get="/consultas/nueva?paquete_id={{ .Paquete.PaqueteID }}" hx-prompt="Nombre para la consulta (singular y ortografía)" title="Agregar consulta"><i class="fa-solid fa-plus"></i></button>
 			</div>
 		</div>
 	</article>

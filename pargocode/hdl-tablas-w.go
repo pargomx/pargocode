@@ -31,7 +31,7 @@ func (s *servidor) postTablaNueva(c *gecko.Context) error {
 		return err
 	}
 	gko.LogInfof("Tabla nueva '%s'", tbl.NombreRepo)
-	return c.RedirectHTMX("/tablas/%d", tbl.TablaID)
+	return c.Redirf("/tablas/%d", tbl.TablaID)
 }
 
 // ================================================================ //

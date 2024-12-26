@@ -11,7 +11,7 @@ import (
 
 func (s *servidor) formNuevaConsulta(c *gecko.Context) error {
 	if c.EsHTMX() {
-		return c.RedirectHTMX("/consultas/nueva?nombre=%v&paquete_id=%v", c.Request().Header.Get("HX-Prompt"), c.QueryInt("paquete_id"))
+		return c.Redirf("/consultas/nueva?nombre=%v&paquete_id=%v", c.Request().Header.Get("HX-Prompt"), c.QueryInt("paquete_id"))
 	}
 	paquetes, err := s.ddd.ListPaquetes()
 	if err != nil {

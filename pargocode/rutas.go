@@ -1,75 +1,15 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
-
 	"monorepo/assets"
-	"monorepo/htmltmpl"
-	"monorepo/migraciones"
-	"monorepo/sqlitedb"
-	"monorepo/sqliteddd"
 
 	"github.com/pargomx/gecko"
-	"github.com/pargomx/gecko/gko"
-	"github.com/pargomx/gecko/plantillas"
 )
 
-// Información de compilación establecida con:
-//
-//	BUILD_INFO="$(date -I):$(git log --format="%H" -n 1)"
-//	go BUILD_INFO -ldflags "-X main.BUILD_INFO=$BUILD_INFO -X main.ambiente=dev"
-var BUILD_INFO string // Información de compilación [ fecha:commit_hash ]
-var AMBIENTE string   // Ambiente de ejecución [ dev / prod ]
+// ================================================================ //
+// ========== RUTAS =============================================== //
 
-type configs struct {
-	puerto       int    // Puerto TCP del servidor
-	directorio   string // Default: directorio actual
-	databasePath string // Default: _pargo/pargo.sqlite
-}
-
-type servidor struct {
-	cfg   configs
-	gecko *gecko.Gecko
-	db    *sqlitedb.SqliteDB
-	ddd   *sqliteddd.Repositorio
-}
-
-func main() {
-	gko.LogInfof("Versión:%s:%s", BUILD_INFO, AMBIENTE)
-
-	s := servidor{
-		gecko: gecko.New(),
-	}
-
-	flag.StringVar(&s.cfg.directorio, "dir", "", "directorio raíz del proyecto")
-	flag.StringVar(&s.cfg.databasePath, "db", "entidades.db", "ubicación de la db sqlite")
-	flag.IntVar(&s.cfg.puerto, "p", 5051, "el servidor escuchará en este puerto")
-	flag.Parse()
-	if s.cfg.directorio != "" {
-		err := os.Chdir(s.cfg.directorio)
-		if err != nil {
-			gko.FatalError(err)
-		}
-	}
-	var err error
-
-	// Repositorio
-	s.db, err = sqlitedb.NuevoRepositorio(s.cfg.databasePath, migraciones.MigracionesFS)
-	if err != nil {
-		gko.FatalError(err)
-	}
-	s.ddd = sqliteddd.NuevoRepositorio(s.db)
-
-	tpls, err := plantillas.NuevoServicioPlantillasEmbebidas(htmltmpl.PlantillasFS, "")
-	if err != nil {
-		gko.FatalError(err)
-	}
-	s.gecko.Renderer = tpls
-	s.gecko.TmplBaseLayout = "app/layout"
+func (s *servidor) registrarRutas() {
 
 	s.gecko.StaticFS("/assets", assets.AssetsFS)
 	s.gecko.FileFS("/favicon.ico", "img/favicon.ico", assets.AssetsFS)
@@ -77,7 +17,7 @@ func main() {
 	// ================================================================ //
 	// ================================================================ //
 
-	s.gecko.GET("/", getInicio)
+	s.gecko.GET("/", s.getPaquetes)
 
 	s.gecko.GET("/mapa", s.getMapaEntidadRelacion)
 	s.gecko.GET("/paquetes", s.getPaquetes)
@@ -123,26 +63,4 @@ func main() {
 	// LOG SQLITE
 	s.gecko.GET("/log", func(c *gecko.Context) error { s.db.ToggleLog(); return c.StatusOk("Log toggled") })
 
-	// ================================================================ //
-	// ================================================================ //
-
-	// Handle interrupt.
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		for sig := range ch {
-			err = s.db.Close()
-			if err != nil {
-				fmt.Println("sqliteDB.Close: ", err.Error())
-			}
-			fmt.Println("")
-			gko.LogInfof("servidor terminado: " + sig.String())
-			os.Exit(0)
-		}
-	}()
-
-	err = s.gecko.IniciarEnPuerto(s.cfg.puerto)
-	if err != nil {
-		gko.FatalError(err)
-	}
 }

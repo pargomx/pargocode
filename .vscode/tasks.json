@@ -21,7 +21,7 @@
 		
 		{
 			"label": "start", "detail": "Ejecutar pargocode",
-			"command": "pargocode -dir ../../holamundo",
+			"command": "pargocode -src=$(realpath .) -dir ../../holamundo",
 			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
 			"isBackground": true,
 			"dependsOrder": "sequence", "dependsOn": ["install"]
