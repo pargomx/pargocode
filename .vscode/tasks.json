@@ -1,47 +1,31 @@
 {
 	"version": "2.0.0",
 	"tasks": [
-
 		{
-			"label": "tailwind pargo", "detail": "tailwindcss pargo",
-			"command": "tailwindcss -i ./pargo/assets/source.css -o ./pargo/assets/css/estilo.css",
+			"label": "tailwind", "detail": "Compilar estilos CSS",
+			"command": "tailwindcss -i ./assets/source.css -o ./assets/css/estilo.css",
+			"type": "shell", "presentation": { "echo": true, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
+		},
+		{
+			"label": "tailwind watch", "detail": "Compilar estilos CSS",
+			"command": "tailwindcss -w -i ./assets/source.css -o ./assets/css/estilo.css",
+			"isBackground": true,
 			"type": "shell", "presentation": { "echo": true, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
 		},
 		
 		{
-			"label": "install pargo", "detail": "",
-			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=\"$(date '+%Y-%m-%d%n'):$(git log --format=\"%H\" -n 1)\" -X main.AMBIENTE=DEV\" ./pargo && echo 'app instalada!'",
+			"label": "install", "detail": "Instalar aplicación modo desarrollo",
+			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=\"$(date '+%Y-%m-%d%n'):$(git log --format=\"%H\" -n 1)\" -X main.AMBIENTE=DEV\" ./pargocode && echo 'app instalada!'",
 			"type": "shell", "presentation": { "echo": true, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
 		},
 		
 		{
-			"label": "deploy pargo", "detail": "Enviar binario pargo al servidor",
-			"command": "GOOS=linux CGO_ENABLED=0 go build -ldflags \"-X main.BUILD_INFO=\"$(date '+%Y-%m-%d%n'):$(git log --format=\"%H\" -n 1)\" -X main.AMBIENTE=PROD\" -o /tmp/pargo ./pargo && rsync -avh --progress /tmp/pargo ${input:remoteHost}:~/bin/ && echo 'Listo :D'",
-			"type": "shell", "presentation": { "echo": true, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
-		},
-
-		{
-			"label": "ejecutar", "detail": "Ejecutar app aquí mismo",
-			"command": "pargo -dir ../pargoh",
+			"label": "start", "detail": "Ejecutar pargocode",
+			"command": "pargocode -dir ../../holamundo",
 			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
 			"isBackground": true,
-			"dependsOrder": "sequence", "dependsOn": ["install pargo"]
+			"dependsOrder": "sequence", "dependsOn": ["install"]
 		},
-		{
-			"label": "ejecutar feciar", "detail": "",
-			"command": "pargo -dir ../../feciar",
-			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
-			"isBackground": true,
-			"dependsOrder": "sequence", "dependsOn": ["install pargo"]
-		},
-		{
-			"label": "ejecutar tw", "detail": "Compilar estilos Tailwind y luego ejecutar app",
-			"command": "pargo -p 5151",
-			"type": "shell", "presentation": { "echo": false, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
-			"isBackground": true,
-			"dependsOrder": "sequence", "dependsOn": ["tailwind pargo", "install pargo"]
-		},
-
 	],
 	"inputs": [
 		{
