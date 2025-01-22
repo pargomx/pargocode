@@ -162,11 +162,88 @@ func (s *servidor) actualizarCampoConsulta(c *gecko.Context) error {
 	return c.RefreshHTMX()
 }
 
+func (s *servidor) campoConsModifExpresion(c *gecko.Context) error {
+	campo, err := appdominio.CampoConsultaModifExpresion(appdominio.CampoConsultaModif{
+		ConsultaID: c.PathInt("consulta_id"),
+		Posicion:   c.PathInt("posicion"),
+		Valor:      c.FormVal("expresion"),
+	}, s.ddd, s.txt)
+	if err != nil {
+		return err
+	}
+	return c.Render(200, "consultas/campo-tr", campo)
+}
 func (s *servidor) campoConsModifAlias(c *gecko.Context) error {
 	campo, err := appdominio.CampoConsultaModifAlias(appdominio.CampoConsultaModif{
 		ConsultaID: c.PathInt("consulta_id"),
 		Posicion:   c.PathInt("posicion"),
 		Valor:      c.FormVal("alias_sql"),
+	}, s.ddd, s.txt)
+	if err != nil {
+		return err
+	}
+	return c.Render(200, "consultas/campo-tr", campo)
+}
+func (s *servidor) campoConsModifNombre(c *gecko.Context) error {
+	campo, err := appdominio.CampoConsultaModifNombre(appdominio.CampoConsultaModif{
+		ConsultaID: c.PathInt("consulta_id"),
+		Posicion:   c.PathInt("posicion"),
+		Valor:      c.FormVal("nombre_campo"),
+	}, s.ddd, s.txt)
+	if err != nil {
+		return err
+	}
+	return c.Render(200, "consultas/campo-tr", campo)
+}
+func (s *servidor) campoConsModifTipo(c *gecko.Context) error {
+	campo, err := appdominio.CampoConsultaModifTipo(appdominio.CampoConsultaModif{
+		ConsultaID: c.PathInt("consulta_id"),
+		Posicion:   c.PathInt("posicion"),
+		Valor:      c.FormVal("tipo_go"),
+	}, s.ddd, s.txt)
+	if err != nil {
+		return err
+	}
+	return c.Render(200, "consultas/campo-tr", campo)
+}
+func (s *servidor) campoConsModifPK(c *gecko.Context) error {
+	campo, err := appdominio.CampoConsultaModifPK(appdominio.CampoConsultaModifBool{
+		ConsultaID: c.PathInt("consulta_id"),
+		Posicion:   c.PathInt("posicion"),
+		Valor:      c.FormBool("pk"),
+	}, s.ddd, s.txt)
+	if err != nil {
+		return err
+	}
+	return c.Render(200, "consultas/campo-tr", campo)
+}
+func (s *servidor) campoConsModifFiltro(c *gecko.Context) error {
+	campo, err := appdominio.CampoConsultaModifFiltro(appdominio.CampoConsultaModifBool{
+		ConsultaID: c.PathInt("consulta_id"),
+		Posicion:   c.PathInt("posicion"),
+		Valor:      c.FormBool("filtro"),
+	}, s.ddd, s.txt)
+	if err != nil {
+		return err
+	}
+	return c.Render(200, "consultas/campo-tr", campo)
+}
+func (s *servidor) campoConsModifGroup(c *gecko.Context) error {
+	campo, err := appdominio.CampoConsultaModifGroup(appdominio.CampoConsultaModifBool{
+		ConsultaID: c.PathInt("consulta_id"),
+		Posicion:   c.PathInt("posicion"),
+		Valor:      c.FormBool("group_by"),
+	}, s.ddd, s.txt)
+	if err != nil {
+		return err
+	}
+	return c.Render(200, "consultas/campo-tr", campo)
+}
+func (s *servidor) campoConsModifDesc(c *gecko.Context) error {
+	campo, err := appdominio.CampoConsultaModifDesc(appdominio.CampoConsultaModif{
+		ConsultaID: c.PathInt("consulta_id"),
+		Posicion:   c.PathInt("posicion"),
+		Valor:      c.FormVal("descripcion"),
 	}, s.ddd, s.txt)
 	if err != nil {
 		return err

@@ -589,6 +589,81 @@ type CampoConsultaModif struct {
 	Posicion   int
 	Valor      string
 }
+type CampoConsultaModifBool struct {
+	ConsultaID int
+	Posicion   int
+	Valor      bool
+}
+
+func CampoConsultaModifExpresion(modif CampoConsultaModif, repo Repositorio, txt *textutils.Utils) (*ddd.ConsultaCampo, error) {
+	op := gko.Op("CampoConsultaModifExpresion").Ctx("consulta_id", modif.ConsultaID).Ctx("posicion", modif.Posicion)
+	con, err := GetConsulta(modif.ConsultaID, repo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if modif.Posicion < 1 || modif.Posicion > len(con.Campos) { // Validar que exista el campo referido
+		return nil, op.Msgf("La consulta %v no tiene campo en posición %v, tiene %v campos", modif.ConsultaID, modif.Posicion, len(con.Campos))
+	}
+	campo, err := repo.GetConsultaCampo(modif.ConsultaID, modif.Posicion)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	campoOld := con.Campos[campo.Posicion-1]
+	oldExpr := campo.Expresion
+	nuevaExpr := gecko.TxtQuitarEspacios(modif.Valor)
+	if oldExpr == nuevaExpr {
+		return campo, nil
+	}
+	if nuevaExpr == "" {
+		return nil, op.Msg("No se puede dejar sin expresión al campo")
+	}
+	// Si es un campo calculado simplemente actualizar la expresión
+	if campo.CampoID == nil {
+		campo.Expresion = nuevaExpr
+		gko.LogInfof("Expresión modificada para consulta %v campo %v", con.Consulta.NombreItem, campo.Posicion)
+
+	} else { // Sino buscar la nueva tabla de origen para el campo dado.
+		oldSplit := strings.Split(oldExpr, ".")
+		newSplit := strings.Split(nuevaExpr, ".")
+		if !(len(newSplit) == 2 && len(oldSplit) == 2 && newSplit[1] == oldSplit[1]) {
+			return nil, op.Msg("Solo se permite cambiar la tabla origen de un campo no calculado")
+		}
+		origenSearch := newSplit[0]
+		origenFound := ""
+		nombreColumna := campoOld.OrigenCampo.NombreColumna
+		for _, r := range con.Relaciones {
+			if (origenSearch == r.JoinAs || origenSearch == r.Join.Tabla.NombreRepo) && origenFound == "" {
+				for _, c := range r.Join.Campos {
+					if c.NombreColumna == nombreColumna {
+						campo.CampoID = &c.CampoID
+						origenFound = r.JoinAs
+						break
+					}
+				}
+			}
+		}
+		if origenFound == "" {
+			for _, c := range con.From.Campos {
+				if c.NombreColumna != nombreColumna {
+					continue
+				}
+				campo.CampoID = &c.CampoID
+				origenFound = con.From.Tabla.Abrev
+				break
+			}
+		}
+		if origenFound == "" {
+			return nil, op.Msgf("El origen '%v' para el campo '%v' no está en las tablas relacionadas", origenSearch, nombreColumna)
+		}
+		campo.Expresion = origenFound + "." + nombreColumna
+		gko.LogInfof("Origen modificado para consulta %v campo %v", con.Consulta.NombreItem, campo.Posicion)
+	}
+	err = repo.UpdateConsultaCampo(*campo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	return campo, nil
+}
 
 func CampoConsultaModifAlias(modif CampoConsultaModif, repo Repositorio, txt *textutils.Utils) (*ddd.ConsultaCampo, error) {
 	op := gko.Op("CampoConsultaModifAlias").Ctx("consulta_id", modif.ConsultaID).Ctx("posicion", modif.Posicion)
@@ -611,7 +686,7 @@ func CampoConsultaModifAlias(modif CampoConsultaModif, repo Repositorio, txt *te
 	nuevoAlias = textutils.QuitarAcentos(nuevoAlias)
 	nuevoAlias = txt.RemoveNonAlphanumeric(nuevoAlias)
 	if oldAlias == nuevoAlias {
-		return nil, nil
+		return campo, nil
 	}
 	if nuevoAlias != "" {
 		for _, c := range con.Campos {
@@ -631,6 +706,169 @@ func CampoConsultaModifAlias(modif CampoConsultaModif, repo Repositorio, txt *te
 		gko.LogInfof("Alias agregado para consulta %v campo %v", con.Consulta.NombreItem, campo.Posicion)
 	} else {
 		gko.LogInfof("Alias modificado para consulta %v campo %v", con.Consulta.NombreItem, campo.Posicion)
+	}
+	return campo, nil
+}
+
+func CampoConsultaModifNombre(modif CampoConsultaModif, repo Repositorio, txt *textutils.Utils) (*ddd.ConsultaCampo, error) {
+	op := gko.Op("CampoConsultaModifNombre").Ctx("consulta_id", modif.ConsultaID).Ctx("posicion", modif.Posicion)
+	con, err := GetConsulta(modif.ConsultaID, repo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if modif.Posicion < 1 || modif.Posicion > len(con.Campos) { // Validar que exista el campo referido
+		return nil, op.Msgf("La consulta %v no tiene campo en posición %v, tiene %v campos", modif.ConsultaID, modif.Posicion, len(con.Campos))
+	}
+	campo, err := repo.GetConsultaCampo(modif.ConsultaID, modif.Posicion)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	oldNombre := campo.NombreCampo
+	newNombre := gecko.TxtQuitarEspacios(modif.Valor)
+	newNombre = strings.ReplaceAll(newNombre, " ", "")
+	newNombre = textutils.PrimeraMayusc(newNombre)
+	newNombre = txt.RemoveNonAlphanumeric(newNombre)
+	if newNombre == "" {
+		return nil, op.ErrDatoIndef().Msg("El nombre del campo Go no puede estar vacío")
+	}
+	if oldNombre == newNombre {
+		return campo, nil
+	}
+	for _, c := range con.Campos {
+		if newNombre == c.NombreCampo {
+			return nil, op.ErrDatoInvalido().Msgf("El nombre '%v' ya está en uso por el campo #%v", newNombre, c.Posicion)
+		}
+	}
+	campo.NombreCampo = newNombre
+	err = repo.UpdateConsultaCampo(*campo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	return campo, nil
+}
+
+func CampoConsultaModifTipo(modif CampoConsultaModif, repo Repositorio, txt *textutils.Utils) (*ddd.ConsultaCampo, error) {
+	op := gko.Op("CampoConsultaModifTipo").Ctx("consulta_id", modif.ConsultaID).Ctx("posicion", modif.Posicion)
+	con, err := GetConsulta(modif.ConsultaID, repo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if modif.Posicion < 1 || modif.Posicion > len(con.Campos) { // Validar que exista el campo referido
+		return nil, op.Msgf("La consulta %v no tiene campo en posición %v, tiene %v campos", modif.ConsultaID, modif.Posicion, len(con.Campos))
+	}
+	campo, err := repo.GetConsultaCampo(modif.ConsultaID, modif.Posicion)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	oldTipo := campo.TipoGo
+	newTipo := gecko.TxtQuitarEspacios(modif.Valor)
+	newTipo = strings.ReplaceAll(newTipo, " ", "")
+	if newTipo == "" {
+		return nil, op.ErrDatoIndef().Msg("El tipo de dato Go no puede estar vacío")
+	}
+	if oldTipo == newTipo {
+		return campo, nil
+	}
+	campo.TipoGo = newTipo
+	err = repo.UpdateConsultaCampo(*campo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	return campo, nil
+}
+
+func CampoConsultaModifDesc(modif CampoConsultaModif, repo Repositorio, txt *textutils.Utils) (*ddd.ConsultaCampo, error) {
+	op := gko.Op("CampoConsultaModifDesc").Ctx("consulta_id", modif.ConsultaID).Ctx("posicion", modif.Posicion)
+	con, err := GetConsulta(modif.ConsultaID, repo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if modif.Posicion < 1 || modif.Posicion > len(con.Campos) { // Validar que exista el campo referido
+		return nil, op.Msgf("La consulta %v no tiene campo en posición %v, tiene %v campos", modif.ConsultaID, modif.Posicion, len(con.Campos))
+	}
+	campo, err := repo.GetConsultaCampo(modif.ConsultaID, modif.Posicion)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	oldDesc := campo.Descripcion
+	newDesc := gecko.TxtQuitarEspacios(modif.Valor)
+	if oldDesc == newDesc {
+		return campo, nil
+	}
+	campo.Descripcion = newDesc
+	err = repo.UpdateConsultaCampo(*campo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	return campo, nil
+}
+
+func CampoConsultaModifPK(modif CampoConsultaModifBool, repo Repositorio, txt *textutils.Utils) (*ddd.ConsultaCampo, error) {
+	op := gko.Op("CampoConsultaModifPk").Ctx("consulta_id", modif.ConsultaID).Ctx("posicion", modif.Posicion)
+	con, err := GetConsulta(modif.ConsultaID, repo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if modif.Posicion < 1 || modif.Posicion > len(con.Campos) { // Validar que exista el campo referido
+		return nil, op.Msgf("La consulta %v no tiene campo en posición %v, tiene %v campos", modif.ConsultaID, modif.Posicion, len(con.Campos))
+	}
+	campo, err := repo.GetConsultaCampo(modif.ConsultaID, modif.Posicion)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if campo.Pk == modif.Valor {
+		return campo, nil
+	}
+	campo.Pk = modif.Valor
+	err = repo.UpdateConsultaCampo(*campo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	return campo, nil
+}
+func CampoConsultaModifFiltro(modif CampoConsultaModifBool, repo Repositorio, txt *textutils.Utils) (*ddd.ConsultaCampo, error) {
+	op := gko.Op("CampoConsultaModifPk").Ctx("consulta_id", modif.ConsultaID).Ctx("posicion", modif.Posicion)
+	con, err := GetConsulta(modif.ConsultaID, repo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if modif.Posicion < 1 || modif.Posicion > len(con.Campos) { // Validar que exista el campo referido
+		return nil, op.Msgf("La consulta %v no tiene campo en posición %v, tiene %v campos", modif.ConsultaID, modif.Posicion, len(con.Campos))
+	}
+	campo, err := repo.GetConsultaCampo(modif.ConsultaID, modif.Posicion)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if campo.Filtro == modif.Valor {
+		return campo, nil
+	}
+	campo.Filtro = modif.Valor
+	err = repo.UpdateConsultaCampo(*campo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	return campo, nil
+}
+func CampoConsultaModifGroup(modif CampoConsultaModifBool, repo Repositorio, txt *textutils.Utils) (*ddd.ConsultaCampo, error) {
+	op := gko.Op("CampoConsultaModifPk").Ctx("consulta_id", modif.ConsultaID).Ctx("posicion", modif.Posicion)
+	con, err := GetConsulta(modif.ConsultaID, repo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if modif.Posicion < 1 || modif.Posicion > len(con.Campos) { // Validar que exista el campo referido
+		return nil, op.Msgf("La consulta %v no tiene campo en posición %v, tiene %v campos", modif.ConsultaID, modif.Posicion, len(con.Campos))
+	}
+	campo, err := repo.GetConsultaCampo(modif.ConsultaID, modif.Posicion)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if campo.GroupBy == modif.Valor {
+		return campo, nil
+	}
+	campo.GroupBy = modif.Valor
+	err = repo.UpdateConsultaCampo(*campo)
+	if err != nil {
+		return nil, op.Err(err)
 	}
 	return campo, nil
 }

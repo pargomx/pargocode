@@ -59,7 +59,15 @@ func (s *servidor) registrarRutas() {
 	s.gecko.PUT("/consultas/{consulta_id}/reordenar-campo", s.reordenarCampoConsulta)
 	s.gecko.DEL("/consultas/{consulta_id}/campos/{posicion}", s.eliminarCampoConsulta)
 	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}", s.actualizarCampoConsulta)
-	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}/alias", s.campoConsModifAlias)
+	// atómico
+	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}/expresion", s.campoConsModifExpresion)
+	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}/alias_sql", s.campoConsModifAlias)
+	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}/nombre_campo", s.campoConsModifNombre)
+	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}/tipo_go", s.campoConsModifTipo)
+	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}/pk", s.campoConsModifPK)
+	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}/filtro", s.campoConsModifFiltro)
+	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}/group_by", s.campoConsModifGroup)
+	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}/descripcion", s.campoConsModifDesc)
 
 	// LOG SQLITE
 	s.gecko.GET("/log", func(c *gecko.Context) error { s.db.ToggleLog(); return c.StatusOk("Log toggled") })

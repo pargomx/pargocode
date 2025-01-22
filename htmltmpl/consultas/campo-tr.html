@@ -13,17 +13,22 @@
 	</td>
 	<td class="w-1/4">
 		<input
-			tipo="expresion"
-			type="text" name="expresion"
+			type="text"
+			name="expresion"
 			value="{{ .Expresion }}"
-			class="form-control">
+			hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}/expresion"
+			hx-target="this"
+			hx-swap="outerHTML"
+			hx-select="[name='expresion']"
+			hx-trigger="change"
+			class="w-40 form-control">
 	</td>
 	<td>
 		<input
 			type="text"
 			name="alias_sql"
 			value="{{ .AliasSql }}"
-			hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}/alias"
+			hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}/alias_sql"
 			hx-target="this"
 			hx-swap="outerHTML"
 			hx-select="[name='alias_sql']"
@@ -31,21 +36,75 @@
 			class="w-40 form-control">
 	</td>
 	<td>
-		<input class="w-40 form-control" type="text" name="nombre_campo" value="{{ .NombreCampo }}" placeholder="">
+		<input
+			type="text"
+			name="nombre_campo"
+			value="{{ .NombreCampo }}"
+			hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}/nombre_campo"
+			hx-target="this"
+			hx-swap="outerHTML"
+			hx-select="[name='nombre_campo']"
+			hx-trigger="change"
+			class="w-40 form-control">
 	</td>
 	<td>
-		<input class="w-40 form-control" type="text" name="tipo_go" value="{{ .TipoGo }}" placeholder="">
+		<input
+			type="text"
+			name="tipo_go"
+			value="{{ .TipoGo }}"
+			hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}/tipo_go"
+			hx-target="this"
+			hx-swap="outerHTML"
+			hx-select="[name='tipo_go']"
+			hx-trigger="change"
+			class="w-40 form-control">
 	</td>
 	<td>
-		<input type="checkbox" name="pk" {{ if .Pk }} checked{{ end }} title="Primary key">
+		<input
+			type="checkbox"
+			name="pk"
+			{{ if .Pk }}checked{{ end }}
+			hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}/pk"
+			hx-target="this"
+			hx-swap="outerHTML"
+			hx-select="[name='pk']"
+			hx-trigger="change"
+			title="Primary key">
 	</td>
 	<td>
-		<input type="checkbox" name="filtro" {{ if .Filtro }} checked{{ end }} title="Es filtro">
+		<input
+			type="checkbox"
+			name="filtro"
+			{{ if .Filtro }}checked{{ end }}
+			hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}/filtro"
+			hx-target="this"
+			hx-swap="outerHTML"
+			hx-select="[name='filtro']"
+			hx-trigger="change"
+			title="Es filtro">
 	</td>
 	<td>
-		<input type="checkbox" name="group_by" {{ if .GroupBy }} checked{{ end }} title="Group by">
+		<input
+			type="checkbox"
+			name="group_by"
+			{{ if .GroupBy }}checked{{ end }}
+			hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}/group_by"
+			hx-target="this"
+			hx-swap="outerHTML"
+			hx-select="[name='group_by']"
+			hx-trigger="change"
+			title="Group by">
 	</td>
 	<td>
-		<input class="form-control" type="text" name="descripcion" value="{{ .Descripcion }}" placeholder="">
+		<input
+			type="text"
+			name="descripcion"
+			value="{{ .Descripcion }}"
+			hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}/descripcion"
+			hx-target="this"
+			hx-swap="outerHTML"
+			hx-select="[name='descripcion']"
+			hx-trigger="change"
+			class="w-40 form-control">
 	</td>
 </tr>
