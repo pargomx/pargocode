@@ -202,6 +202,15 @@
 						Agregar
 					</button>
 				</div>
+				<div>
+					<button
+						type="button"
+						title="Seleccionar campos para quitar"
+						onclick="console.log(this.closest('section').querySelectorAll(`button[tipo='delete']`).forEach(e => { e.classList.remove('hidden') }))"
+						class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-gray-700 rounded shadow-md hover:bg-gray-600">
+						Quitar campos
+					</button>
+				</div>
 			</form>
 
 			{{ if .Campos }}
@@ -225,11 +234,30 @@
 					<tr gk-posicion="{{ .Posicion }}" class="bg-slate-800/25 hover:bg-slate-800/50">
 						<td tipo="handle" class="text-left cursor-move whitespace-nowrap">⣿ {{ .Posicion }}</td>
 						<td>
-							<button type="button" hx-delete="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}" hx-confirm="¿Eliminar este campo de la consulta?">🚮</button>
-							<button type="button" hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}" hx-include="closest tr">💾</button>
+							<button
+								type="button"
+								tipo="delete"
+								hx-delete="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}"
+								{{- /* hx-confirm="¿Eliminar este campo de la consulta?" */ -}}
+								hx-target="#campos"
+								hx-select="#campos"
+								class="hidden">
+								🚮
+							</button>
+							<button 
+								type="button"
+								hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}"
+								hx-include="closest tr"
+								class="hidden">
+								💾
+							</button>
 						</td>
 						<td class="w-1/4">
-							<input tipo="expresion" class="form-control" type="text" name="expresion" value="{{ .Expresion }}" placeholder="">
+							<input
+								tipo="expresion"
+								type="text" name="expresion"
+								value="{{ .Expresion }}"
+								class="form-control">
 						</td>
 						<td>
 							<input class="w-40 form-control" type="text" name="alias_sql" value="{{ .AliasSql }}" placeholder="">

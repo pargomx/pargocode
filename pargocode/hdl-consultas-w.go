@@ -113,7 +113,7 @@ func (s *servidor) eliminarCampoConsulta(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.RefreshHTMX()
+	return s.getConsulta(c)
 }
 
 func (s *servidor) reordenarCampoConsulta(c *gecko.Context) error {
