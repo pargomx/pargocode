@@ -1,6 +1,7 @@
 package textutils
 
 import (
+	"regexp"
 	"unicode"
 
 	"golang.org/x/text/runes"
@@ -15,4 +16,18 @@ func QuitarAcentos(s string) string {
 		panic(e)
 	}
 	return output
+}
+
+type Utils struct {
+	alfanumericos *regexp.Regexp
+}
+
+func NewTextUtils() *Utils {
+	return &Utils{
+		alfanumericos: regexp.MustCompile(`[^a-zA-Z0-9_]`),
+	}
+}
+
+func (s *Utils) RemoveNonAlphanumeric(str string) string {
+	return s.alfanumericos.ReplaceAllString(str, "")
 }

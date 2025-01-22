@@ -101,9 +101,17 @@ func (s *Repositorio) DeleteConsultaCampo(ConsultaID int, Posicion int) error {
 			return gko.ErrInesperado().Err(err).Op(op)
 		}
 	}
-	// Actualizar hermanos
+	// Actualizar hermanos, volver negativos para no correr riesgo de error por clave duplicada.
 	_, err = s.db.Exec(
-		"UPDATE consulta_campos SET posicion = posicion - 1 WHERE consulta_id = ? AND posicion > ?",
+		"UPDATE consulta_campos SET posicion = -(posicion - 1) WHERE consulta_id = ? AND posicion > ?",
+		ConsultaID, Posicion,
+	)
+	if err != nil {
+		return gko.ErrInesperado().Err(err).Op(op).Op("actualizar_hermanos")
+	}
+	// Devolver a positivos
+	_, err = s.db.Exec(
+		"UPDATE consulta_campos SET posicion = -posicion WHERE consulta_id = ? AND posicion < 0",
 		ConsultaID, Posicion,
 	)
 	if err != nil {

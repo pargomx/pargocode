@@ -3,8 +3,10 @@ package appdominio
 import (
 	"fmt"
 	"monorepo/ddd"
+	"monorepo/textutils"
 	"strings"
 
+	"github.com/pargomx/gecko"
 	"github.com/pargomx/gecko/gko"
 )
 
@@ -577,4 +579,58 @@ func EliminarCampoConsulta(consultaID int, posicion int, repo Repositorio) error
 		return op.Err(err)
 	}
 	return nil
+}
+
+// ================================================================ //
+// ========== MODIFICACIONES UNITARIAS ============================ //
+
+type CampoConsultaModif struct {
+	ConsultaID int
+	Posicion   int
+	Valor      string
+}
+
+func CampoConsultaModifAlias(modif CampoConsultaModif, repo Repositorio, txt *textutils.Utils) (*ddd.ConsultaCampo, error) {
+	op := gko.Op("CampoConsultaModifAlias").Ctx("consulta_id", modif.ConsultaID).Ctx("posicion", modif.Posicion)
+	con, err := GetConsulta(modif.ConsultaID, repo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if modif.Posicion < 1 || modif.Posicion > len(con.Campos) { // Validar que exista el campo referido
+		return nil, op.Msgf("La consulta %v no tiene campo en posición %v, tiene %v campos", modif.ConsultaID, modif.Posicion, len(con.Campos))
+	}
+	campo, err := repo.GetConsultaCampo(modif.ConsultaID, modif.Posicion)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	oldAlias := campo.AliasSql
+	nuevoAlias := gecko.TxtLower(modif.Valor)
+	nuevoAlias = strings.ReplaceAll(nuevoAlias, " ", "_")
+	nuevoAlias = strings.ReplaceAll(nuevoAlias, "-", "_")
+	nuevoAlias = strings.ReplaceAll(nuevoAlias, "__", "_")
+	nuevoAlias = textutils.QuitarAcentos(nuevoAlias)
+	nuevoAlias = txt.RemoveNonAlphanumeric(nuevoAlias)
+	if oldAlias == nuevoAlias {
+		return nil, nil
+	}
+	if nuevoAlias != "" {
+		for _, c := range con.Campos {
+			if nuevoAlias == c.AliasSql && c.AliasSql != "" {
+				return nil, op.Msgf("El alias '%v' ya está en uso por el campo %v", nuevoAlias, c.Posicion)
+			}
+		}
+	}
+	campo.AliasSql = nuevoAlias
+	err = repo.UpdateConsultaCampo(*campo)
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if nuevoAlias == "" {
+		gko.LogInfof("Alias eliminado para consulta %v campo %v", con.Consulta.NombreItem, campo.Posicion)
+	} else if oldAlias == "" {
+		gko.LogInfof("Alias agregado para consulta %v campo %v", con.Consulta.NombreItem, campo.Posicion)
+	} else {
+		gko.LogInfof("Alias modificado para consulta %v campo %v", con.Consulta.NombreItem, campo.Posicion)
+	}
+	return campo, nil
 }

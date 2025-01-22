@@ -7,6 +7,7 @@ import (
 	"monorepo/migraciones"
 	"monorepo/sqlitedb"
 	"monorepo/sqliteddd"
+	"monorepo/textutils"
 	"os"
 	"os/signal"
 	"syscall"
@@ -28,6 +29,7 @@ type servidor struct {
 	gecko *gecko.Gecko
 	db    *sqlitedb.SqliteDB
 	ddd   *sqliteddd.Repositorio
+	txt   *textutils.Utils
 }
 
 type configs struct {
@@ -82,6 +84,8 @@ func main() {
 	}
 	s.gecko.TmplBaseLayout = "app/layout"
 	s.gecko.TmplError = "app/error"
+
+	s.txt = textutils.NewTextUtils()
 
 	// Rutas
 	s.registrarRutas()

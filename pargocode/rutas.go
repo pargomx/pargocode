@@ -56,9 +56,10 @@ func (s *servidor) registrarRutas() {
 	s.gecko.DEL("/consultas/{consulta_id}/relaciones/{posicion}", s.eliminarRelacionConsulta)
 
 	s.gecko.POS("/consultas/{consulta_id}/campos", s.postCampoConsulta)
-	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}", s.actualizarCampoConsulta)
-	s.gecko.DEL("/consultas/{consulta_id}/campos/{posicion}", s.eliminarCampoConsulta)
 	s.gecko.PUT("/consultas/{consulta_id}/reordenar-campo", s.reordenarCampoConsulta)
+	s.gecko.DEL("/consultas/{consulta_id}/campos/{posicion}", s.eliminarCampoConsulta)
+	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}", s.actualizarCampoConsulta)
+	s.gecko.PUT("/consultas/{consulta_id}/campos/{posicion}/alias", s.campoConsModifAlias)
 
 	// LOG SQLITE
 	s.gecko.GET("/log", func(c *gecko.Context) error { s.db.ToggleLog(); return c.StatusOk("Log toggled") })

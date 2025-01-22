@@ -109,7 +109,17 @@ func (s *servidor) postCampoConsulta(c *gecko.Context) error {
 }
 
 func (s *servidor) eliminarCampoConsulta(c *gecko.Context) error {
-	err := appdominio.EliminarCampoConsulta(c.PathInt("consulta_id"), c.PathInt("posicion"), s.ddd)
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	repoTx := sqliteddd.NuevoRepositorio(tx)
+	err = appdominio.EliminarCampoConsulta(c.PathInt("consulta_id"), c.PathInt("posicion"), repoTx)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Commit()
 	if err != nil {
 		return err
 	}
@@ -150,4 +160,16 @@ func (s *servidor) actualizarCampoConsulta(c *gecko.Context) error {
 		return err
 	}
 	return c.RefreshHTMX()
+}
+
+func (s *servidor) campoConsModifAlias(c *gecko.Context) error {
+	campo, err := appdominio.CampoConsultaModifAlias(appdominio.CampoConsultaModif{
+		ConsultaID: c.PathInt("consulta_id"),
+		Posicion:   c.PathInt("posicion"),
+		Valor:      c.FormVal("alias_sql"),
+	}, s.ddd, s.txt)
+	if err != nil {
+		return err
+	}
+	return c.Render(200, "consultas/campo-tr", campo)
 }

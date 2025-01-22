@@ -229,58 +229,14 @@
 						<th title="">Descripción</th>
 					</tr>
 				</thead>
-				<tbody id="campos_tbody" hx-get="/consultas/{{ .Consulta.ConsultaID }}" hx-trigger="recargarCampos" hx-target="this" hx-swap="innerHTML" hx-select="#campos_tbody > *">
+				<tbody id="campos_tbody"
+					hx-get="/consultas/{{ .Consulta.ConsultaID }}"
+					hx-trigger="recargarCampos"
+					hx-target="this"
+					hx-swap="innerHTML"
+					hx-select="#campos_tbody > *">
 					{{ range .Campos -}}
-					<tr gk-posicion="{{ .Posicion }}" class="bg-slate-800/25 hover:bg-slate-800/50">
-						<td tipo="handle" class="text-left cursor-move whitespace-nowrap">⣿ {{ .Posicion }}</td>
-						<td>
-							<button
-								type="button"
-								tipo="delete"
-								hx-delete="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}"
-								{{- /* hx-confirm="¿Eliminar este campo de la consulta?" */ -}}
-								hx-target="#campos"
-								hx-select="#campos"
-								class="hidden">
-								🚮
-							</button>
-							<button 
-								type="button"
-								hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}"
-								hx-include="closest tr"
-								class="hidden">
-								💾
-							</button>
-						</td>
-						<td class="w-1/4">
-							<input
-								tipo="expresion"
-								type="text" name="expresion"
-								value="{{ .Expresion }}"
-								class="form-control">
-						</td>
-						<td>
-							<input class="w-40 form-control" type="text" name="alias_sql" value="{{ .AliasSql }}" placeholder="">
-						</td>
-						<td>
-							<input class="w-40 form-control" type="text" name="nombre_campo" value="{{ .NombreCampo }}" placeholder="">
-						</td>
-						<td>
-							<input class="w-40 form-control" type="text" name="tipo_go" value="{{ .TipoGo }}" placeholder="">
-						</td>
-						<td>
-							<input type="checkbox" name="pk" {{ if .Pk }} checked{{ end }} title="Primary key">
-						</td>
-						<td>
-							<input type="checkbox" name="filtro" {{ if .Filtro }} checked{{ end }} title="Es filtro">
-						</td>
-						<td>
-							<input type="checkbox" name="group_by" {{ if .GroupBy }} checked{{ end }} title="Group by">
-						</td>
-						<td>
-							<input class="form-control" type="text" name="descripcion" value="{{ .Descripcion }}" placeholder="">
-						</td>
-					</tr>
+					{{ template "consultas/campo-tr" . }}
 					{{ end }}
 				</tbody>
 			</table>
