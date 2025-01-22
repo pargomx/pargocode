@@ -6,7 +6,7 @@
 	<section id="nombre" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
 		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
 			<h3 class="flex-grow text-xl font-bold">
-				<span class="p-1 font-mono text-white bg-teal-700 rounded">tabla</span>
+				<span class="p-1 font-mono text-white bg-violet-700 rounded">consulta</span>
 				{{ .Paquete.Nombre }}.{{ .Consulta.NombreItem }}
 			</h3>
 		</header>
@@ -75,6 +75,72 @@
 			</div>
 
 		</form>
+	</section>
+
+	<section id="campos" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
+		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
+			<h3 class="flex-grow text-xl font-bold">
+				Campos
+			</h3>
+		</header>
+		<div class="overflow-x-auto">
+			{{ if .Campos }}
+			<table class="w-full p-1 text-center border-separate table-auto border-spacing-y-1">
+				<thead>
+					<tr class="bg-slate-400 dark:bg-slate-900">
+						<th>#</th>
+						<th>Columna o Expresión</th>
+						<th>Alias</th>
+						<th>Campo Go</th>
+						<th>Tipo Go</th>
+						<th>PK</th>
+						<th>Filtro</th>
+						<th>GroupBy</th>
+						<th>Descripción</th>
+					</tr>
+				</thead>
+				<tbody id="campos_tbody"
+					hx-get="/consultas/{{ .Consulta.ConsultaID }}"
+					hx-trigger="recargarCampos"
+					hx-target="this"
+					hx-swap="innerHTML"
+					hx-select="#campos_tbody > *">
+					{{ range .Campos -}}
+					{{ template "consultas/campo-tr" . }}
+					{{ end }}
+				</tbody>
+			</table>
+			{{ end }}
+
+			<form tipo="agregarCampo" hx-post="/consultas/{{ .Consulta.ConsultaID }}/campos" class="flex gap-4 p-4">
+				<div>
+					<select class="w-40 form-control" name="from_abrev" onchange="ponerColumnasDropdown(this)">
+						<option value="">Calculado</option>
+						<option value="{{ $.AgregadoConsulta.TablaOrigen.Abrev }}">{{ $.AgregadoConsulta.TablaOrigen.Abrev }} ({{ $.AgregadoConsulta.TablaOrigen.NombreRepo }})</option>
+						{{ range .Relaciones }}
+						<option value="{{ .JoinAs }}">{{ .JoinAs }} ({{ .Join.Tabla.NombreRepo }})</option>
+						{{ end }}
+					</select>
+				</div>
+				<div>
+					<input tipo="expresion" class="form-control" type="text" name="expresion" value="" placeholder="">
+				</div>
+				<div>
+					<button type="submit" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
+						Agregar
+					</button>
+				</div>
+				<div>
+					<button
+						type="button"
+						title="Seleccionar campos para quitar"
+						onclick="console.log(this.closest('section').querySelectorAll(`button[tipo='delete']`).forEach(e => { e.classList.remove('hidden') }))"
+						class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-gray-700 rounded shadow-md hover:bg-gray-600">
+						Quitar campos
+					</button>
+				</div>
+			</form>
+		</div>
 	</section>
 
 	<section id="relaciones" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
@@ -173,74 +239,6 @@
 				</tbody>
 			</table>
 
-		</div>
-	</section>
-
-	<section id="campos" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
-		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
-			<h3 class="flex-grow text-xl font-bold">
-				Campos
-			</h3>
-		</header>
-		<div class="overflow-x-auto">
-
-			<form tipo="agregarCampo" hx-post="/consultas/{{ .Consulta.ConsultaID }}/campos" class="flex gap-4 p-4">
-				<div>
-					<select class="w-40 form-control" name="from_abrev" onchange="ponerColumnasDropdown(this)">
-						<option value="">Calculado</option>
-						<option value="{{ $.AgregadoConsulta.TablaOrigen.Abrev }}">{{ $.AgregadoConsulta.TablaOrigen.Abrev }} ({{ $.AgregadoConsulta.TablaOrigen.NombreRepo }})</option>
-						{{ range .Relaciones }}
-						<option value="{{ .JoinAs }}">{{ .JoinAs }} ({{ .Join.Tabla.NombreRepo }})</option>
-						{{ end }}
-					</select>
-				</div>
-				<div>
-					<input tipo="expresion" class="form-control" type="text" name="expresion" value="" placeholder="">
-				</div>
-				<div>
-					<button type="submit" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-blue-700 rounded shadow-md hover:bg-blue-600">
-						Agregar
-					</button>
-				</div>
-				<div>
-					<button
-						type="button"
-						title="Seleccionar campos para quitar"
-						onclick="console.log(this.closest('section').querySelectorAll(`button[tipo='delete']`).forEach(e => { e.classList.remove('hidden') }))"
-						class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-gray-700 rounded shadow-md hover:bg-gray-600">
-						Quitar campos
-					</button>
-				</div>
-			</form>
-
-			{{ if .Campos }}
-			<table class="w-full p-4 text-center border-separate table-auto border-spacing-y-1">
-				<thead>
-					<tr class="bg-slate-400 dark:bg-slate-900">
-						<th></th>
-						<th>Origen</th>
-						<th title="">Columna / Expresión*</th>
-						<th title="">Alias</th>
-						<th title="">Campo Go*</th>
-						<th title="">Tipo Go*</th>
-						<th title="">PK</th>
-						<th title="">Filtro</th>
-						<th title="">GroupBy</th>
-						<th title="">Descripción</th>
-					</tr>
-				</thead>
-				<tbody id="campos_tbody"
-					hx-get="/consultas/{{ .Consulta.ConsultaID }}"
-					hx-trigger="recargarCampos"
-					hx-target="this"
-					hx-swap="innerHTML"
-					hx-select="#campos_tbody > *">
-					{{ range .Campos -}}
-					{{ template "consultas/campo-tr" . }}
-					{{ end }}
-				</tbody>
-			</table>
-			{{ end }}
 		</div>
 	</section>
 

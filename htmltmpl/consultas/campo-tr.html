@@ -1,6 +1,5 @@
 <tr gk-posicion="{{ .Posicion }}" class="bg-slate-800/25 hover:bg-slate-800/50">
-	<td tipo="handle" class="text-left cursor-move whitespace-nowrap">⣿ {{ .Posicion }}</td>
-	<td>
+	<td tipo="handle" class="text-left cursor-move whitespace-nowrap">⣿ {{ .Posicion }}
 		<button
 			type="button"
 			tipo="delete"
@@ -10,13 +9,6 @@
 			hx-select="#campos"
 			class="hidden">
 			🚮
-		</button>
-		<button 
-			type="button"
-			hx-put="/consultas/{{ .ConsultaID }}/campos/{{ .Posicion }}"
-			hx-include="closest tr"
-			class="hidden">
-			💾
 		</button>
 	</td>
 	<td class="w-1/4">
