@@ -33,6 +33,8 @@ github.com/pargomx/gecko v0.0.0-20240731073343-f203c5d6c532 h1:Y0AB+DwZlPpD41HrH
 github.com/pargomx/gecko v0.0.0-20240731073343-f203c5d6c532/go.mod h1:smNCz0bpsalO4m25o2c/FtOWHBHSHzhx8sFoGc7p1ik=
 github.com/pargomx/gecko v0.0.0-20241224194254-a82a2588ce27 h1:M2y1LoRRa423mox9utReAKuqXcva8MDLz5lkHe0ecfI=
 github.com/pargomx/gecko v0.0.0-20241224194254-a82a2588ce27/go.mod h1:smNCz0bpsalO4m25o2c/FtOWHBHSHzhx8sFoGc7p1ik=
+github.com/pargomx/gecko v0.0.0-20250121042711-04532da9ff0e h1:qwtJFVdDylSTRu7KTTYf8b40B6BQ4DPBihRXx/KBDQ0=
+github.com/pargomx/gecko v0.0.0-20250121042711-04532da9ff0e/go.mod h1:omwZso+LLse9OVkJqKODdB9pUg874yiWTXzt4QwsTWo=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 golang.org/x/mod v0.17.0 h1:zY54UmvipHiNd+pm+m0x9KhZ9hl1/7QNMyxXbc6ICqA=

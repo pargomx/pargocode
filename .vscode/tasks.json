@@ -2,35 +2,24 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "tailwind", "detail": "Compilar estilos CSS",
-			"command": "tailwindcss -i ./assets/source.css -o ./assets/css/estilo.css",
-			"type": "shell", "presentation": { "echo": true, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
+			"label": "Run", "detail": "Ejecutar en ambiente de desarrollo",
+			"command": "CGO_ENABLED=0 go run -ldflags \"-X main.BUILD_INFO=campus:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=DEV\" ./pargocode/ -src=$(realpath .) -dir _ejemplo",
+			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
 		{
-			"label": "tailwind watch", "detail": "Compilar estilos CSS",
-			"command": "tailwindcss -w -i ./assets/source.css -o ./assets/css/estilo.css",
-			"isBackground": true,
-			"type": "shell", "presentation": { "echo": true, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
+			"label": "Install", "detail": "Ejecutar en ambiente de desarrollo",
+			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=campus:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=PROD\"; echo 'Instalado ºuº)/'",
+			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
-		
 		{
-			"label": "install", "detail": "Instalar aplicación modo desarrollo",
-			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=\"$(date '+%Y-%m-%d%n'):$(git log --format=\"%H\" -n 1)\" -X main.AMBIENTE=DEV\" ./pargocode && echo 'app instalada!'",
-			"type": "shell", "presentation": { "echo": true, "reveal": "silent", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
+			"label": "Tailwind", "detail": "Tailwind watch",
+			"command": "tailwindcss -w -i ./assets/source.css -o ./assets/css/tailwind.css",
+			"type": "shell", "presentation": { "echo": false, "reveal": "silent", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
-		
 		{
-			"label": "start", "detail": "Ejecutar pargocode",
-			"command": "pargocode -src=$(realpath .) -dir ../../holamundo",
-			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "panel": "shared", "showReuseMessage": false, "clear": false },
-			"isBackground": true,
-			"dependsOrder": "sequence", "dependsOn": ["install"]
+			"label": "Tailwind once", "detail": "Tailwind compile once",
+			"command": "tailwindcss -i ./assets/source.css -o ./assets/css/tailwind.css",
+			"type": "shell", "presentation": { "echo": false, "reveal": "silent", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
 	],
-	"inputs": [
-		{
-			"id": "remoteHost", "description": "Dirección del remote host",
-			"default": "avenet.mx", "type": "promptString"
-		},
-	]
 }

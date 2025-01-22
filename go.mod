@@ -6,7 +6,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/glebarez/go-sqlite v1.22.0
 	github.com/manifoldco/promptui v0.9.0
-	github.com/pargomx/gecko v0.0.0-20241224194254-a82a2588ce27
+	github.com/pargomx/gecko v0.0.0-20250121042711-04532da9ff0e
 	golang.org/x/text v0.16.0
 )
 
