@@ -17,7 +17,7 @@ func (s *servidor) agregarPaquete(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.Redir("/paquetes")
+	return c.RedirFullf("/paquetes")
 }
 
 func (s *servidor) eliminarPaquete(c *gecko.Context) error {
@@ -25,7 +25,7 @@ func (s *servidor) eliminarPaquete(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.Redir("/paquetes")
+	return c.RedirFullf("/paquetes")
 }
 
 func (s *servidor) actualizarPaquete(c *gecko.Context) error {
@@ -40,5 +40,5 @@ func (s *servidor) actualizarPaquete(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.Redir("/paquetes")
+	return c.RedirFullf("/paquetes")
 }

@@ -31,7 +31,7 @@ func (s *servidor) postTablaNueva(c *gecko.Context) error {
 		return err
 	}
 	gko.LogInfof("Tabla nueva '%s'", tbl.NombreRepo)
-	return c.Redirf("/tablas/%d", tbl.TablaID)
+	return c.RedirFullf("/tablas/%d", tbl.TablaID)
 }
 
 // ================================================================ //
@@ -73,5 +73,5 @@ func (s *servidor) eliminarTabla(c *gecko.Context) error {
 		return err
 	}
 	gko.LogInfof("Tabla '%s' eliminada", tbl.NombreRepo)
-	return c.Redir("/paquetes")
+	return c.RedirFullf("/paquetes")
 }

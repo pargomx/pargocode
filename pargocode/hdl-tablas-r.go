@@ -36,7 +36,7 @@ func (s *servidor) getTabla(c *gecko.Context) error {
 
 func (s *servidor) getTablaNueva(c *gecko.Context) error {
 	if c.EsHTMX() {
-		return c.Redirf("/tablas/nueva?etiqueta=%v&paquete_id=%v", c.Request().Header.Get("HX-Prompt"), c.QueryInt("paquete_id"))
+		return c.RedirFullf("/tablas/nueva?etiqueta=%v&paquete_id=%v", c.Request().Header.Get("HX-Prompt"), c.QueryInt("paquete_id"))
 	}
 	tbl := ddd.Tabla{
 		PaqueteID: c.QueryInt("paquete_id"),

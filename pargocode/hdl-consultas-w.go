@@ -28,7 +28,7 @@ func (s *servidor) crearConsulta(c *gecko.Context) error {
 		return err
 	}
 	gko.LogOkeyf("Consulta %v creada %v", con.ConsultaID, time.Now().Format("03:04:05pm"))
-	return c.Redirf("/consultas/%v", con.ConsultaID)
+	return c.RedirFullf("/consultas/%v", con.ConsultaID)
 }
 
 func (s *servidor) actualizarConsulta(c *gecko.Context) error {
@@ -56,7 +56,7 @@ func (s *servidor) deleteConsulta(c *gecko.Context) error {
 		return err
 	}
 	gko.LogEvento("consulta eliminada")
-	return c.Redir("/paquetes")
+	return c.RedirFullf("/paquetes")
 }
 
 // ================================================================ //
