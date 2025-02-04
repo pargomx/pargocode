@@ -260,11 +260,13 @@ func (tbl tabla) CamposSeleccionadosAsFuncParams() (ArgsFunc string) {
 // Si nombreVariable está definida, se usa como prefijo:
 //
 //	"apr.UsuarioID, apr.ProgramaID"
-func CamposTablaAsArguments(campos []CampoTabla, nombreVariable string) (s string) {
+func (tbl tabla) CamposTablaAsArguments(campos []CampoTabla, nombreVariable string) (s string) {
 	if nombreVariable != "" {
 		for _, campo := range campos {
 			if campo.EsPropiedadExtendida() {
 				s += nombreVariable + "." + campo.NombreCampo + ".String, "
+			} else if tbl.Sqlite && campo.EsTiempo() { // TODO: tratar otros tipos de tiempo de maneras diferentes.
+				s += nombreVariable + "." + campo.NombreCampo + ".Format(gko.FormatoFechaHora), "
 			} else {
 				s += nombreVariable + "." + campo.NombreCampo + ", "
 			}
@@ -282,13 +284,13 @@ func CamposTablaAsArguments(campos []CampoTabla, nombreVariable string) (s strin
 }
 
 func (tbl tabla) PrimaryKeysAsArguments(nombreVariable string) (ArgsWhere string) {
-	return CamposTablaAsArguments(tbl.PrimaryKeys(), nombreVariable)
+	return tbl.CamposTablaAsArguments(tbl.PrimaryKeys(), nombreVariable)
 }
 func (tbl tabla) CamposEditablesAsArguments(nombreVariable string) (lista string) {
-	return CamposTablaAsArguments(tbl.CamposEditables(), nombreVariable)
+	return tbl.CamposTablaAsArguments(tbl.CamposEditables(), nombreVariable)
 }
 func (tbl tabla) CamposSeleccionadosAsArguments(nombreVariable string) (lista string) {
-	return CamposTablaAsArguments(tbl.CamposSeleccionados, nombreVariable)
+	return tbl.CamposTablaAsArguments(tbl.CamposSeleccionados, nombreVariable)
 }
 
 // ================================================================ //
@@ -307,17 +309,17 @@ func (tbl *tabla) SqlGroupClause(separador string) string {
 // ========== Scan ================================================ //
 
 func (tbl *tabla) ScanTempVars() string {
-	return ScanTempVarsTabla(tbl.Campos)
+	return tbl.ScanTempVarsTabla(tbl.Campos)
 }
 func (tbl *tabla) ScanArgs() string {
-	return ScanArgsTabla(tbl.Campos, tbl.Tabla.Abrev)
+	return tbl.ScanArgsTabla(tbl.Campos, tbl.Tabla.Abrev)
 }
 func (tbl *tabla) ScanSetters() string {
-	return ScanSettersTabla(tbl.Campos, tbl.Tabla.Abrev)
+	return tbl.ScanSettersTabla(tbl.Campos, tbl.Tabla.Abrev)
 }
 
 // 1. Variables para que rows.Scan() pueda colocar los valores obtenidos de la base de datos.
-func ScanTempVarsTabla(campos []CampoTabla) string {
+func (tbl *tabla) ScanTempVarsTabla(campos []CampoTabla) string {
 	res := ""
 	for _, campo := range campos {
 		switch {
@@ -326,6 +328,9 @@ func ScanTempVarsTabla(campos []CampoTabla) string {
 
 		// case campo.TipoImportado && campo.TipoSetter != "":
 		// res += "\n\tvar " + campo.Variable() + " string" // ej. var tipoImportado string
+
+		case tbl.Sqlite && campo.EsTiempo():
+			res += "\n\tvar " + campo.Variable() + " string" // ej. var fechaModif string
 
 		case campo.TipoGo == "*time.Time" && campo.EsPointer():
 			res += "\n\tvar " + campo.Variable() + " sql.NullTime" // ej. var fechaModif sql.NullTime
@@ -355,7 +360,7 @@ func ScanTempVarsTabla(campos []CampoTabla) string {
 // 2. Argumentos para llamar a rows.Scan() o row.Scan() en forma de pointers.
 //
 // El itemVar es el nombre de la variable de la estructura. Ej. "usu" para resultar en &usu.UsuarioID, &usu.Nombre
-func ScanArgsTabla(campos []CampoTabla, itemVar string) string {
+func (tbl *tabla) ScanArgsTabla(campos []CampoTabla, itemVar string) string {
 	if itemVar == "" {
 		gko.LogWarnf("itemVar indefinida para ScanArgs")
 	}
@@ -365,6 +370,9 @@ func ScanArgsTabla(campos []CampoTabla, itemVar string) string {
 		switch {
 		case campo.EsPropiedadExtendida():
 			args += campo.Variable() // ej. &tipo
+
+		case tbl.Sqlite && campo.EsTiempo():
+			args += campo.Variable() // ej. &fechaModif
 
 		// case campo.TipoImportado && campo.TipoSetter != "":
 		// args += campo.Variable() // ej. &tipoImportado
@@ -407,7 +415,7 @@ func ScanArgsTabla(campos []CampoTabla, itemVar string) string {
 // 3. Tasnformar variables temporales que usa row.Scan para ponerlas en el Item.
 //
 // El itemVar es el nombre de la variable de la estructura. Ej. "usu" para resultar en usu.SetEstatusDB(...), usu.FechaBaja = (...)
-func ScanSettersTabla(campos []CampoTabla, itemVar string) string {
+func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 	if itemVar == "" {
 		gko.LogWarnf("itemVar indefinida para ScanSetters")
 	}
@@ -422,10 +430,23 @@ func ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 
 			// ================================================================ //
 
-		// case c.TipoImportado && c.TipoSetter != "": // ej. usu.TipoImportado = importado.SetTipoDB(tipo)
-		// gko.LogWarnf("Usando TipoImportado no implementado")
-		// res += itemVar + "." + c.NombreCampo + " = " + strings.ReplaceAll(c.TipoSetter, "?", c.Variable())
-		// ================================================================ //
+			// case c.TipoImportado && c.TipoSetter != "": // ej. usu.TipoImportado = importado.SetTipoDB(tipo)
+			// gko.LogWarnf("Usando TipoImportado no implementado")
+			// res += itemVar + "." + c.NombreCampo + " = " + strings.ReplaceAll(c.TipoSetter, "?", c.Variable())
+			// ================================================================ //
+
+		case tbl.Sqlite && c.EsTiempo():
+			tmpVar := c.Variable()
+			res += fmt.Sprintf(`
+			if len(%s) == 19 {
+				%s.%s, err = time.Parse(gko.FormatoFechaHora, %s)
+				if err != nil {
+					return nil, gko.ErrInesperado().Err(err).Op(op)
+				}
+			} else {
+				return nil, gko.ErrInesperado().Op(op).Str("%s no tiene formato correcto en db")
+			}
+			`, tmpVar, itemVar, c.NombreCampo, tmpVar, c.NombreColumna)
 
 		case c.TipoGo == "*time.Time" && c.EsPointer(): // ej. if fechaBaja.Valid { apr.FechaBaja = &fechaBaja.Time }
 

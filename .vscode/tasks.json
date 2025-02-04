@@ -7,7 +7,7 @@
 			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
 		{
-			"label": "Install", "detail": "Ejecutar en ambiente de desarrollo",
+			"label": "Install", "detail": "Instalar versión de producción en computadora actual",
 			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=campus:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=PROD\" ./pargocode && echo 'Instalado ºuº)/'",
 			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
