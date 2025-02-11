@@ -7,7 +7,7 @@ func (s *Repositorio) scanRow{{ .NombreItem }}(row *sql.Row, {{ .NombreAbrev }} 
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return gko.ErrNoEncontrado().Msg("{{ .TablaOrigen.Humano }} no se encuentra")
+			return gko.ErrNoEncontrado().Msg("{{ .TablaOrigen.Humano }} no encontrado")
 		}
 		return gko.ErrInesperado().Err(err)
 	}
