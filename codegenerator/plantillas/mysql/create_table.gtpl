@@ -20,7 +20,7 @@ CREATE TABLE `{{ .Tabla.NombreRepo }}` (
   UNIQUE KEY `{{ $.Tabla.NombreAbrev }}_{{ .NombreColumna }}_UNIQUE` (`{{ .NombreColumna }}`)
 {{- end }}
 
-{{- range .Tabla.TablasFK }},
-  CONSTRAINT `{{ .EntidadFK.NombreAbrev }}_{{ $.Tabla.NombreColumnaPlural }}` FOREIGN KEY (`{{ .CampoFK.NombreColumna }}`) REFERENCES `{{ .EntidadFK.NombreRepo }}` (`{{ .CampoPK.NombreColumna }}`) ON DELETE RESTRICT ON UPDATE CASCADE
+{{- range .Tabla.ForeignKeys }},
+  CONSTRAINT `{{ .TablaFK.Abrev }}_{{ $.Tabla.NombreRepo }}` FOREIGN KEY (`{{ .NombreColumna }}`) REFERENCES `{{ .TablaFK.NombreRepo }}` (`{{ .CampoFK.NombreColumna }}`) ON DELETE RESTRICT ON UPDATE CASCADE
 {{- end }}
 );
