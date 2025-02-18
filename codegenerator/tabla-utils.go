@@ -266,7 +266,7 @@ func (tbl tabla) CamposTablaAsArguments(campos []CampoTabla, nombreVariable stri
 			if campo.EsPropiedadExtendida() {
 				s += nombreVariable + "." + campo.NombreCampo + ".String, "
 			} else if tbl.Sqlite && campo.EsTiempo() { // TODO: tratar otros tipos de tiempo de maneras diferentes.
-				s += nombreVariable + "." + campo.NombreCampo + ".Format(gko.FormatoFechaHora), "
+				s += nombreVariable + "." + campo.NombreCampo + ".Format(gkt.FormatoFechaHora), "
 			} else {
 				s += nombreVariable + "." + campo.NombreCampo + ", "
 			}
@@ -439,14 +439,15 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 			tmpVar := c.Variable()
 			res += fmt.Sprintf(`
 			if len(%s) == 19 {
-				%s.%s, err = time.Parse(gko.FormatoFechaHora, %s)
+				%s.%s, err = time.Parse(gkt.FormatoFechaHora, %s)
 				if err != nil {
-					return nil, gko.ErrInesperado().Err(err).Op(op)
+					gko.ErrInesperado().Op("scanRow%s").Str("%s no tiene formato correcto en db").Err(err).Log()
 				}
 			} else {
-				return nil, gko.ErrInesperado().Op(op).Str("%s no tiene formato correcto en db")
+				gko.ErrInesperado().Op("scanRow%s").Str("%s no tiene formato correcto en db").Log()
 			}
-			`, tmpVar, itemVar, c.NombreCampo, tmpVar, c.NombreColumna)
+			`, tmpVar, itemVar, c.NombreCampo, tmpVar,
+				tbl.NombreItem(), c.NombreColumna, tbl.NombreItem(), c.NombreColumna)
 
 		case c.TipoGo == "*time.Time" && c.EsPointer(): // ej. if fechaBaja.Valid { apr.FechaBaja = &fechaBaja.Time }
 
