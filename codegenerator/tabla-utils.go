@@ -137,7 +137,9 @@ func (tbl *tabla) CamposRequeridosOrPK() []CampoTabla {
 	res := []CampoTabla{}
 	for _, c := range tbl.Campos {
 		if c.Required() || c.PrimaryKey {
-			res = append(res, c)
+			if !c.ReadOnly() {
+				res = append(res, c)
+			}
 		}
 	}
 	return res
