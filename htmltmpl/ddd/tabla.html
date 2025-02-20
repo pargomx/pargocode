@@ -216,11 +216,22 @@
 			</h3>
 			<button type="button" class="w-10 py-1 text-xl bg-cyan-900 rounded-lg hover:bg-cyan-950" onclick="helpDirectrices.showModal()" title="Ayuda"><i class="fa-solid fa-question"></i></button>
 		</header>
-		<div class="grid p-4 md:grid-cols-2">
+		<div class="flex flex-col p-4">
 			
-			<div hx-put="/tablas/{{ .Tabla.TablaID }}" hx-include="#tablaForm" hx-target="#status_nombre" hx-trigger="submit,cmdGuardar,change delay:1s">
+			<div
+				hx-put="/tablas/{{ .Tabla.TablaID }}"
+				hx-include="#tablaForm"
+				hx-target="#status_nombre"
+				hx-trigger="submit,cmdGuardar,change delay:1s">
 				<label for="directrices">Directrices para generar código</label>
-				<textarea class="form-control" form="tablaForm" name="directrices" id="directrices" cols="30" rows="5">{{- .Tabla.Directrices -}}</textarea>
+				<textarea id="directrices"
+					name="directrices"
+					cols="30"
+					rows="5"
+					form="tablaForm"
+					class="font-mono form-control">
+					{{- .Tabla.Directrices -}}
+				</textarea>
 			</div>
 			
 			<div class="flex flex-wrap items-center justify-center gap-4">

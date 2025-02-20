@@ -248,11 +248,22 @@
 				Generar código
 			</h3>
 		</header>
-		<div class="grid p-4 md:grid-cols-2">
+		<div class="flex flex-col p-4">
 
-			<div hx-put="/consultas/{{ .Consulta.ConsultaID }}" hx-include="#nombreForm" hx-target="#status_nombre" hx-trigger="submit,cmdGuardar,change delay:1s">
+			<div
+				hx-put="/consultas/{{ .Consulta.ConsultaID }}"
+				hx-include="#nombreForm"
+				hx-target="#status_nombre"
+				hx-trigger="submit,cmdGuardar,change delay:1s">
 				<label for="directrices">Directrices para generar código</label>
-				<textarea class="form-control" form="nombreForm" name="directrices" id="directrices" cols="30" rows="5">{{- .Consulta.Directrices -}}</textarea>
+				<textarea id="directrices"
+					form="nombreForm"
+					name="directrices"
+					cols="30"
+					rows="5"
+					class="font-mono form-control">
+					{{- .Consulta.Directrices -}}
+				</textarea>
 			</div>
 
 			<div class="flex flex-wrap items-center justify-center gap-4">
