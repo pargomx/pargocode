@@ -1,6 +1,7 @@
 package gkfmt
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/pargomx/gecko/gko"
@@ -23,17 +24,35 @@ type parser struct {
 
 	indentActual  int  // current indent level
 	inVoidElement bool // current self-closing tag
+
+	stackOfTags []string
+	openTag     *openTag // open tag actual si la hay.
+	nodos       []nodo
 }
 
-func ParseTokens(html string) []token {
-	p := parser{
+func FormatGeckoTemplate(html string, builder *strings.Builder, fmtConTokens bool) []token {
+	s := parser{
 		inputHTML:         html,
 		extractor:         &extractor{},
 		tokens:            []token{},
 		tipoTokenAnterior: tipoInnerHtml, // Estado inicial para extractor.
 	}
-	p.parseRecursive()
-	return p.tokens
+	s.parseRecursive()
+	s.tokensToElements()
+
+	// Ambas formas de dar formato
+	if fmtConTokens {
+		for _, token := range s.tokens {
+			builder.WriteString(fmt.Sprintf("%v%v\n", strings.Repeat("\t", token.Indent), token.Txt))
+		}
+
+	} else {
+		for _, nodo := range s.nodos {
+			builder.WriteString(nodo.String() + "\n")
+		}
+	}
+
+	return s.tokens
 }
 
 func (s *parser) parseRecursive() {

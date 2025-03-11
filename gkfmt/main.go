@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"monorepo/gkfmt/gkfmt"
 	"os"
 	"strings"
@@ -16,6 +15,7 @@ func main() {
 
 	inputFile := flag.String("i", "input.html", "Input file path")
 	outputFile := flag.String("o", "output.html", "Output file path")
+	useTokens := flag.Bool("t", false, "Format using only tokens (dumb)")
 	flag.Parse()
 
 	start := time.Now()
@@ -25,14 +25,8 @@ func main() {
 		gko.FatalError(err)
 	}
 
-	startParse := time.Now()
-	tokens := gkfmt.ParseTokens(string(bytes))
-	timeParse := time.Since(startParse)
-
 	var builder strings.Builder
-	for _, token := range tokens {
-		builder.WriteString(fmt.Sprintf("%v%v\n", strings.Repeat("\t", token.Indent), token.Txt))
-	}
+	gkfmt.FormatGeckoTemplate(string(bytes), &builder, *useTokens)
 
 	file, err := os.Create(*outputFile)
 	if err != nil {
@@ -44,5 +38,5 @@ func main() {
 		gko.FatalError(err)
 	}
 
-	gko.LogEventof("Saved %v tokens in %v (parsed in %v)", len(tokens), time.Since(start), timeParse)
+	gko.LogEventof("Formated in %v", time.Since(start))
 }
