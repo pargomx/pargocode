@@ -31,5 +31,17 @@
 			"command": "CGO_ENABLED=0 go run -ldflags \"-X main.BUILD_INFO=gkfmt:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)\" ./gkfmt -i gkfmt/input.html -o gkfmt/output.html ",
 			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
+		{
+			"label": "Debug gkfmt", "detail": "Ejecutar en archivo de prueba",
+			"command": "CGO_ENABLED=0 go run -ldflags \"-X main.BUILD_INFO=gkfmt:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)\" ./gkfmt -i gkfmt/input.html -o gkfmt/output.html -d 2>&1 | grep --color=always -B 6 -A 6 '${input:debugSearch}'",
+			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "clear": true, "showReuseMessage": false }, "isBackground": true,
+		},
 	],
+
+	"inputs": [
+		{
+			"id": "debugSearch", "description": "Cadena a buscar en el debug de gkfmt",
+			"default": "", "type": "promptString"
+		},
+	]
 }

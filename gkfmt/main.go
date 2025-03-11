@@ -25,6 +25,7 @@ func main() {
 	flag.StringVar(&inputFile, "i", "input.html", "Input file path")
 	flag.StringVar(&outputFile, "o", "", "Output file path. Default: rewrite input")
 	useTokens := flag.Bool("t", false, "Format using only tokens (dumb)")
+	debug := flag.Bool("d", false, "Debug mode: print each token")
 	flag.Parse()
 
 	start := time.Now()
@@ -35,7 +36,7 @@ func main() {
 	}
 
 	var builder strings.Builder
-	gkfmt.FormatGeckoTemplate(string(bytes), &builder, *useTokens)
+	gkfmt.FormatGeckoTemplate(string(bytes), &builder, *useTokens, *debug)
 
 	if outputFile == "" {
 		outputFile = inputFile

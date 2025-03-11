@@ -11,11 +11,12 @@ import (
 // ================================================================ //
 // ========== PARSE =============================================== //
 
-const RECURSION_LIMIT = 90900
-const MAX_TOKEN_LENGHT = 2000 // caracteres
+const RECURSION_LIMIT = 90900 // vueltas máximas para extraer tokens, evitando runaway code.
+const MAX_TOKEN_LENGHT = 2000 // caracteres máximos de un token, para señala que hubo un error en el parse.
 
 type parser struct {
-	html string // input html
+	html  string // input html
+	debug bool
 
 	extractor         *extractor
 	tokens            []token
@@ -31,8 +32,9 @@ type parser struct {
 	nodos       []nodo
 }
 
-func FormatGeckoTemplate(html string, builder *strings.Builder, fmtConTokens bool) []token {
+func FormatGeckoTemplate(html string, builder *strings.Builder, fmtConTokens bool, debug bool) []token {
 	s := parser{
+		debug:             debug,
 		html:              html,
 		extractor:         &extractor{},
 		tokens:            []token{},
@@ -120,7 +122,9 @@ func (s *parser) parseRecursive() {
 		token.Indent = s.indentActual
 	}
 
-	// gko.LogDebugf("%03d %v: %v'%v'", f.level, token.Tipo(), strings.Repeat("  ", token.Indent), token.Txt)
+	if s.debug {
+		gko.LogDebugf("%03d %v: %v'%v'", s.level, token.Tipo(), strings.Repeat("  ", token.Indent), token.Txt)
+	}
 
 	// Guardar token
 	s.tokens = append(s.tokens, token)
