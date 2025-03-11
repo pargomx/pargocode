@@ -65,12 +65,20 @@ func (o *openTag) String() string {
 	indent1 := strings.Repeat("\t", o.indent)
 	indent2 := strings.Repeat("\t", o.indent+1)
 
-	primeraLinea := o.tag
-
 	// Si tiene un atributo cualquiera, poner inline.
 	if len(o.attr) == 1 {
-		return fmt.Sprintf("%s<%s %s>", indent1, primeraLinea, o.attr[0])
+		return fmt.Sprintf("%s<%s %s>", indent1, o.tag, o.attr[0])
 	}
+
+	// Si todos sus atributos no abarcan mucho, poner inline siempre y cuando...
+	if inlineAttrs := strings.Join(o.attr, " "); len(inlineAttrs) < 120 {
+		if o.tag == "option" {
+			return fmt.Sprintf("%s<%s %s>", indent1, o.tag, inlineAttrs)
+		}
+	}
+
+	// Sino comenzar a construir con atributos mixtos (inline y separados)
+	primeraLinea := o.tag
 
 	// El id, tipo y class siempre van inline en ese orden.
 	if atrib := o.sacarAtributoEq("id"); atrib != "" {
