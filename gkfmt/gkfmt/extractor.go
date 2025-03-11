@@ -48,15 +48,16 @@ func (e *extractor) tokenAnteriorAlEncontrado(loc []int, tipo tipo) token {
 }
 
 var (
-	regWhitespace = regexp.MustCompile(`\s+`)
-	regAnyTagBeg  = regexp.MustCompile(`<`)
-	regOpenTagBeg = regexp.MustCompile(`<\w+`)
-	regAtributo   = regexp.MustCompile(`([a-zA-Z\-:]+)(\s*=\s*("[^"]*"|'[^']*'|[^>\s]+))?`)
-	regOpenTagEnd = regexp.MustCompile(`>`)
-	regClosingTag = regexp.MustCompile(`<\/[a-zA-Z][a-zA-Z0-9]*\s*>`)
-	regComentario = regexp.MustCompile(`(<!--[\s\S]*?-->)`)
-	regScript     = regexp.MustCompile(`<script[\s\S]*?</script>`)
-	regGoTemplate = regexp.MustCompile(`({{[\s\S]*?}})`)
+	regExtraNewLine = regexp.MustCompile(`[\s]*\n[\s]*\n[\s]*`) // line breaks intencionales.
+	regWhitespace   = regexp.MustCompile(`\s+`)                 // espacio a ignorar.
+	regAnyTagBeg    = regexp.MustCompile(`<`)
+	regOpenTagBeg   = regexp.MustCompile(`<\w+`)
+	regAtributo     = regexp.MustCompile(`([a-zA-Z\-:]+)(\s*=\s*("[^"]*"|'[^']*'|[^>\s]+))?`)
+	regOpenTagEnd   = regexp.MustCompile(`>`)
+	regClosingTag   = regexp.MustCompile(`<\/[a-zA-Z][a-zA-Z0-9]*\s*>`)
+	regComentario   = regexp.MustCompile(`(<!--[\s\S]*?-->)`)
+	regScript       = regexp.MustCompile(`<script[\s\S]*?</script>`)
+	regGoTemplate   = regexp.MustCompile(`({{[\s\S]*?}})`)
 )
 
 func (s *parser) IdentificarSiguienteToken(anterior tipo) token {
@@ -64,6 +65,7 @@ func (s *parser) IdentificarSiguienteToken(anterior tipo) token {
 	e := s.extractor
 
 	Whitespace := regWhitespace.FindStringIndex(s.html)
+	ExtraNewLine := regExtraNewLine.FindStringIndex(s.html)
 	AnyTagBeg := regAnyTagBeg.FindStringIndex(s.html)
 	OpenTagBeg := regOpenTagBeg.FindStringIndex(s.html)
 	Atributo := regAtributo.FindStringIndex(s.html)
@@ -73,8 +75,17 @@ func (s *parser) IdentificarSiguienteToken(anterior tipo) token {
 	Script := regScript.FindStringIndex(s.html)
 	GoTemplate := regGoTemplate.FindStringIndex(s.html)
 
+	if e.comienzaPor(ExtraNewLine) {
+		s.html = s.html[Whitespace[1]:]
+		return token{
+			tipo:   tipoExtraNewLine,
+			Txt:    "",
+			Indent: 0,
+		}
+	}
+
 	if e.comienzaPor(Whitespace) {
-		e.s.html = s.html[Whitespace[1]:] // trim whitespace
+		s.html = s.html[Whitespace[1]:] // trim whitespace
 		return s.IdentificarSiguienteToken(anterior)
 	}
 

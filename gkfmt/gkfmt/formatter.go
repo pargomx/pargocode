@@ -14,6 +14,7 @@ type nodo struct {
 	closingTag string   // ejemplo: </div>
 	comment    string   // comentario html
 	contenido  []string // Texto normal. inner text, or <!-- comment -->, or {{ .Something }}
+	extraSpace bool     // Si solamente es un salto de línea adicional
 
 	indent int // nivel de indentación
 }
@@ -42,6 +43,9 @@ func (n *nodo) String() string {
 	}
 	if len(n.contenido) > 0 {
 		return indent + strings.Join(n.contenido, "\n"+indent)
+	}
+	if n.extraSpace {
+		return ""
 	}
 
 	return "ERROR"
@@ -160,6 +164,11 @@ func (s *parser) tokenToElement(token token) {
 
 	case tipoGoTemplate:
 		s.agregarGoSintax(token)
+
+	case tipoExtraNewLine:
+		s.nodos = append(s.nodos, nodo{
+			extraSpace: true,
+		})
 
 	case tipoScript, tipoInnerHtml:
 		s.nodos = append(s.nodos, nodo{

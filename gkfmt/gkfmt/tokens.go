@@ -18,14 +18,15 @@ func newComparador(base tipo) func(tipo) bool {
 }
 
 const (
-	tipoInnerHtml  tipo = iota // Contenido que puede ser texto y ya no contiene nignún "<"
-	tipoOpenTagBeg             // <button
-	tipoAtributo               // hx-get="/x", required, class="{{ if not .Show }}hidden {{ end }}"
-	tipoOpenTagEnd             // >
-	tipoClosingTag             // </button>
-	tipoComentario             // <!-- Comentario -->
-	tipoScript                 // <script> ... </script>
-	tipoGoTemplate             // {{ .Something }}
+	tipoInnerHtml    tipo = iota // Contenido que puede ser texto y ya no contiene nignún "<"
+	tipoOpenTagBeg               // <button
+	tipoAtributo                 // hx-get="/x", required, class="{{ if not .Show }}hidden {{ end }}"
+	tipoOpenTagEnd               // >
+	tipoClosingTag               // </button>
+	tipoComentario               // <!-- Comentario -->
+	tipoScript                   // <script> ... </script>
+	tipoGoTemplate               // {{ .Something }}
+	tipoExtraNewLine             // Espacio vertical intencional.
 )
 
 func (t token) Tipo() string {
@@ -38,6 +39,7 @@ func (t token) Tipo() string {
 		"coment",
 		"script",
 		"gotmpl",
+		"__br__",
 	}[t.tipo]
 }
 
