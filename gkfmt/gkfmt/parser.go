@@ -2,6 +2,7 @@ package gkfmt
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/pargomx/gecko/gko"
@@ -50,8 +51,25 @@ func FormatGeckoTemplate(html string, builder *strings.Builder, fmtConTokens boo
 		for _, nodo := range s.nodos {
 			builder.WriteString(nodo.String() + "\n")
 		}
-	}
+		html := builder.String()
+		builder.Reset()
 
+		// Quitar espacio entre tags que solo tengan espacio dentro y nada más.
+		// Match groups: 1,3 resultado. 2,4 deben ser iguales. 0 es todo lo original.
+		re := regexp.MustCompile(`(<([a-zA-Z0-9]+)[^>]*?>)\s+(<\/(\w+)>)`)
+		html = re.ReplaceAllStringFunc(html, func(match string) string {
+			matches := re.FindStringSubmatch(match)
+			if len(matches) == 5 {
+				// gko.LogDebugf("\n0 '%s'\n1 '%s'\n2 '%s'\n3 '%s'\n4 '%s'", matches[0], matches[1], matches[2], matches[3], matches[4])
+				if matches[2] == matches[4] {
+					return matches[1] + matches[3]
+				}
+			}
+			return match
+		})
+
+		builder.WriteString(html)
+	}
 	return s.tokens
 }
 
