@@ -2,6 +2,8 @@ package gkfmt
 
 import (
 	"fmt"
+	"slices"
+	"sort"
 	"strings"
 
 	"github.com/pargomx/gecko/gko"
@@ -43,18 +45,83 @@ func (n *nodo) String() string {
 	return "ERROR"
 }
 
+// Ordena los atributos y aplica reglas de poner en una o varias líneas.
 func (o *openTag) String() string {
-	// TODO: ordenar atributos y aplicar reglas aquí.
+
+	// TODO: juntar atributos condicionales entre {{ go }} para no romperlos.
+
+	sort.SliceStable(o.attr, func(i, j int) bool {
+		pi, pj := getAttrPriority(o.attr[i]), getAttrPriority(o.attr[j])
+		if pi == pj { // si son de la misma prioridad entonces alfabéticamente.
+			return o.attr[i] < o.attr[j]
+		}
+		return pi < pj
+	})
+
 	indent1 := strings.Repeat("\t", o.indent)
 	indent2 := strings.Repeat("\t", o.indent+1)
+
+	primeraLinea := o.tag
+
+	// Si tiene un atributo cualquiera, poner inline.
+	if len(o.attr) == 1 {
+		return fmt.Sprintf("%s<%s %s>", indent1, primeraLinea, o.attr[0])
+	}
+
+	// El id, tipo y class siempre van inline en ese orden.
+	if atrib := o.sacarAtributoEq("id"); atrib != "" {
+		primeraLinea += " " + atrib
+	}
+	if atrib := o.sacarAtributoEq("tipo"); atrib != "" {
+		primeraLinea += " " + atrib
+	}
+	if atrib := o.sacarAtributoEq("class"); atrib != "" {
+		primeraLinea += " " + atrib
+	}
+
+	// Si no hay ningún atributo más allá de id, tipo, class dejar inline.
+	if len(o.attr) == 0 {
+		return fmt.Sprintf("%s<%s>", indent1, primeraLinea)
+	}
+
 	return fmt.Sprintf(
-		"%s<%v\n%s%v\n%v>",
+		"%s<%s\n%s%s\n%s>",
 		indent1,
-		o.tag,
+		primeraLinea,
 		indent2,
 		strings.Join(o.attr, "\n"+indent2),
 		indent2,
 	)
+}
+
+// Para el orden de los atributos.
+func getAttrPriority(attr string) int {
+	switch {
+	case strings.HasPrefix(attr, "id="):
+		return 1
+	case strings.HasPrefix(attr, "tipo="):
+		return 2
+	case strings.HasPrefix(attr, "class="):
+		return 3
+	case strings.HasPrefix(attr, "hx-"):
+		return 4
+	case strings.HasPrefix(attr, "type="):
+		return 5
+	default:
+		return 6 // será alfabético
+	}
+}
+
+// Si el atributo se encuentra antes de un "=" se devuelve
+// y se elmina de la lista de atributos.
+func (o *openTag) sacarAtributoEq(attrName string) string {
+	for i, atrib := range o.attr {
+		if strings.HasPrefix(atrib, attrName+"=") {
+			o.attr = slices.Delete(o.attr, i, i+1)
+			return atrib
+		}
+	}
+	return ""
 }
 
 // ================================================================ //
