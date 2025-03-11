@@ -11,11 +11,11 @@ import (
 // ================================================================ //
 // ========== PARSE =============================================== //
 
-const RECURSION_LIMIT = 999999
+const RECURSION_LIMIT = 90900
 const MAX_TOKEN_LENGHT = 2000 // caracteres
 
 type parser struct {
-	inputHTML string
+	html string // input html
 
 	extractor         *extractor
 	tokens            []token
@@ -33,11 +33,12 @@ type parser struct {
 
 func FormatGeckoTemplate(html string, builder *strings.Builder, fmtConTokens bool) []token {
 	s := parser{
-		inputHTML:         html,
+		html:              html,
 		extractor:         &extractor{},
 		tokens:            []token{},
 		tipoTokenAnterior: tipoInnerHtml, // Estado inicial para extractor.
 	}
+	s.extractor.s = &s
 	s.parseRecursive()
 	s.tokensToElements()
 
@@ -81,15 +82,12 @@ func (s *parser) parseRecursive() {
 	}
 
 	// Final normal de la recursión.
-	s.inputHTML = strings.TrimSpace(s.inputHTML)
-	if s.inputHTML == "" {
+	if s.html == "" {
 		return
 	}
 
 	// Extraer token.
-	token := s.IdentificarSiguienteToken(s.inputHTML, s.tipoTokenAnterior)
-	s.tipoTokenAnterior = token.tipo
-	s.inputHTML = strings.TrimPrefix(s.inputHTML, token.Txt)
+	token := s.IdentificarSiguienteToken(s.tipoTokenAnterior)
 
 	// Error si es algo que probablemente no cachó el extractor.
 	if len(token.Txt) > MAX_TOKEN_LENGHT && token.tipo == tipoInnerHtml {

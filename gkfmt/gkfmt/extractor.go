@@ -9,58 +9,74 @@ import (
 // ========== Extractor =========================================== //
 
 type extractor struct {
-	html    string          // el token se extrae del inicio del html.
+	s       *parser
 	luegoDe func(tipo) bool // comparar con tipo extraído anteriormente.
 }
 
 // Si regex hace match al inicio del html entonces sí comienza por ese tipo de token.
+// si es true se puede usar log[1] para el index donde termina el match.
 func (e *extractor) comienzaPor(loc []int) bool {
 	return loc != nil && loc[0] == 0
 }
 
 // Si regex hace match pero no al principio entonces es otro tipo de token al principio.
+// si es true se puede usar log[0] y log[1] para el index donde comienza y termina el match.
 func (e *extractor) tieneDespués(loc []int) bool {
 	return loc != nil && loc[0] > 0
 }
 
 // Retorna del html el match encontrado al principo como token del tipo especificado.
 func (e *extractor) tokenEncontrado(loc []int, tipo tipo) token {
-	return token{
-		Txt:  strings.TrimSpace(e.html[loc[0]:loc[1]]),
+	token := token{
+		Txt:  strings.TrimSpace(e.s.html[loc[0]:loc[1]]),
 		tipo: tipo}
+	// Quitar token extraído y preparar para siguiente vuelta.
+	e.s.html = e.s.html[loc[1]:]
+	e.s.tipoTokenAnterior = token.tipo
+	return token
 }
 
 // Retorna del html lo anterior al match encontrado como token del tipo especificado.
 func (e *extractor) tokenAnteriorAlEncontrado(loc []int, tipo tipo) token {
-	return token{
-		Txt:  strings.TrimSpace(e.html[:loc[0]]),
+	token := token{
+		Txt:  strings.TrimSpace(e.s.html[:loc[0]]),
 		tipo: tipo}
+	// Quitar token extraído y preparar para siguiente vuelta.
+	e.s.html = e.s.html[loc[0]:]
+	e.s.tipoTokenAnterior = token.tipo
+	return token
 }
 
 var (
-	regAnyTagBeg  *regexp.Regexp = regexp.MustCompile(`<`)
-	regOpenTagBeg *regexp.Regexp = regexp.MustCompile(`<\w+`)
-	regAtributo   *regexp.Regexp = regexp.MustCompile(`([a-zA-Z\-:]+)(\s*=\s*("[^"]*"|'[^']*'|[^>\s]+))?`)
-	regOpenTagEnd *regexp.Regexp = regexp.MustCompile(`>`)
-	regClosingTag *regexp.Regexp = regexp.MustCompile(`<\/[a-zA-Z][a-zA-Z0-9]*\s*>`)
-	regComentario *regexp.Regexp = regexp.MustCompile(`(<!--[\s\S]*?-->)`)
-	regScript     *regexp.Regexp = regexp.MustCompile(`<script[\s\S]*?</script>`)
-	regGoTemplate *regexp.Regexp = regexp.MustCompile(`({{[\s\S]*?}})`)
+	regWhitespace = regexp.MustCompile(`\s+`)
+	regAnyTagBeg  = regexp.MustCompile(`<`)
+	regOpenTagBeg = regexp.MustCompile(`<\w+`)
+	regAtributo   = regexp.MustCompile(`([a-zA-Z\-:]+)(\s*=\s*("[^"]*"|'[^']*'|[^>\s]+))?`)
+	regOpenTagEnd = regexp.MustCompile(`>`)
+	regClosingTag = regexp.MustCompile(`<\/[a-zA-Z][a-zA-Z0-9]*\s*>`)
+	regComentario = regexp.MustCompile(`(<!--[\s\S]*?-->)`)
+	regScript     = regexp.MustCompile(`<script[\s\S]*?</script>`)
+	regGoTemplate = regexp.MustCompile(`({{[\s\S]*?}})`)
 )
 
-func (s *parser) IdentificarSiguienteToken(html string, anterior tipo) token {
+func (s *parser) IdentificarSiguienteToken(anterior tipo) token {
+	s.extractor.luegoDe = newComparador(anterior)
 	e := s.extractor
-	e.html = html
-	e.luegoDe = newComparador(anterior)
 
-	AnyTagBeg := regAnyTagBeg.FindStringIndex(e.html)
-	OpenTagBeg := regOpenTagBeg.FindStringIndex(e.html)
-	Atributo := regAtributo.FindStringIndex(e.html)
-	OpenTagEnd := regOpenTagEnd.FindStringIndex(e.html)
-	ClosingTag := regClosingTag.FindStringIndex(e.html)
-	Comentario := regComentario.FindStringIndex(e.html)
-	Script := regScript.FindStringIndex(e.html)
-	GoTemplate := regGoTemplate.FindStringIndex(e.html)
+	Whitespace := regWhitespace.FindStringIndex(s.html)
+	AnyTagBeg := regAnyTagBeg.FindStringIndex(s.html)
+	OpenTagBeg := regOpenTagBeg.FindStringIndex(s.html)
+	Atributo := regAtributo.FindStringIndex(s.html)
+	OpenTagEnd := regOpenTagEnd.FindStringIndex(s.html)
+	ClosingTag := regClosingTag.FindStringIndex(s.html)
+	Comentario := regComentario.FindStringIndex(s.html)
+	Script := regScript.FindStringIndex(s.html)
+	GoTemplate := regGoTemplate.FindStringIndex(s.html)
+
+	if e.comienzaPor(Whitespace) {
+		e.s.html = s.html[Whitespace[1]:] // trim whitespace
+		return s.IdentificarSiguienteToken(anterior)
+	}
 
 	if e.comienzaPor(Script) {
 		return e.tokenEncontrado(Script, tipoScript)
@@ -159,5 +175,5 @@ func (s *parser) IdentificarSiguienteToken(html string, anterior tipo) token {
 	}
 
 	// If none of the above, then its just content at the end.
-	return token{Txt: e.html, tipo: tipoInnerHtml}
+	return token{Txt: s.html, tipo: tipoInnerHtml}
 }

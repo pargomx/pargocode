@@ -26,5 +26,10 @@
 			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=gkfmt:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)\" ./gkfmt && echo 'Instalado ºuº)/'",
 			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
+		{
+			"label": "Try gkfmt", "detail": "Ejecutar en archivo de prueba",
+			"command": "CGO_ENABLED=0 go run -ldflags \"-X main.BUILD_INFO=gkfmt:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)\" ./gkfmt -i gkfmt/input.html -o gkfmt/output.html ",
+			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
+		},
 	],
 }
