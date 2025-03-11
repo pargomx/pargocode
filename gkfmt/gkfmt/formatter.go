@@ -48,6 +48,7 @@ func (n *nodo) String() string {
 		return ""
 	}
 
+	gko.FatalExitf("nodo.String: nodo vacío")
 	return "ERROR"
 }
 

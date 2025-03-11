@@ -76,11 +76,7 @@ func (s *parser) IdentificarSiguienteToken(anterior tipo) token {
 
 	if e.comienzaPor(ExtraNewLine) {
 		s.html = s.html[Whitespace[1]:]
-		return token{
-			tipo:   tipoExtraNewLine,
-			Txt:    "",
-			Indent: 0,
-		}
+		return token{tipo: tipoExtraNewLine}
 	}
 
 	if e.comienzaPor(Whitespace) {
@@ -184,6 +180,9 @@ func (s *parser) IdentificarSiguienteToken(anterior tipo) token {
 		return e.tokenEncontrado(OpenTagBeg, tipoOpenTagBeg)
 	}
 
-	// If none of the above, then its just content at the end.
-	return token{Txt: s.html, tipo: tipoTextContent}
+	// If none of the above, then its just content until the end (could be just empty line).
+	if s.html == "" {
+		return token{tipo: tipoExtraNewLine}
+	}
+	return e.tokenEncontrado([]int{0, len(s.html)}, tipoTextContent)
 }

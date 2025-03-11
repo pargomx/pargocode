@@ -77,11 +77,6 @@ func FormatGeckoTemplate(html string, builder *strings.Builder, fmtConTokens boo
 }
 
 func (s *parser) parseRecursive() {
-	// Final inesperado de la recursión.
-	s.level++
-	if s.level > RECURSION_LIMIT {
-		gko.FatalExit("Recursión descontrolada :0")
-	}
 
 	// Final normal de la recursión.
 	if s.html == "" {
@@ -90,6 +85,14 @@ func (s *parser) parseRecursive() {
 
 	// Extraer token.
 	token := s.IdentificarSiguienteToken(s.tipoTokenAnterior)
+
+	// Final inesperado de la recursión.
+	s.level++
+	if s.level > RECURSION_LIMIT {
+		gko.LogWarnf("last_token (indent %d) %s '%s'", token.Indent, token.Tipo(), token.Txt)
+		gko.LogWarnf("html_left: '%s'", s.html)
+		gko.FatalExit("Recursión descontrolada :0")
+	}
 
 	// Error si es algo que probablemente no cachó el extractor.
 	if len(token.Txt) > MAX_TOKEN_LENGHT && token.tipo == tipoTextContent {
@@ -123,7 +126,8 @@ func (s *parser) parseRecursive() {
 	}
 
 	if s.debug {
-		gko.LogDebugf("%03d %v: %v'%v'", s.level, token.Tipo(), strings.Repeat("  ", token.Indent), token.Txt)
+		gko.LogDebugf("html(%d) l:%03d %v: %v'%v'",
+			len(s.html), s.level, token.Tipo(), strings.Repeat("  ", token.Indent), token.Txt)
 	}
 
 	// Guardar token
