@@ -3,12 +3,12 @@
 	"tasks": [
 		{
 			"label": "Run", "detail": "Ejecutar en ambiente de desarrollo",
-			"command": "CGO_ENABLED=0 go run -ldflags \"-X main.BUILD_INFO=campus:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=DEV\" ./pargocode/ -src=$(realpath .) -dir _ejemplo",
+			"command": "CGO_ENABLED=0 go run -ldflags \"-X main.BUILD_INFO=pargocode:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=DEV\" ./pargocode/ -src=$(realpath .) -dir _ejemplo",
 			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
 		{
-			"label": "Install", "detail": "Instalar versión de producción en computadora actual",
-			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=campus:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=PROD\" ./pargocode && echo 'Instalado ºuº)/'",
+			"label": "Install pargocode", "detail": "Instalar versión de producción en computadora actual",
+			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=pargocode:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=PROD\" ./pargocode && echo 'Instalado ºuº)/'",
 			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
 		{
@@ -20,6 +20,11 @@
 			"label": "Tailwind once", "detail": "Tailwind compile once",
 			"command": "tailwindcss -i ./assets/source.css -o ./assets/css/tailwind.css",
 			"type": "shell", "presentation": { "echo": false, "reveal": "silent", "focus": false, "showReuseMessage": false }, "isBackground": true,
+		},
+		{
+			"label": "Install gkfmt", "detail": "Instalar en computadora actual",
+			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=gkfmt:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)\" ./gkfmt && echo 'Instalado ºuº)/'",
+			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
 	],
 }

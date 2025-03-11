@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"monorepo/gkfmt/gkfmt"
 	"os"
 	"strings"
@@ -10,17 +11,25 @@ import (
 	"github.com/pargomx/gecko/gko"
 )
 
+var BUILD_INFO string
+
 func main() {
 	gko.PrintLogTimestamps = false
 
-	inputFile := flag.String("i", "input.html", "Input file path")
-	outputFile := flag.String("o", "output.html", "Output file path")
+	if info := strings.Split(BUILD_INFO, ":"); len(info) == 3 {
+		fmt.Printf("\033[1;36m%v\033[0;36m v%v (%v)\033[0m\n", info[0], info[1], info[2])
+	}
+
+	var inputFile, outputFile string
+
+	flag.StringVar(&inputFile, "i", "input.html", "Input file path")
+	flag.StringVar(&outputFile, "o", "", "Output file path. Default: rewrite input")
 	useTokens := flag.Bool("t", false, "Format using only tokens (dumb)")
 	flag.Parse()
 
 	start := time.Now()
 
-	bytes, err := os.ReadFile(*inputFile)
+	bytes, err := os.ReadFile(inputFile)
 	if err != nil {
 		gko.FatalError(err)
 	}
@@ -28,7 +37,10 @@ func main() {
 	var builder strings.Builder
 	gkfmt.FormatGeckoTemplate(string(bytes), &builder, *useTokens)
 
-	file, err := os.Create(*outputFile)
+	if outputFile == "" {
+		outputFile = inputFile
+	}
+	file, err := os.Create(outputFile)
 	if err != nil {
 		gko.FatalError(err)
 	}
@@ -38,5 +50,5 @@ func main() {
 		gko.FatalError(err)
 	}
 
-	gko.LogEventof("Formated in %v", time.Since(start))
+	fmt.Printf("Formated in %v\n", time.Since(start))
 }
