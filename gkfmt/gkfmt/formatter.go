@@ -22,6 +22,8 @@ type openTag struct {
 	tag    string   // "button", "a", "span", "script", etc.
 	attr   []string // href="..." or required or {{ if .Something }}required{{ end }}
 	indent int      // nivel de indentación
+
+	attrCondicionales []string
 }
 
 // ================================================================ //
@@ -47,8 +49,6 @@ func (n *nodo) String() string {
 
 // Ordena los atributos y aplica reglas de poner en una o varias líneas.
 func (o *openTag) String() string {
-
-	// TODO: juntar atributos condicionales entre {{ go }} para no romperlos.
 
 	sort.SliceStable(o.attr, func(i, j int) bool {
 		pi, pj := getAttrPriority(o.attr[i]), getAttrPriority(o.attr[j])
@@ -138,8 +138,14 @@ func (s *parser) tokenToElement(token token) {
 
 	case tipoOpenTagBeg:
 		s.comenzarOpenTag(token.Txt, token.Indent)
+
 	case tipoAtributo:
-		s.openTag.attr = append(s.openTag.attr, token.Txt)
+		if len(s.openTag.attrCondicionales) > 0 {
+			s.openTag.attrCondicionales = append(s.openTag.attrCondicionales, token.Txt)
+		} else {
+			s.openTag.attr = append(s.openTag.attr, token.Txt)
+		}
+
 	case tipoOpenTagEnd:
 		s.terminarOpenTag(s.openTag.tag)
 
@@ -153,14 +159,7 @@ func (s *parser) tokenToElement(token token) {
 		})
 
 	case tipoGoTemplate:
-		if s.openTag != nil {
-			s.openTag.attr = append(s.openTag.attr, token.Txt)
-		} else {
-			s.nodos = append(s.nodos, nodo{
-				contenido: strings.Split(token.Txt, "\n"),
-				indent:    token.Indent,
-			})
-		}
+		s.agregarGoSintax(token)
 
 	case tipoScript, tipoInnerHtml:
 		s.nodos = append(s.nodos, nodo{
@@ -215,4 +214,41 @@ func (s *parser) cerrarEtiqueta(tag string, indent int) {
 		closingTag: tag,
 		indent:     indent,
 	})
+}
+
+func (s *parser) agregarGoSintax(token token) {
+	// Puede ser simple contenido.
+	if s.openTag == nil {
+		s.nodos = append(s.nodos, nodo{
+			contenido: strings.Split(token.Txt, "\n"),
+			indent:    token.Indent,
+		})
+		return
+	}
+
+	// O ser parte de un atributo condicional.
+	if len(s.openTag.attrCondicionales) == 0 || s.openTag.attrCondicionales == nil {
+		s.openTag.attrCondicionales = append(s.openTag.attrCondicionales, token.Txt)
+		return
+	}
+
+	// Puede ser el último de las sentencias condicionales.
+	if strings.Contains(token.Txt, "end") {
+		s.openTag.attrCondicionales = append(s.openTag.attrCondicionales, token.Txt)
+
+		// Si es una condición simple entonces en una línea.
+		if len(s.openTag.attrCondicionales) == 3 {
+			s.openTag.attr = append(s.openTag.attr,
+				strings.Join(s.openTag.attrCondicionales, ""))
+		} else {
+			// Si son más de 3 poner en varias líneas con indentación.
+			s.openTag.attr = append(s.openTag.attr,
+				strings.Join(s.openTag.attrCondicionales, "\n"+
+					strings.Repeat("\t", token.Indent)))
+		}
+		s.openTag.attrCondicionales = nil
+
+	} else {
+		s.openTag.attrCondicionales = append(s.openTag.attrCondicionales, token.Txt)
+	}
 }
