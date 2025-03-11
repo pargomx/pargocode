@@ -6,6 +6,7 @@ import (
 	"monorepo/gkfmt/gkfmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/pargomx/gecko/gko"
 )
@@ -17,12 +18,16 @@ func main() {
 	outputFile := flag.String("o", "output.html", "Output file path")
 	flag.Parse()
 
+	start := time.Now()
+
 	bytes, err := os.ReadFile(*inputFile)
 	if err != nil {
 		gko.FatalError(err)
 	}
 
-	tokens := gkfmt.Extract(string(bytes))
+	startParse := time.Now()
+	tokens := gkfmt.ParseTokens(string(bytes))
+	timeParse := time.Since(startParse)
 
 	var builder strings.Builder
 	for _, token := range tokens {
@@ -39,5 +44,5 @@ func main() {
 		gko.FatalError(err)
 	}
 
-	gko.LogEventof("Saved %v tokens", len(tokens))
+	gko.LogEventof("Saved %v tokens in %v (parsed in %v)", len(tokens), time.Since(start), timeParse)
 }
