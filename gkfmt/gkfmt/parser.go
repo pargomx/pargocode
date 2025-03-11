@@ -38,7 +38,7 @@ func FormatGeckoTemplate(html string, builder *strings.Builder, fmtConTokens boo
 		html:              html,
 		extractor:         &extractor{},
 		tokens:            []token{},
-		tipoTokenAnterior: tipoInnerHtml, // Estado inicial para extractor.
+		tipoTokenAnterior: tipoTextContent, // Estado inicial para extractor.
 	}
 	s.extractor.s = &s
 	s.parseRecursive()
@@ -92,7 +92,7 @@ func (s *parser) parseRecursive() {
 	token := s.IdentificarSiguienteToken(s.tipoTokenAnterior)
 
 	// Error si es algo que probablemente no cachó el extractor.
-	if len(token.Txt) > MAX_TOKEN_LENGHT && token.tipo == tipoInnerHtml {
+	if len(token.Txt) > MAX_TOKEN_LENGHT && token.tipo == tipoTextContent {
 		gko.FatalExit(token.Txt[:MAX_TOKEN_LENGHT-1])
 	}
 

@@ -18,7 +18,7 @@ func newComparador(base tipo) func(tipo) bool {
 }
 
 const (
-	tipoInnerHtml    tipo = iota // Contenido que puede ser texto y ya no contiene nignún "<"
+	tipoTextContent  tipo = iota // Contenido que puede ser texto y ya no contiene nignún "<"
 	tipoOpenTagBeg               // <button
 	tipoAtributo                 // hx-get="/x", required, class="{{ if not .Show }}hidden {{ end }}"
 	tipoOpenTagEnd               // >

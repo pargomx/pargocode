@@ -2,7 +2,6 @@ package gkfmt
 
 import (
 	"regexp"
-	"strings"
 )
 
 // ================================================================ //
@@ -28,7 +27,7 @@ func (e *extractor) tieneDespués(loc []int) bool {
 // Retorna del html el match encontrado al principo como token del tipo especificado.
 func (e *extractor) tokenEncontrado(loc []int, tipo tipo) token {
 	token := token{
-		Txt:  strings.TrimSpace(e.s.html[loc[0]:loc[1]]),
+		Txt:  e.s.html[loc[0]:loc[1]],
 		tipo: tipo}
 	// Quitar token extraído y preparar para siguiente vuelta.
 	e.s.html = e.s.html[loc[1]:]
@@ -39,7 +38,7 @@ func (e *extractor) tokenEncontrado(loc []int, tipo tipo) token {
 // Retorna del html lo anterior al match encontrado como token del tipo especificado.
 func (e *extractor) tokenAnteriorAlEncontrado(loc []int, tipo tipo) token {
 	token := token{
-		Txt:  strings.TrimSpace(e.s.html[:loc[0]]),
+		Txt:  e.s.html[:loc[0]],
 		tipo: tipo}
 	// Quitar token extraído y preparar para siguiente vuelta.
 	e.s.html = e.s.html[loc[0]:]
@@ -93,7 +92,7 @@ func (s *parser) IdentificarSiguienteToken(anterior tipo) token {
 		return e.tokenEncontrado(Script, tipoScript)
 	}
 
-	if e.luegoDe(tipoInnerHtml) {
+	if e.luegoDe(tipoTextContent) {
 		if e.comienzaPor(OpenTagBeg) {
 			return e.tokenEncontrado(OpenTagBeg, tipoOpenTagBeg)
 		}
@@ -149,7 +148,7 @@ func (s *parser) IdentificarSiguienteToken(anterior tipo) token {
 			return e.tokenEncontrado(ClosingTag, tipoClosingTag)
 		}
 		if e.tieneDespués(AnyTagBeg) {
-			return e.tokenAnteriorAlEncontrado(AnyTagBeg, tipoInnerHtml)
+			return e.tokenAnteriorAlEncontrado(AnyTagBeg, tipoTextContent)
 		}
 	}
 
@@ -161,7 +160,7 @@ func (s *parser) IdentificarSiguienteToken(anterior tipo) token {
 			return e.tokenEncontrado(ClosingTag, tipoClosingTag)
 		}
 		if e.tieneDespués(AnyTagBeg) {
-			return e.tokenAnteriorAlEncontrado(AnyTagBeg, tipoInnerHtml)
+			return e.tokenAnteriorAlEncontrado(AnyTagBeg, tipoTextContent)
 		}
 	}
 
@@ -178,7 +177,7 @@ func (s *parser) IdentificarSiguienteToken(anterior tipo) token {
 	}
 
 	if e.tieneDespués(AnyTagBeg) {
-		return e.tokenAnteriorAlEncontrado(AnyTagBeg, tipoInnerHtml)
+		return e.tokenAnteriorAlEncontrado(AnyTagBeg, tipoTextContent)
 	}
 
 	if e.comienzaPor(OpenTagBeg) {
@@ -186,5 +185,5 @@ func (s *parser) IdentificarSiguienteToken(anterior tipo) token {
 	}
 
 	// If none of the above, then its just content at the end.
-	return token{Txt: s.html, tipo: tipoInnerHtml}
+	return token{Txt: s.html, tipo: tipoTextContent}
 }

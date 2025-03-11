@@ -155,12 +155,13 @@
 					{{- enfatizar .Titulo -}}...
 				</a>
 				{{ end }}
-		{{ range .Ancestros -}}
+				{{ range .Ancestros -}}
 			</li>
 		</ul>
 		{{ end }}
 	</div>
 	{{ end }}
+	
 	<!--* TÍTULO -->
 	<div class="mt-2 mb-1">
 		<textarea class="w-full px-2 py-1 text-2xl font-medium text-white bg-transparent border-b border-cyan-800 resize-none outline-hidden focus:border-blue-400"
@@ -532,6 +533,7 @@
 			{{ end }}
 		</li>
 		{{ end }}
+		
 		<!-- Agregar tramo... -->
 		<li class="flex items-center gap-1 p-1">
 			<div class="hidden opacity-0 md:block">
@@ -742,6 +744,7 @@
 			{{ end }}
 		</li>
 		{{ end }}
+		
 		<li class="">
 			<div class="flex gap-1 p-1 group">
 				<div class="hidden opacity-0 md:block">
@@ -935,6 +938,7 @@
 					{{- .Tipo.Etiqueta -}}
 				</span>
 				{{ end }}
+				
 				<span class="cursor-pointer {{ if .Finalizada }} opacity-50 line-through {{ end }}"
 					onclick="document.getElementById('edit{{ .TareaID }}').showModal()"
 					>
@@ -949,6 +953,7 @@
 						>
 				</span>
 				{{- end -}}
+				
 				<span class="float-right sm:hidden">
 					{{- if .SegundosEstimado -}}
 					<span class="pl-4 text-sm opacity-75 whitespace-nowrap"
@@ -975,6 +980,7 @@
 					{{ .Impedimentos }}
 				</i>
 				{{- end }}
+				
 				<!-- <span class="px-2 py-1 text-xs font-semibold leading-none text-white bg-cyan-950 rounded-md opacity-50">
 					e:{{ .SegundosEstimado }}
 					r:{{ .SegundosUtilizado }}
@@ -1095,6 +1101,7 @@
 		</button>
 	</div>
 	{{ end }}
+	
 	<!-- Editar tareas -->
 	{{ range $.Agregado.Tareas -}}
 	{{ template "tarea_editar_dialog" . }}
@@ -1102,6 +1109,7 @@
 
 </main>
 {{ end }}
+
 <!-- Administrar intervalos -->
 {{ block "intervalos_dialog" . }}
 <dialog id="modalIntervalos" class="m-auto text-white bg-cyan-900 border-4 border-cyan-800 rounded-md">

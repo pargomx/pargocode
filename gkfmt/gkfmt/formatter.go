@@ -170,12 +170,36 @@ func (s *parser) tokenToElement(token token) {
 			extraSpace: true,
 		})
 
-	case tipoScript, tipoInnerHtml:
+	case tipoScript:
 		s.nodos = append(s.nodos, nodo{
 			contenido: []string{token.Txt},
 			indent:    token.Indent,
 		})
 
+	case tipoTextContent:
+		// Permitir line breaks extra dentro del contenido.
+		split := strings.Split(token.Txt, "\n")
+		result := []string{}
+
+		afterEmptyLine := false
+
+		for _, line := range split {
+			line := strings.TrimSpace(line)
+
+			// Ignorar empty lines si solo es una
+			if line == "" && !afterEmptyLine {
+				afterEmptyLine = true
+				continue
+
+			} else { // podría ser emptyline afterEmptyLine
+				afterEmptyLine = false
+				result = append(result, line)
+			}
+		}
+		s.nodos = append(s.nodos, nodo{
+			contenido: result,
+			indent:    token.Indent,
+		})
 	}
 }
 
