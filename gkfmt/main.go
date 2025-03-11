@@ -30,6 +30,10 @@ func main() {
 
 	start := time.Now()
 
+	if !strings.HasSuffix(inputFile, ".html") {
+		gko.FatalExit("Solo se admiten archivos HTML")
+	}
+
 	bytes, err := os.ReadFile(inputFile)
 	if err != nil {
 		gko.FatalError(err)
