@@ -117,7 +117,7 @@ func (cam CampoConsulta) ifZeroReturnErr(razón string, nombreVariable string, r
 		comparacion += ".IsZero() "
 
 	case cam.EsPropiedadExtendida():
-		comparacion += ".Es" + cam.NombreCampo + "Indefinido() "
+		comparacion += ".EsIndefinido() "
 
 	default:
 		gko.LogWarnf("cam.NombreCampo: No se verificará que %v no sea Zero value", cam.NombreCampo)

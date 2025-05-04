@@ -237,7 +237,7 @@ func (c CampoTabla) ifZeroReturnErr(razón string, nombreVariable string, return
 		comparacion += ".IsZero() "
 
 	case c.EsPropiedadExtendida():
-		comparacion += ".Es" + c.NombreCampo + "Indefinido() "
+		comparacion += ".EsIndefinido() "
 
 	case c.EsBool() && !c.Nullable:
 		return "" // No se verifica que un bool sea zero value
