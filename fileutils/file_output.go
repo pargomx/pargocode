@@ -21,6 +21,7 @@ func GuardarGoCodeConfirm(filename string, codigo string) error {
 }
 
 func GuardarGoCode(filename string, codigo string) error {
+	op := gko.Op("GuardarGoCode")
 	if !OuptutToConsole && !OutputToFile {
 		gko.ErrNoDisponible().Msg("No se especificó a donde mandar el resultado: fileutils.OuptutToConsole/OutputToFile es false")
 	}
@@ -32,24 +33,24 @@ func GuardarGoCode(filename string, codigo string) error {
 		return nil
 	}
 	if !Existe("go.mod") {
-		return gko.ErrNoDisponible().Str("Pargo no parece estar en la raíz de un proyecto Go")
+		return op.ErrNoDisponible().Str("Pargo no parece estar en la raíz de un proyecto Go")
 	}
 
 	fileOut, err := os.Create(filename)
 	if err != nil {
-		return err
+		return op.Err(err)
 	}
 	if _, err = fileOut.WriteString(codigo); err != nil {
-		return err
+		return op.Err(err)
 	}
 	fileOut.Close()
 	cmd := exec.Command("goimports", "-w", filename)
-	if errOut, err := cmd.CombinedOutput(); err != nil {
-		gko.LogWarnf(string(errOut))
+	if _, err := cmd.CombinedOutput(); err != nil {
+		op.Err(err).Log()
 	}
 	cmd = exec.Command("goimports-reviser", "-project-name", "monorepo", "-file-path", filename)
-	if errOut, err := cmd.CombinedOutput(); err != nil {
-		gko.LogWarnf(string(errOut))
+	if _, err := cmd.CombinedOutput(); err != nil {
+		op.Err(err).Log()
 	}
 
 	return nil
