@@ -160,6 +160,9 @@
 			<label for="cc42">Campo origen de FK</label>
 			<input id="cc42" name="campo_fk" type="text" value="{{ if .ReferenciaCampo }}{{ .ReferenciaCampo }}{{ end }}" placeholder="" class="form-control">
 		</div>
+		<div>
+			Este campoID: {{ if .CampoID }}{{ .CampoID }}{{ end }}
+		</div>
 
 	</fieldset>
 
