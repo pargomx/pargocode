@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gko"
 )
 
 // ================================================================ //
@@ -16,7 +17,12 @@ func (s *servidor) generarDeTabla(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	err = gen.PrepararJob(c.FormVal("tipo")).Generar()
+	job := gen.PrepararJob(c.FormVal("tipo"))
+	if c.QueryBool("sin-titulo") {
+		gko.LogInfo("Tipo sin titulo", c.FormVal("tipo"))
+		job.SinTitulos()
+	}
+	err = job.Generar()
 	if err != nil {
 		return err
 	}

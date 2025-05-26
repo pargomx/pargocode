@@ -187,7 +187,7 @@
 						<td>
 							{{ if .Especial }}<button type="button" hx-get="/campos/{{ .CampoID }}/enum" hx-target="#campoEspecialDialog" hx-swap="innerHTML" onclick="campoEspecialDialog.showModal()" title="Editar ENUM" {{ if not 0 }}class="text-red-500"{{ end }}>ES</button>{{ else }}--{{ end }}
 						</td>
-					
+
 						<!-- DEFAULT -->
 						<td style="font-size: small; max-width: 120px; text-overflow: clip; overflow: hidden; white-space: nowrap;">
 							<span title="{{ .DefaultSQL }}">{{ .DefaultSQL }}</span>
@@ -217,7 +217,7 @@
 			<button type="button" class="w-10 py-1 text-xl bg-cyan-900 rounded-lg hover:bg-cyan-950" onclick="helpDirectrices.showModal()" title="Ayuda"><i class="fa-solid fa-question"></i></button>
 		</header>
 		<div class="flex flex-col p-4">
-			
+
 			<div
 				hx-put="/tablas/{{ .Tabla.TablaID }}"
 				hx-include="#tablaForm"
@@ -233,7 +233,7 @@
 					{{- .Tabla.Directrices -}}
 				</textarea>
 			</div>
-			
+
 			<div class="flex flex-wrap items-center justify-center gap-4">
 				<button type="button" hx-get="/tablas/{{ .Tabla.TablaID }}/generar?modo=archivo&tipo=mysql" hx-target="#status_nombre" hx-trigger="click, keyup[ctrlKey&&key=='Enter'] from:body" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-green-700 rounded shadow-md hover:bg-green-600">
 					MySQL
@@ -261,7 +261,6 @@
 		</div>
 	</dialog>
 
-	
 	<dialog id="campoEspecialDialog" hx-target="#campoEspecialDialog" hx-swap="innerHTML" class="p-3 text-white bg-cyan-950 rounded-lg ring-2 ring-white">
 		...
 	</dialog>
@@ -279,9 +278,9 @@
 				</optgroup>
 
 				<optgroup label="SQLite">
-					<option value="sqlite/create_table">CREATE TABLE Sqlite</option>
+					<option value="sqlite/create_table" selected>CREATE TABLE Sqlite</option>
 				</optgroup>
-				
+
 				<optgroup label="MySQL">
 					<option value="mysql/create_table">CREATE TABLE MySQL</option>
 					<option value="mysql">MySQL Directrices</option>
@@ -328,7 +327,7 @@
 			<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="generarCodigo()" title="Volver a generar">🔄</button>
 			<button type="button" class="w-10 py-1 text-2xl text-slate-200 bg-slate-400 rounded-lg" onclick="generarCodigoDialog.close()" title="Cerrar">✖️</button>
 		</header>
-		<pre id="codigoGenerado" hx-get="/tablas/{{ .Tabla.TablaID }}/generar" hx-include="#selectGenerarCodigo, input[name='by']" hx-target="#codigoGenerado" hx-swap="innerHTML" hx-trigger="deseaGenerarCodigo" class="p-4 overflow-auto text-lime-300 bg-slate-950">...
+		<pre id="codigoGenerado" hx-get="/tablas/{{ .Tabla.TablaID }}/generar?sin-titulo=true" hx-include="#selectGenerarCodigo, input[name='by']" hx-target="#codigoGenerado" hx-swap="innerHTML" hx-trigger="deseaGenerarCodigo" class="p-4 overflow-auto text-lime-300 bg-slate-950">...
 
 		</pre>
 		<script>

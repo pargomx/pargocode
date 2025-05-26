@@ -31,6 +31,8 @@ type generador struct {
 
 	tbl *tabla
 	con *consulta
+
+	sinTitulos bool
 }
 
 type genDest struct {
@@ -227,6 +229,13 @@ func (c *generador) DescribirJobs() {
 	}
 	gko.LogInfo("Generando código:")
 	fmt.Println(porHacer)
+}
+
+// ================================================================ //
+
+func (c *generador) SinTitulos() *generador {
+	c.sinTitulos = true
+	return c
 }
 
 // ================================================================ //
@@ -605,7 +614,7 @@ func (c *generador) Generar() (err error) {
 				}
 			}
 
-			if job.titulo != "" {
+			if job.titulo != "" && !c.sinTitulos {
 				textutils.ImprimirSeparador(c.destinos[i].buf, strings.ToUpper(job.titulo))
 			}
 
@@ -664,7 +673,9 @@ func (c *generador) ToFile() (err error) {
 func (c *generador) ToString() string {
 	var buf bytes.Buffer
 	for _, dest := range c.destinos {
-		textutils.ImprimirSeparador(&buf, dest.filename)
+		if !c.sinTitulos {
+			textutils.ImprimirSeparador(&buf, dest.filename)
+		}
 		buf.WriteString(dest.buf.String())
 	}
 	return buf.String()
