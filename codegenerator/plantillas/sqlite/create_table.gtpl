@@ -2,7 +2,9 @@ CREATE TABLE {{ .Tabla.NombreRepo }} (
 {{- range .Tabla.Campos }}
   {{ .NombreColumna }}
   	{{- if .EsString }} TEXT{{ else if .EsNumero }} INT{{ end }}
-	{{- if .Null}}{{ else }} NOT NULL{{ end }},
+	{{- if .Null}}{{ else }} NOT NULL{{ end }}
+	{{- if .DefaultSql }} {{ .DefaultSql }}{{ end -}}
+	,
 {{- end }}
   PRIMARY KEY ( {{- $lenPKs := len .Tabla.PrimaryKeys -}}
 	{{- range $i, $v := .Tabla.PrimaryKeys -}}
