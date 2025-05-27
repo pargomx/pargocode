@@ -15,7 +15,7 @@
 		{
 			"label": "Ejecutar",
 			"detail": "Ejecutar aplicación en ambiente de desarrollo.",
-			"command": "pargocode -src=$(realpath .) -dir $(realpath ../_tdataPargoCode)",
+			"command": "pargocode -src=$(realpath .) -dir $(realpath ../_tdataPargoCode) -p 5053",
 			"dependsOn": ["Instalar"], "dependsOrder": "sequence",
 			"isBackground": true,
 		},
@@ -40,7 +40,6 @@
 			"label": "Instalar",
 			"detail": "Instalar pargocode.",
 			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=pargocode:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=PROD\" ./pargocode && echo '[✔] App instalada'",
-			"hide": true,
 		},
 
 
