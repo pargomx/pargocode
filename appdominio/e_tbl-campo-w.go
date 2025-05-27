@@ -80,7 +80,7 @@ func validarCampo(cam *ddd.Campo, repo Repositorio) error {
 	// }
 
 	// Handy defaults
-	if cam.DefaultSql == "" && cam.NotNull() && !cam.PrimaryKey && !cam.Required() &&
+	if cam.DefaultSql == "" && cam.NotNull() && !cam.PrimaryKey && !cam.ForeignKey && !cam.Required() &&
 		(cam.EsSqlChar() || cam.EsSqlVarchar()) {
 		cam.DefaultSql = "DEFAULT ''"
 	}
@@ -285,6 +285,7 @@ func ActualizarCampo(campoID int, new ddd.Campo, repo Repositorio) error {
 	cam.NombreHumano = new.NombreHumano
 	cam.Descripcion = new.Descripcion
 	cam.Nullable = new.Nullable
+	cam.ZeroIsNull = new.ZeroIsNull
 	cam.Uns = new.Uns
 	cam.MaxLenght = new.MaxLenght
 	cam.PrimaryKey = new.PrimaryKey
