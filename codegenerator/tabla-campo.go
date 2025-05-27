@@ -33,6 +33,7 @@ type CampoTabla struct {
 	Ro              bool   // `campos.ro`  No se guardará ni actualizará su valor en el repositorio: 'readonly'
 	Filtro          bool   // `campos.filtro`  Se debe generar lógica para filtrar por este campo desde el repositorio: 'filtro'
 	Nullable        bool   // `campos.nullable`  Declara que el campo puede ser nulo: 'null' (ej *int | *string | *time.Time )
+	ZeroIsNull      bool
 	MaxLenght       int    // `campos.max_lenght`  Longitud máxima permitida en repositorio para strings: 'max' [ej. varchar(12), char(3)].
 	Uns             bool   // `campos.uns`  Valor numérico positivo.
 	DefaultSql      string // `campos.default_sql`  Valor por default. Puede ser: '', 'NULL', 'AUTO_INCREMENT', 'OTRO'.
@@ -224,7 +225,7 @@ func (c CampoTabla) ifZeroReturnErr(razón string, nombreVariable string, return
 
 	switch {
 
-	case c.Nullable:
+	case c.EsPointer():
 		comparacion += " == nil "
 
 	case c.EsString():

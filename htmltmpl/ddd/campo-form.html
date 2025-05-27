@@ -7,11 +7,11 @@
 			<label for="cc01">Nombre columna</label>
 			<input id="cc01" name="nombre_sql" placeholder="ejemplo_id" value="{{ .NombreColumna }}" class="form-control" type="text">
 		</div>
-		
+
 		<div>
 			<label for="tipoSql">Tipo SQL</label>
 			<select id="tipoSql" name="tipo_sql" {{ if .NombreColumna }}autofocus {{ end -}} onchange="updatedTipoSql(this.value)" class="form-control">
-	
+
 				{{ if .TipoSQL }}
 				<optgroup label="Actual">
 					<option value="{{ .TipoSQL }}">{{ .TipoSQL }}</option>
@@ -19,7 +19,7 @@
 				{{ else }}
 				<option value=""></option>
 				{{ end }}
-	
+
 				<optgroup label="Número entero">
 					<option value="tinyint" {{ if eq .TipoSQL "tinyint"}}selected{{ end }}>TINYINT (1 byte)</option>
 					<option value="smallint" {{ if eq .TipoSQL "smallint"}}selected{{ end }}>SMALLINT (2 bytes)</option>
@@ -121,36 +121,40 @@
 	<fieldset class="flex flex-col gap-3 p-2 border-2 border-sky-950 rounded-md">
 		<legend class="px-2">General</legend>
 		
-		<div>
-			<input id="cc31" name="not_null" type="checkbox" {{ if not .Null }}checked{{ end }}>
-			<label for="cc31">Not null</label>
-		</div>
+		<label>
+			<input name="not_null" type="checkbox" {{ if not .Null }}checked{{ end }}>
+			Not null
+		</label>
+		<label>
+			<input name="zero_is_null" type="checkbox" {{ if .ZeroIsNull }}checked{{ end }}>
+			Zero value is Null
+		</label>
 
-		<div>
-			<input id="cc32" name="pk" type="checkbox" {{ if .PrimaryKey }}checked{{ end }}>
-			<label for="cc32">Primary Key 🔑</label>
-		</div>
-		<div>
-			<input id="cc33" name="fk" type="checkbox" {{ if .ForeignKey }}checked{{ end }}>
-			<label for="cc33">Foreign Key 🗝️</label>
-		</div>
+		<label>
+			<input name="pk" type="checkbox" {{ if .PrimaryKey }}checked{{ end }}>
+			Primary Key 🔑
+		</label>
+		<label>
+			<input name="fk" type="checkbox" {{ if .ForeignKey }}checked{{ end }}>
+			Foreign Key 🗝️
+		</label>
 		
-		<div>
-			<input id="cc34" name="unique" type="checkbox" {{ if .Unique }}checked{{ end }}>
-			<label for="cc34">Unique</label>
-		</div>
-		<div>
-			<input id="cc35" name="required" type="checkbox" {{ if .Required }}checked{{ end }}>
-			<label for="cc35">Required</label>
-		</div>
-		<div>
-			<input id="cc36" name="readonly" type="checkbox" {{ if .ReadOnly }}checked{{ end }}>
-			<label for="cc36">Read only</label>
-		</div>
-		<div>
-			<input id="cc37" name="filtro" type="checkbox" {{ if .Filtro }}checked{{ end }}>
-			<label for="cc37">Filtrar por este campo</label>
-		</div>
+		<label>
+			<input name="unique" type="checkbox" {{ if .Unique }}checked{{ end }}>
+			Unique
+		</label>
+		<label>
+			<input name="required" type="checkbox" {{ if .Required }}checked{{ end }}>
+			Required
+		</label>
+		<label>
+			<input name="readonly" type="checkbox" {{ if .ReadOnly }}checked{{ end }}>
+			Read only
+		</label>
+		<label>
+			<input name="filtro" type="checkbox" {{ if .Filtro }}checked{{ end }}>
+			Filtrar por este campo
+		</label>
 		
 	</fieldset>
 

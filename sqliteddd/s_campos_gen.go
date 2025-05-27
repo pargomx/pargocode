@@ -3,92 +3,63 @@ package sqliteddd
 import (
 	"database/sql"
 	"errors"
-	"strings"
-
-	"monorepo/ddd"
 
 	"github.com/pargomx/gecko/gko"
+
+	"monorepo/ddd"
 )
 
 //  ================================================================  //
-//  ========== MYSQL/CONSTANTES ====================================  //
+//  ========== INSERT ==============================================  //
 
-// Lista de columnas separadas por coma para usar en consulta SELECT
-// en conjunto con scanRow o scanRows, ya que las columnas coinciden
-// con los campos escaneados.
-const columnasCampo string = "campo_id, tabla_id, nombre_campo, nombre_columna, nombre_humano, tipo_go, tipo_sql, setter, importado, primary_key, foreign_key, uq, req, ro, filtro, nullable, max_lenght, uns, default_sql, especial, referencia_campo, expresion, es_femenino, descripcion, posicion"
-
-// Origen de los datos de ddd.Campo
-//
-// FROM campos
-const fromCampo string = "FROM campos "
-
-//  ================================================================  //
-//  ========== MYSQL/TBL-INSERT ====================================  //
-
-// InsertCampo valida el registro y lo inserta en la base de datos.
 func (s *Repositorio) InsertCampo(cam ddd.Campo) error {
-	const op string = "mysqlddd.InsertCampo"
+	const op string = "InsertCampo"
 	if cam.CampoID == 0 {
-		return gko.ErrDatoInvalido().Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoIndef().Op(op).Msg("CampoID sin especificar").Str("pk_indefinida")
 	}
 	if cam.NombreCampo == "" {
-		return gko.ErrDatoInvalido().Msg("NombreCampo sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoIndef().Op(op).Msg("NombreCampo sin especificar").Str("required_sin_valor")
 	}
 	if cam.NombreColumna == "" {
-		return gko.ErrDatoInvalido().Msg("NombreColumna sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoIndef().Op(op).Msg("NombreColumna sin especificar").Str("required_sin_valor")
 	}
 	if cam.NombreHumano == "" {
-		return gko.ErrDatoInvalido().Msg("NombreHumano sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoIndef().Op(op).Msg("NombreHumano sin especificar").Str("required_sin_valor")
 	}
-	err := cam.Validar()
-	if err != nil {
-		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
-	}
-	_, err = s.db.Exec("INSERT INTO campos "+
-		"(campo_id, tabla_id, nombre_campo, nombre_columna, nombre_humano, tipo_go, tipo_sql, setter, importado, primary_key, foreign_key, uq, req, ro, filtro, nullable, max_lenght, uns, default_sql, especial, referencia_campo, expresion, es_femenino, descripcion, posicion) "+
-		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT count(campo_id) + 1 FROM campos WHERE tabla_id = ?)) ",
-		cam.CampoID, cam.TablaID, cam.NombreCampo, cam.NombreColumna, cam.NombreHumano, cam.TipoGo, cam.TipoSql, cam.Setter, cam.Importado, cam.PrimaryKey, cam.ForeignKey, cam.Uq, cam.Req, cam.Ro, cam.Filtro, cam.Nullable, cam.MaxLenght, cam.Uns, cam.DefaultSql, cam.Especial, cam.ReferenciaCampo, cam.Expresion, cam.EsFemenino, cam.Descripcion, cam.TablaID,
+	_, err := s.db.Exec("INSERT INTO campos "+
+		"(campo_id, tabla_id, nombre_campo, nombre_columna, nombre_humano, tipo_go, tipo_sql, setter, importado, primary_key, foreign_key, uq, req, ro, filtro, nullable, max_lenght, uns, default_sql, especial, referencia_campo, expresion, es_femenino, descripcion, posicion, zero_is_null) "+
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ",
+		cam.CampoID, cam.TablaID, cam.NombreCampo, cam.NombreColumna, cam.NombreHumano, cam.TipoGo, cam.TipoSql, cam.Setter, cam.Importado, cam.PrimaryKey, cam.ForeignKey, cam.Uq, cam.Req, cam.Ro, cam.Filtro, cam.Nullable, cam.MaxLenght, cam.Uns, cam.DefaultSql, cam.Especial, cam.ReferenciaCampo, cam.Expresion, cam.EsFemenino, cam.Descripcion, cam.Posicion, cam.ZeroIsNull,
 	)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "Error 1062 (23000)") {
-			return gko.ErrYaExiste().Err(err).Op(op)
-		} else if strings.HasPrefix(err.Error(), "Error 1452 (23000)") {
-			return gko.ErrDatoInvalido().Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
-		} else {
-			return gko.ErrInesperado().Err(err).Op(op)
-		}
+		return gko.ErrAlEscribir().Err(err).Op(op)
 	}
 	return nil
 }
 
 //  ================================================================  //
-//  ========== MYSQL/TBL-UPDATE ====================================  //
+//  ========== UPDATE ==============================================  //
 
 // UpdateCampo valida y sobreescribe el registro en la base de datos.
 func (s *Repositorio) UpdateCampo(cam ddd.Campo) error {
-	const op string = "mysqlddd.UpdateCampo"
+	const op string = "UpdateCampo"
 	if cam.CampoID == 0 {
-		return gko.ErrDatoInvalido().Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoIndef().Op(op).Msg("CampoID sin especificar").Str("pk_indefinida")
 	}
 	if cam.NombreCampo == "" {
-		return gko.ErrDatoInvalido().Msg("NombreCampo sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoIndef().Op(op).Msg("NombreCampo sin especificar").Str("required_sin_valor")
 	}
 	if cam.NombreColumna == "" {
-		return gko.ErrDatoInvalido().Msg("NombreColumna sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoIndef().Op(op).Msg("NombreColumna sin especificar").Str("required_sin_valor")
 	}
 	if cam.NombreHumano == "" {
-		return gko.ErrDatoInvalido().Msg("NombreHumano sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoIndef().Op(op).Msg("NombreHumano sin especificar").Str("required_sin_valor")
 	}
-	err := cam.Validar()
-	if err != nil {
-		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
-	}
-	_, err = s.db.Exec(
+	_, err := s.db.Exec(
 		"UPDATE campos SET "+
-			"campo_id=?, tabla_id=?, nombre_campo=?, nombre_columna=?, nombre_humano=?, tipo_go=?, tipo_sql=?, setter=?, importado=?, primary_key=?, foreign_key=?, uq=?, req=?, ro=?, filtro=?, nullable=?, max_lenght=?, uns=?, default_sql=?, especial=?, referencia_campo=?, expresion=?, es_femenino=?, descripcion=?, posicion=? "+
+			"campo_id=?, tabla_id=?, nombre_campo=?, nombre_columna=?, nombre_humano=?, tipo_go=?, tipo_sql=?, setter=?, importado=?, primary_key=?, foreign_key=?, uq=?, req=?, ro=?, filtro=?, nullable=?, max_lenght=?, uns=?, default_sql=?, especial=?, referencia_campo=?, expresion=?, es_femenino=?, descripcion=?, posicion=?, zero_is_null=? "+
 			"WHERE campo_id = ?",
-		cam.CampoID, cam.TablaID, cam.NombreCampo, cam.NombreColumna, cam.NombreHumano, cam.TipoGo, cam.TipoSql, cam.Setter, cam.Importado, cam.PrimaryKey, cam.ForeignKey, cam.Uq, cam.Req, cam.Ro, cam.Filtro, cam.Nullable, cam.MaxLenght, cam.Uns, cam.DefaultSql, cam.Especial, cam.ReferenciaCampo, cam.Expresion, cam.EsFemenino, cam.Descripcion, cam.Posicion,
+		cam.CampoID, cam.TablaID, cam.NombreCampo, cam.NombreColumna, cam.NombreHumano, cam.TipoGo, cam.TipoSql, cam.Setter, cam.Importado, cam.PrimaryKey, cam.ForeignKey, cam.Uq, cam.Req, cam.Ro, cam.Filtro, cam.Nullable, cam.MaxLenght, cam.Uns, cam.DefaultSql, cam.Especial, cam.ReferenciaCampo, cam.Expresion, cam.EsFemenino, cam.Descripcion, cam.Posicion, cam.ZeroIsNull,
 		cam.CampoID,
 	)
 	if err != nil {
@@ -98,60 +69,105 @@ func (s *Repositorio) UpdateCampo(cam ddd.Campo) error {
 }
 
 //  ================================================================  //
-//  ========== MYSQL/TBL-DELETE ====================================  //
+//  ========== EXISTE ==============================================  //
 
-// DeleteCampo elimina permanentemente un registro del campo de la base de datos.
-// Error si el registro no existe o si no se da la clave primaria.
-func (s *Repositorio) DeleteCampo(CampoID int) error {
-	const op string = "mysqlddd.DeleteCampo"
-	if CampoID == 0 {
-		return gko.ErrDatoInvalido().Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
-	}
-	// Verificar que solo se borre un registro.
+// Retorna error nil si existe solo un registro con esta clave primaria.
+func (s *Repositorio) ExisteCampo(CampoID int) error {
+	const op string = "ExisteCampo"
 	var num int
 	err := s.db.QueryRow("SELECT COUNT(campo_id) FROM campos WHERE campo_id = ?",
 		CampoID,
 	).Scan(&num)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return gko.ErrNoEncontrado().Err(ddd.ErrCampoNotFound).Op(op)
+			return gko.ErrNoEncontrado().Msg("Campo no encontrado").Op(op)
 		}
 		return gko.ErrInesperado().Err(err).Op(op)
 	}
 	if num > 1 {
-		return gko.ErrInesperado().Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
+		return gko.ErrInesperado().Err(nil).Op(op).Str("existen más de un registro para la pk").Ctx("registros", num)
 	} else if num == 0 {
-		return gko.ErrNoEncontrado().Err(ddd.ErrCampoNotFound).Op(op).Msg("cero resultados")
-	}
-	// Eliminar registro
-	_, err = s.db.Exec(
-		"DELETE FROM campos WHERE campo_id = ?",
-		CampoID,
-	)
-	if err != nil {
-		if strings.HasPrefix(err.Error(), "Error 1451 (23000)") {
-			return gko.ErrYaExiste().Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
-		} else {
-			return gko.ErrInesperado().Err(err).Op(op)
-		}
+		return gko.ErrNoEncontrado().Msg("Campo no encontrado").Op(op)
 	}
 	return nil
 }
 
 //  ================================================================  //
-//  ========== MYSQL/SCAN-ROW ======================================  //
+//  ========== DELETE ==============================================  //
+
+func (s *Repositorio) DeleteCampo(CampoID int) error {
+	const op string = "DeleteCampo"
+	if CampoID == 0 {
+		return gko.ErrDatoIndef().Op(op).Msg("CampoID sin especificar").Str("pk_indefinida")
+	}
+	err := s.ExisteCampo(CampoID)
+	if err != nil {
+		return gko.Err(err).Op(op)
+	}
+	_, err = s.db.Exec(
+		"DELETE FROM campos WHERE campo_id = ?",
+		CampoID,
+	)
+	if err != nil {
+		return gko.ErrAlEscribir().Err(err).Op(op)
+	}
+	return nil
+}
+
+//  ================================================================  //
+//  ========== CONSTANTES ==========================================  //
+
+// Lista de columnas separadas por coma para usar en consulta SELECT
+// en conjunto con scanRow o scanRows, ya que las columnas coinciden
+// con los campos escaneados.
+//
+//	campo_id,
+//	tabla_id,
+//	nombre_campo,
+//	nombre_columna,
+//	nombre_humano,
+//	tipo_go,
+//	tipo_sql,
+//	setter,
+//	importado,
+//	primary_key,
+//	foreign_key,
+//	uq,
+//	req,
+//	ro,
+//	filtro,
+//	nullable,
+//	max_lenght,
+//	uns,
+//	default_sql,
+//	especial,
+//	referencia_campo,
+//	expresion,
+//	es_femenino,
+//	descripcion,
+//	posicion,
+//	zero_is_null
+const columnasCampo string = "campo_id, tabla_id, nombre_campo, nombre_columna, nombre_humano, tipo_go, tipo_sql, setter, importado, primary_key, foreign_key, uq, req, ro, filtro, nullable, max_lenght, uns, default_sql, especial, referencia_campo, expresion, es_femenino, descripcion, posicion, zero_is_null"
+
+// Origen de los datos de ddd.Campo
+//
+//	FROM campos
+const fromCampo string = "FROM campos "
+
+//  ================================================================  //
+//  ========== SCAN ================================================  //
 
 // Utilizar luego de un sql.QueryRow(). No es necesario hacer row.Close()
-func (s *Repositorio) scanRowCampo(row *sql.Row, cam *ddd.Campo, op string) error {
+func (s *Repositorio) scanRowCampo(row *sql.Row, cam *ddd.Campo) error {
 	var referenciaCampo sql.NullInt64
 	err := row.Scan(
-		&cam.CampoID, &cam.TablaID, &cam.NombreCampo, &cam.NombreColumna, &cam.NombreHumano, &cam.TipoGo, &cam.TipoSql, &cam.Setter, &cam.Importado, &cam.PrimaryKey, &cam.ForeignKey, &cam.Uq, &cam.Req, &cam.Ro, &cam.Filtro, &cam.Nullable, &cam.MaxLenght, &cam.Uns, &cam.DefaultSql, &cam.Especial, &referenciaCampo, &cam.Expresion, &cam.EsFemenino, &cam.Descripcion, &cam.Posicion,
+		&cam.CampoID, &cam.TablaID, &cam.NombreCampo, &cam.NombreColumna, &cam.NombreHumano, &cam.TipoGo, &cam.TipoSql, &cam.Setter, &cam.Importado, &cam.PrimaryKey, &cam.ForeignKey, &cam.Uq, &cam.Req, &cam.Ro, &cam.Filtro, &cam.Nullable, &cam.MaxLenght, &cam.Uns, &cam.DefaultSql, &cam.Especial, &referenciaCampo, &cam.Expresion, &cam.EsFemenino, &cam.Descripcion, &cam.Posicion, &cam.ZeroIsNull,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return gko.ErrNoEncontrado().Msg("el campo no se encuentra").Op(op)
+			return gko.ErrNoEncontrado().Msg("Campo no encontrado")
 		}
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado().Err(err)
 	}
 
 	if referenciaCampo.Valid {
@@ -162,14 +178,14 @@ func (s *Repositorio) scanRowCampo(row *sql.Row, cam *ddd.Campo, op string) erro
 }
 
 //  ================================================================  //
-//  ========== MYSQL/GET ===========================================  //
+//  ========== GET =================================================  //
 
 // GetCampo devuelve un Campo de la DB por su clave primaria.
 // Error si no encuentra ninguno, o si encuentra más de uno.
 func (s *Repositorio) GetCampo(CampoID int) (*ddd.Campo, error) {
-	const op string = "mysqlddd.GetCampo"
+	const op string = "GetCampo"
 	if CampoID == 0 {
-		return nil, gko.ErrDatoInvalido().Msg("CampoID sin especificar").Ctx(op, "pk_indefinida")
+		return nil, gko.ErrDatoIndef().Op(op).Msg("CampoID sin especificar").Str("pk_indefinida")
 	}
 	row := s.db.QueryRow(
 		"SELECT "+columnasCampo+" "+fromCampo+
@@ -177,21 +193,25 @@ func (s *Repositorio) GetCampo(CampoID int) (*ddd.Campo, error) {
 		CampoID,
 	)
 	cam := &ddd.Campo{}
-	return cam, s.scanRowCampo(row, cam, op)
+	err := s.scanRowCampo(row, cam)
+	if err != nil {
+		return nil, err
+	}
+	return cam, nil
 }
 
 //  ================================================================  //
-//  ========== MYSQL/GET_BY ========================================  //
+//  ========== GET_BY TABLA_ID NOMBRE_CAMPO ========================  //
 
 // GetCampoByTablaIDNombreCampo devuelve un Campo de la DB.
 // Error si no encuentra ninguno, o si encuentra más de uno.
 func (s *Repositorio) GetCampoByTablaIDNombreCampo(TablaID int, NombreCampo string) (*ddd.Campo, error) {
-	const op string = "mysqlddd.GetCampoByTablaIDNombreCampo"
+	const op string = "GetCampoByTablaIDNombreCampo"
 	if TablaID == 0 {
-		return nil, gko.ErrDatoInvalido().Msg("TablaID sin especificar").Ctx(op, "param_indefinido")
+		return nil, gko.ErrDatoIndef().Op(op).Msg("TablaID sin especificar").Str("param_indefinido")
 	}
 	if NombreCampo == "" {
-		return nil, gko.ErrDatoInvalido().Msg("NombreCampo sin especificar").Ctx(op, "param_indefinido")
+		return nil, gko.ErrDatoIndef().Op(op).Msg("NombreCampo sin especificar").Str("param_indefinido")
 	}
 	row := s.db.QueryRow(
 		"SELECT "+columnasCampo+" "+fromCampo+
@@ -199,11 +219,15 @@ func (s *Repositorio) GetCampoByTablaIDNombreCampo(TablaID int, NombreCampo stri
 		TablaID, NombreCampo,
 	)
 	cam := &ddd.Campo{}
-	return cam, s.scanRowCampo(row, cam, op)
+	err := s.scanRowCampo(row, cam)
+	if err != nil {
+		return nil, gko.Err(err).Op(op)
+	}
+	return cam, nil
 }
 
 //  ================================================================  //
-//  ========== MYSQL/SCAN-ROWS =====================================  //
+//  ========== SCAN ================================================  //
 
 // scanRowsCampo escanea cada row en la struct Campo
 // y devuelve un slice con todos los items.
@@ -215,7 +239,7 @@ func (s *Repositorio) scanRowsCampo(rows *sql.Rows, op string) ([]ddd.Campo, err
 		cam := ddd.Campo{}
 		var referenciaCampo sql.NullInt64
 		err := rows.Scan(
-			&cam.CampoID, &cam.TablaID, &cam.NombreCampo, &cam.NombreColumna, &cam.NombreHumano, &cam.TipoGo, &cam.TipoSql, &cam.Setter, &cam.Importado, &cam.PrimaryKey, &cam.ForeignKey, &cam.Uq, &cam.Req, &cam.Ro, &cam.Filtro, &cam.Nullable, &cam.MaxLenght, &cam.Uns, &cam.DefaultSql, &cam.Especial, &referenciaCampo, &cam.Expresion, &cam.EsFemenino, &cam.Descripcion, &cam.Posicion,
+			&cam.CampoID, &cam.TablaID, &cam.NombreCampo, &cam.NombreColumna, &cam.NombreHumano, &cam.TipoGo, &cam.TipoSql, &cam.Setter, &cam.Importado, &cam.PrimaryKey, &cam.ForeignKey, &cam.Uq, &cam.Req, &cam.Ro, &cam.Filtro, &cam.Nullable, &cam.MaxLenght, &cam.Uns, &cam.DefaultSql, &cam.Especial, &referenciaCampo, &cam.Expresion, &cam.EsFemenino, &cam.Descripcion, &cam.Posicion, &cam.ZeroIsNull,
 		)
 		if err != nil {
 			return nil, gko.ErrInesperado().Err(err).Op(op)

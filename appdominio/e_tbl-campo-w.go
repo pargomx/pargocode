@@ -74,6 +74,10 @@ func validarCampo(cam *ddd.Campo, repo Repositorio) error {
 		cam.ReferenciaCampo = nil
 	}
 
+	if cam.ZeroIsNull {
+		cam.Nullable = true
+	}
+
 	// Si tiene valores enum entonces es un campo especial.
 	// if len(cam.ValoresEnum) > 0 {
 	// 	cam.Especial = true

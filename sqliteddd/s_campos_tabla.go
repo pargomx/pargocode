@@ -6,14 +6,18 @@ import (
 	"github.com/pargomx/gecko/gko"
 )
 
+//  ================================================================  //
+//  ========== LIST_BY TABLA_ID ====================================  //
+
 // ListCamposByTablaID retorna los registros a partir de TablaID.
 func (s *Repositorio) ListCamposByTablaID(TablaID int) ([]ddd.Campo, error) {
-	const op string = "mysqlddd.ListCamposByTablaID"
+	const op string = "ListCamposByTablaID"
 	if TablaID == 0 {
-		return nil, gko.ErrDatoInvalido().Msg("TablaID sin especificar").Ctx(op, "param_indefinido")
+		return nil, gko.ErrDatoIndef().Op(op).Msg("TablaID sin especificar").Str("param_indefinido")
 	}
 	rows, err := s.db.Query(
-		"SELECT "+columnasCampo+" "+fromCampo+"WHERE tabla_id = ? ORDER BY posicion",
+		"SELECT "+columnasCampo+" "+fromCampo+
+			"WHERE tabla_id = ? ORDER BY posicion",
 		TablaID,
 	)
 	if err != nil {
@@ -33,7 +37,11 @@ func (s *Repositorio) GetCampoPrimaryKey(nombreColumna string) (*ddd.Campo, erro
 		nombreColumna,
 	)
 	cam := &ddd.Campo{}
-	return cam, s.scanRowCampo(row, cam, op)
+	err := s.scanRowCampo(row, cam)
+	if err != nil {
+		return nil, gko.Err(err).Op(op)
+	}
+	return cam, nil
 }
 
 func (s *Repositorio) GetCampoByNombre(nombre string) (*ddd.Campo, error) {
@@ -47,7 +55,7 @@ func (s *Repositorio) GetCampoByNombre(nombre string) (*ddd.Campo, error) {
 		nombre, nombre, nombre,
 	)
 	cam := &ddd.Campo{}
-	err := s.scanRowCampo(row, cam, "mysqlddd.GetCampoByNombre")
+	err := s.scanRowCampo(row, cam)
 	if err != nil {
 		return nil, op.Err(err)
 	}

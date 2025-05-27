@@ -133,7 +133,15 @@
 							{{ .TipoSql }}
 						</td>
 						<td>
-							{{ if not .Nullable }}<code>NN</code>{{ else }}--{{ end }}
+							{{ if not .Nullable -}}
+								<code title="Not Null">NN</code>
+							{{- end -}}
+							{{- if .ZeroIsNull }}
+								<span title="Zero is null" class="text-sm">0:null</span>
+							{{ end }}
+							{{ if and .Nullable (not .ZeroIsNull) -}}
+							--
+							{{- end }}
 						</td>
 						<td>
 							{{ if .Unsigned }}<code>UN</code>{{ else -}}

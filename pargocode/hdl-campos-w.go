@@ -71,6 +71,7 @@ func (s *servidor) updateCampo(c *gecko.Context) error {
 		Descripcion:  c.FormValue("descripcion"),
 
 		Nullable:   !c.FormBool("not_null"),
+		ZeroIsNull: c.FormBool("zero_is_null"),
 		Uns:        c.FormBool("unsinged"),
 		MaxLenght:  c.FormInt("maxlenght"),
 		PrimaryKey: c.FormBool("pk"),

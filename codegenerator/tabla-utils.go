@@ -269,6 +269,10 @@ func (tbl tabla) CamposTablaAsArguments(campos []CampoTabla, nombreVariable stri
 				s += nombreVariable + "." + campo.NombreCampo + ".String, "
 			} else if tbl.Sqlite && campo.EsTiempo() { // TODO: tratar otros tipos de tiempo de maneras diferentes.
 				s += nombreVariable + "." + campo.NombreCampo + ".Format(gkt.FormatoFechaHora), "
+			} else if campo.ZeroIsNull && campo.EsString() {
+				s += fmt.Sprintf("sql.NullString{String: %v.%v, Valid: %v.%v != \"\"}, ", nombreVariable, campo.NombreCampo, nombreVariable, campo.NombreCampo)
+			} else if campo.ZeroIsNull && campo.EsNumero() {
+				s += fmt.Sprintf("sql.NullInt64{Int64: int64(%v.%v), Valid: %v.%v != 0}, ", nombreVariable, campo.NombreCampo, nombreVariable, campo.NombreCampo)
 			} else {
 				s += nombreVariable + "." + campo.NombreCampo + ", "
 			}
@@ -349,6 +353,12 @@ func (tbl *tabla) ScanTempVarsTabla(campos []CampoTabla) string {
 		case campo.EsPointer() && campo.EsString() && campo.EsNullable():
 			res += "\n\tvar " + campo.Variable() + " sql.NullString" // ej. var matricula sql.NullString
 
+		case campo.ZeroIsNull && campo.EsString():
+			res += "\n\tvar " + campo.Variable() + " sql.NullString"
+
+		case campo.ZeroIsNull && campo.EsNumero():
+			res += "\n\tvar " + campo.Variable() + " sql.NullInt64"
+
 		case campo.EsPointer(): //* No reconocido
 			res += "\n\tvar " + "invalid string // No reconocido"
 			gko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
@@ -399,6 +409,11 @@ func (tbl *tabla) ScanArgsTabla(campos []CampoTabla, itemVar string) string {
 
 		case campo.EsPointer() && campo.EsString(): // Si viene null será "".
 			args += itemVar + "." + campo.NombreCampo
+
+		case campo.ZeroIsNull && campo.EsString():
+			args += campo.Variable()
+		case campo.ZeroIsNull && campo.EsNumero():
+			args += campo.Variable()
 
 		case campo.EsPointer():
 			args += "Invalid" // No reconocido
@@ -517,6 +532,26 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 				c.Variable(),
 				itemVar, c.NombreCampo, c.Variable(),
 			)
+		// ================================================================ //
+
+		case c.ZeroIsNull && c.EsString():
+			// if matricula.Valid { apr.Matricula = &matricula.String }
+			res += fmt.Sprintf(
+				" if %v.Valid{ \n\t\t"+
+					"%v.%v = %v.String \n}",
+				c.Variable(),
+				itemVar, c.NombreCampo, c.Variable(),
+			)
+
+		case c.ZeroIsNull && c.EsNumero():
+			// ej. if calificacion.Valid { apr.Calificacion = int(calificacion.Int64) }
+			res += fmt.Sprintf(
+				" if %v.Valid{ \n\t\t"+
+					"%v.%v = %v(%v.Int64) \n}",
+				c.Variable(),
+				itemVar, c.NombreCampo, c.TipoGo, c.Variable(),
+			)
+
 			// ================================================================ //
 
 		case c.EsPointer():

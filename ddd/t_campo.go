@@ -1,10 +1,5 @@
 package ddd
 
-import (
-	"errors"
-	"strings"
-)
-
 // Campo corresponde a un elemento de la tabla 'campos'.
 type Campo struct {
 	CampoID         int    // `campos.campo_id`
@@ -23,6 +18,7 @@ type Campo struct {
 	Ro              bool   // `campos.ro`  No se guardará ni actualizará su valor en el repositorio: 'readonly'
 	Filtro          bool   // `campos.filtro`  Se debe generar lógica para filtrar por este campo desde el repositorio: 'filtro'
 	Nullable        bool   // `campos.nullable`  Declara que el campo puede ser nulo: 'null' (ej *int | *string | *time.Time )
+	ZeroIsNull      bool   // `campos.zero_is_null`  Un valor Zero en Go (0 para int, "" para string) se guarda en DB como NULL. Útil para claves foráneas opcionales.
 	MaxLenght       int    // `campos.max_lenght`  Longitud máxima permitida en repositorio para strings: 'max' [ej. varchar(12), char(3)].
 	Uns             bool   // `campos.uns`  Valor numérico positivo.
 	DefaultSql      string // `campos.default_sql`  Valor por default. Puede ser: '', 'NULL', 'AUTO_INCREMENT', 'OTRO'.
@@ -32,71 +28,4 @@ type Campo struct {
 	EsFemenino      bool   // `campos.es_femenino`
 	Descripcion     string // `campos.descripcion`
 	Posicion        int    // `campos.posicion`
-}
-
-var (
-	ErrCampoNotFound      error = errors.New("el campo no se encuentra")
-	ErrCampoAlreadyExists error = errors.New("el campo ya existe")
-)
-
-func (cam *Campo) Validar() error {
-
-	return nil
-}
-
-func (c Campo) DefaultSQL() string {
-	return c.DefaultSql
-}
-
-func (c Campo) TipoSQL() string {
-	return c.TipoSql
-}
-
-func (c Campo) Unsigned() bool {
-	return c.Uns
-}
-
-func (c Campo) Unique() bool {
-	return c.Uq
-}
-
-func (c Campo) Required() bool {
-	return c.Req
-}
-
-func (c Campo) ReadOnly() bool {
-	return c.Ro
-}
-
-func (c Campo) Null() bool {
-	return c.Nullable
-}
-
-func (c Campo) NotNull() bool {
-	return !c.Nullable
-}
-
-func (c Campo) EsCalculado() bool {
-	return c.Expresion != ""
-}
-
-func (c Campo) EsSqlChar() bool {
-	return strings.ToUpper(c.TipoSql) == "CHAR"
-}
-
-func (c Campo) EsSqlVarchar() bool {
-	return strings.ToUpper(c.TipoSql) == "VARCHAR"
-}
-
-func (c Campo) EsSqlText() bool {
-	return strings.Contains(strings.ToUpper(c.TipoSql), "TEXT")
-}
-
-func (c Campo) EsSqlInt() bool {
-	switch c.TipoSql {
-	case "tinyint", "smallint", "mediumint", "int", "bigint":
-		return true
-	default:
-		return false
-	}
 }

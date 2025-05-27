@@ -104,7 +104,7 @@ func (cam CampoConsulta) ifZeroReturnErr(razón string, nombreVariable string, r
 
 	switch {
 
-	case cam.EsNullable():
+	case cam.EsPointer():
 		comparacion += " == nil "
 
 	case cam.EsString():

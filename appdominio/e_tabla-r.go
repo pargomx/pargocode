@@ -47,6 +47,7 @@ func GetTabla(tablaID int, repo Repositorio) (*Tabla, error) {
 			Ro:              c.Ro,
 			Filtro:          c.Filtro,
 			Nullable:        c.Nullable,
+			ZeroIsNull:      c.ZeroIsNull,
 			MaxLenght:       c.MaxLenght,
 			Uns:             c.Uns,
 			DefaultSql:      c.DefaultSql,
