@@ -1,26 +1,49 @@
 {
 	"version": "2.0.0",
+	"type": "shell",
+	"isBackground": false,
+	"problemMatcher": [],
+	"presentation": {
+		"echo": false,
+		"reveal": "always",
+		"focus": false,
+		"panel": "shared",
+		"showReuseMessage": false,
+		"clear": false,
+	},
 	"tasks": [
 		{
-			"label": "Run", "detail": "Ejecutar en ambiente de desarrollo",
-			"command": "CGO_ENABLED=0 go run -ldflags \"-X main.BUILD_INFO=pargocode:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=DEV\" ./pargocode/ -src=$(realpath .) -dir _ejemplo",
-			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
+			"label": "Ejecutar",
+			"detail": "Ejecutar aplicación en ambiente de desarrollo.",
+			"command": "pargocode -src=$(realpath .) -dir $(realpath ../_tdataPargoCode)",
+			"dependsOn": ["Instalar"], "dependsOrder": "sequence",
+			"isBackground": true,
 		},
 		{
-			"label": "Install pargocode", "detail": "Instalar versión de producción en computadora actual",
-			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=pargocode:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=PROD\" ./pargocode && echo 'Instalado ºuº)/'",
-			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
-		},
-		{
-			"label": "Tailwind", "detail": "Tailwind watch",
-			"command": "tailwindcss -w -i ./assets/source.css -o ./assets/css/tailwind.css",
-			"type": "shell", "presentation": { "echo": false, "reveal": "silent", "focus": false, "showReuseMessage": false }, "isBackground": true,
-		},
-		{
-			"label": "Tailwind once", "detail": "Tailwind compile once",
+			"label": "Tailwind once",
+			"detail": "Compilar estilos CSS una vez.",
 			"command": "tailwindcss -i ./assets/source.css -o ./assets/css/tailwind.css",
-			"type": "shell", "presentation": { "echo": false, "reveal": "silent", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
+		{
+			"label": "Tailwind watch",
+			"detail": "Compilar estilos CSS y observar cambios.",
+			"command": "tailwindcss -w -i ./assets/source.css -o ./assets/css/tailwind.css",
+			"isBackground": true,
+		},
+		{
+			"label": "PargoCode",
+			"detail": "Generación de código mediante interfaz web.",
+			"command": "sleep 1 && pargocode",
+			"isBackground": true,
+		},
+		{
+			"label": "Instalar",
+			"detail": "Instalar pargocode.",
+			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=pargocode:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=PROD\" ./pargocode && echo '[✔] App instalada'",
+			"hide": true,
+		},
+
+
 		{
 			"label": "Install gkfmt", "detail": "Instalar en computadora actual",
 			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=gkfmt:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)\" ./gkfmt && echo 'Instalado ºuº)/'",
@@ -36,12 +59,12 @@
 			"command": "CGO_ENABLED=0 go run -ldflags \"-X main.BUILD_INFO=gkfmt:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)\" ./gkfmt -i gkfmt/input.html -o gkfmt/output.html -d 2>&1 | grep --color=always -B 6 -A 6 '${input:debugSearch}'",
 			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "clear": true, "showReuseMessage": false }, "isBackground": true,
 		},
-	],
 
+	],
 	"inputs": [
 		{
-			"id": "debugSearch", "description": "Cadena a buscar en el debug de gkfmt",
-			"default": "", "type": "promptString"
+			"id": "remoteHost", "description": "Dirección del remote host",
+			"default": "localhost", "type": "promptString"
 		},
 	]
 }
