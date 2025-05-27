@@ -22,6 +22,9 @@ import (
 //go:embed plantillas
 var plantillasFS embed.FS
 
+// Colección para generar de varias tablas y/o consultas.
+type Generadores []generador
+
 type generador struct {
 	renderer *tmplutils.Renderer
 
@@ -144,7 +147,7 @@ func NuevoDeConsulta(repo Repositorio, consultaID int) (*generador, error) {
 	return &tblGenCall, nil
 }
 
-func NuevoDePaquete(repo Repositorio, paqueteID int) ([]generador, error) {
+func NuevoDePaquete(repo Repositorio, paqueteID int) (Generadores, error) {
 	op := gko.Op("codegen.NuevoDePaquete")
 	renderer, err := tmplutils.NuevoRenderer(plantillasFS, "plantillas")
 	if err != nil {
@@ -153,7 +156,7 @@ func NuevoDePaquete(repo Repositorio, paqueteID int) ([]generador, error) {
 	if repo == nil {
 		return nil, op.Str("repo es nil")
 	}
-	Generadores := []generador{}
+	Generadores := Generadores{}
 	tablas, err := repo.ListTablasByPaqueteID(paqueteID)
 	if err != nil {
 		return nil, op.Err(err)
@@ -351,6 +354,54 @@ func (c *generador) addJobsEntidad() {
 		oldFilename(filepath.Join(c.con.Paquete.Directorio, c.con.Paquete.Nombre, c.con.TablaOrigen.NombreRepo+"_extendido.go"), destino)
 		c.addJob("go/qry_struct", destino, "")
 	}
+}
+
+func (generadores Generadores) GenerarSchemaSQLite(tipoDB string) (hechos []string, err error) {
+	op := gko.Op("GenerarSchemaSQLite")
+
+	buf := &strings.Builder{}
+
+	for _, c := range generadores {
+		if c.tbl == nil {
+			continue
+		}
+		destino := filepath.Join(c.tbl.Paquete.Directorio, c.tbl.Paquete.Nombre+".sql")
+		if tipoDB == "sqlite" {
+			c.addJob("sqlite/create_table", destino, "")
+		} else if tipoDB == "mysql" {
+			c.addJob("mysql/create_table", destino, "")
+		}
+		c.SinTitulos()
+		err = c.Generar()
+		if err != nil {
+			fmt.Fprintf(buf, "\n/* ERROR\n\t%v\n*/\n", err.Error())
+		}
+		fmt.Fprintf(buf, "\n%v\n", c.ToString())
+	}
+
+	filename := "migraciones/new_schema.sql"
+	// Guardar archivo
+	if !fileutils.Existe(filepath.Dir(filename)) {
+		err = os.MkdirAll(filepath.Dir(filename), 0755)
+		if err != nil {
+			return nil, op.Err(err)
+		}
+		hechos = append(hechos, filepath.Dir("[NEW_DIR] "+filename))
+	}
+	sobreescrito := false
+	if fileutils.Existe(filename) {
+		sobreescrito = true
+	}
+	err = fileutils.GuardarPlainText(filename, buf.String())
+	if err != nil {
+		return nil, op.Err(err)
+	}
+	if sobreescrito {
+		hechos = append(hechos, "[REWRITE] "+filename)
+	} else {
+		hechos = append(hechos, "[NEWFILE] "+filename)
+	}
+	return hechos, nil
 }
 
 // ================================================================ //

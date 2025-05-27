@@ -72,24 +72,36 @@ func (s *servidor) generarDeConsulta(c *gecko.Context) error {
 // ========== PAQUETE ============================================= //
 
 func (s *servidor) generarDePaqueteArchivos(c *gecko.Context) error {
+	reporte := "ARCHIVOS GENERADOS:\n\n"
+	errores := []error{}
+
 	generadores, err := codegenerator.NuevoDePaquete(s.ddd, c.PathInt("paquete_id"))
 	if err != nil {
 		return err
 	}
-	reporte := "ARCHIVOS GENERADOS:\n\n"
-	errores := []error{}
-	for _, gen := range generadores {
-		err = gen.PrepararJob(c.FormVal("tipo")).Generar()
+	if c.FormVal("tipo") == "schema" {
+		res, err := generadores.GenerarSchemaSQLite(c.FormVal("db"))
 		if err != nil {
-			errores = append(errores, err)
-			continue
+			return err
 		}
-		err := gen.ToFile()
-		if err != nil {
-			errores = append(errores, err)
+		reporte += strings.Join(res, "\n") + "\n"
+
+	} else { // Generar entidades, repositorios.
+		for _, gen := range generadores {
+			err = gen.PrepararJob(c.FormVal("tipo")).Generar()
+			if err != nil {
+				errores = append(errores, err)
+				continue
+			}
+			err := gen.ToFile()
+			if err != nil {
+				errores = append(errores, err)
+			}
+			reporte += strings.Join(gen.GetHechos(), "\n") + "\n"
 		}
-		reporte += strings.Join(gen.GetHechos(), "\n") + "\n"
 	}
+
+	// Responder con reporte de lo sucedido.
 	if len(errores) > 0 {
 		reporte += "\nERRORES:\n\n"
 		for _, e := range errores {

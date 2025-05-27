@@ -119,10 +119,16 @@
 	</header>
 	<div class="flex flex-wrap items-center justify-center gap-4">
 		<a target="_blank" href="/paquetes/{{ .PaqueteID }}/generar?tipo=mysql" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-cyan-700 rounded shadow-md hover:bg-cyan-600">
-			MySQL
+			MySQL repo
+		</a>
+		<a target="_blank" href="/paquetes/{{ .PaqueteID }}/generar?tipo=schema&db=mysql" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-cyan-700 rounded shadow-md hover:bg-cyan-600">
+			MySQL schema
 		</a>
 		<a target="_blank" href="/paquetes/{{ .PaqueteID }}/generar?tipo=sqlite" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-cyan-700 rounded shadow-md hover:bg-cyan-600">
-			Sqlite
+			Sqlite repo
+		</a>
+		<a target="_blank" href="/paquetes/{{ .PaqueteID }}/generar?tipo=schema&db=sqlite" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-cyan-700 rounded shadow-md hover:bg-cyan-600">
+			Sqlite schema
 		</a>
 		<a target="_blank" href="/paquetes/{{ .PaqueteID }}/generar?tipo=entidad" class="inline-block px-6 py-2 font-medium text-slate-100 transition-colors bg-cyan-700 rounded shadow-md hover:bg-cyan-600">
 			Entidad

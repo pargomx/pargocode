@@ -55,3 +55,31 @@ func GuardarGoCode(filename string, codigo string) error {
 
 	return nil
 }
+
+func GuardarPlainText(filename string, txt string) error {
+	op := gko.Op("GuardarPlainText")
+	if !OuptutToConsole && !OutputToFile {
+		gko.ErrNoDisponible().Msg("No se especificó a donde mandar el resultado: fileutils.OuptutToConsole/OutputToFile es false")
+	}
+	if OuptutToConsole {
+		gko.LogEventof("Imprimiendo:")
+		fmt.Print(txt)
+	}
+	if !OutputToFile {
+		return nil
+	}
+	if !Existe("go.mod") {
+		return op.ErrNoDisponible().Str("Pargo no parece estar en la raíz de un proyecto Go")
+	}
+
+	fileOut, err := os.Create(filename)
+	if err != nil {
+		return op.Err(err)
+	}
+	if _, err = fileOut.WriteString(txt); err != nil {
+		return op.Err(err)
+	}
+	fileOut.Close()
+
+	return nil
+}
