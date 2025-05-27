@@ -79,8 +79,9 @@ func (s *servidor) generarDePaqueteArchivos(c *gecko.Context) error {
 	if err != nil {
 		return err
 	}
-	if c.FormVal("tipo") == "schema" {
-		res, err := generadores.GenerarSchemaSQLite(c.FormVal("db"))
+	tipo := c.FormVal("tipo")
+	if tipo == "schema" || tipo == "migracion" {
+		res, err := generadores.GenerarSchemaSQLite(tipo, c.FormVal("db"))
 		if err != nil {
 			return err
 		}
@@ -88,7 +89,7 @@ func (s *servidor) generarDePaqueteArchivos(c *gecko.Context) error {
 
 	} else { // Generar entidades, repositorios.
 		for _, gen := range generadores {
-			err = gen.PrepararJob(c.FormVal("tipo")).Generar()
+			err = gen.PrepararJob(tipo).Generar()
 			if err != nil {
 				errores = append(errores, err)
 				continue

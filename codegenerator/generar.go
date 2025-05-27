@@ -356,20 +356,26 @@ func (c *generador) addJobsEntidad() {
 	}
 }
 
-func (generadores Generadores) GenerarSchemaSQLite(tipoDB string) (hechos []string, err error) {
+func (generadores Generadores) GenerarSchemaSQLite(tipoJob string, tipoDB string) (hechos []string, err error) {
 	op := gko.Op("GenerarSchemaSQLite")
 
 	buf := &strings.Builder{}
+	filename := "migraciones/new_schema.sql"
 
 	for _, c := range generadores {
 		if c.tbl == nil {
 			continue
 		}
 		destino := filepath.Join(c.tbl.Paquete.Directorio, c.tbl.Paquete.Nombre+".sql")
-		if tipoDB == "sqlite" {
+		if tipoJob == "migracion" {
+			c.addJob("sqlite/insert_into_select", destino, "")
+			filename = "migraciones/migracion_full.sql"
+		} else if tipoDB == "sqlite" {
 			c.addJob("sqlite/create_table", destino, "")
 		} else if tipoDB == "mysql" {
 			c.addJob("mysql/create_table", destino, "")
+		} else {
+			return nil, op.Msgf("Trabajo inválido: %v/%v", tipoDB, tipoJob)
 		}
 		c.SinTitulos()
 		err = c.Generar()
@@ -379,7 +385,6 @@ func (generadores Generadores) GenerarSchemaSQLite(tipoDB string) (hechos []stri
 		fmt.Fprintf(buf, "\n%v\n", c.ToString())
 	}
 
-	filename := "migraciones/new_schema.sql"
 	// Guardar archivo
 	if !fileutils.Existe(filepath.Dir(filename)) {
 		err = os.MkdirAll(filepath.Dir(filename), 0755)
@@ -674,6 +679,9 @@ func (c *generador) Generar() (err error) {
 				err = c.renderer.HaciaBufferHTML(job.tmpl, data, c.destinos[i].buf)
 
 			case strings.Contains(job.tmpl, "create_table"):
+				err = c.renderer.HaciaBuffer(job.tmpl, data, c.destinos[i].buf)
+
+			case strings.Contains(job.tmpl, "insert_into_select"):
 				err = c.renderer.HaciaBuffer(job.tmpl, data, c.destinos[i].buf)
 
 			case strings.Contains(job.tmpl, "query"):
