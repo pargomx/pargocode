@@ -356,27 +356,48 @@ func (c *generador) addJobsEntidad() {
 	}
 }
 
-func (generadores Generadores) GenerarSchemaSQLite(tipoJob string, tipoDB string) (hechos []string, err error) {
+func (generadores Generadores) GenerarSchemaSQLite(tipoJob string, version int, tipoDB string) (hechos []string, err error) {
 	op := gko.Op("GenerarSchemaSQLite")
 
 	buf := &strings.Builder{}
-	filename := "migraciones/new_schema.sql"
+
+	// Default "schema"
+	filename := ""
+	insertMigra := ""
+
+	if tipoJob == "migrar_datos" {
+		filename = fmt.Sprintf("migraciones/v%d/00_datos_v%d.sql", version, version)
+		insertMigra = fmt.Sprintf("INSERT INTO migraciones VALUES (%v,0, CURRENT_TIMESTAMP, 'Migrar datos de v%d a v%d');\n", version, version-1, version)
+
+	} else if tipoJob == "schema" {
+		filename = fmt.Sprintf("migraciones/v%d/01_schema_v%d.sql", version, version)
+		insertMigra = fmt.Sprintf("INSERT INTO migraciones VALUES (%v,1, CURRENT_TIMESTAMP, 'Esquema completo v%d');\n", version, version)
+
+	} else {
+		return nil, op.Msgf("Trabajo inválido: %v/%v", tipoDB, tipoJob)
+	}
+
+	buf.WriteString(insertMigra)
 
 	for _, c := range generadores {
 		if c.tbl == nil {
 			continue
 		}
 		destino := filepath.Join(c.tbl.Paquete.Directorio, c.tbl.Paquete.Nombre+".sql")
-		if tipoJob == "migracion" {
+
+		if tipoJob == "migrar_datos" {
 			c.addJob("sqlite/insert_into_select", destino, "")
-			filename = "migraciones/migracion_full.sql"
-		} else if tipoDB == "sqlite" {
+
+		} else if tipoDB == "sqlite" { // tipoJob == "schema"
 			c.addJob("sqlite/create_table", destino, "")
-		} else if tipoDB == "mysql" {
+
+		} else if tipoDB == "mysql" { // tipoJob == "schema"
 			c.addJob("mysql/create_table", destino, "")
+
 		} else {
 			return nil, op.Msgf("Trabajo inválido: %v/%v", tipoDB, tipoJob)
 		}
+
 		c.SinTitulos()
 		err = c.Generar()
 		if err != nil {

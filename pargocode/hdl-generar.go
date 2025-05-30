@@ -80,8 +80,8 @@ func (s *servidor) generarDePaqueteArchivos(c *gecko.Context) error {
 		return err
 	}
 	tipo := c.FormVal("tipo")
-	if tipo == "schema" || tipo == "migracion" {
-		res, err := generadores.GenerarSchemaSQLite(tipo, c.FormVal("db"))
+	if tipo == "schema" || tipo == "migrar_datos" {
+		res, err := generadores.GenerarSchemaSQLite(tipo, c.PromptInt(), c.FormVal("db"))
 		if err != nil {
 			return err
 		}
