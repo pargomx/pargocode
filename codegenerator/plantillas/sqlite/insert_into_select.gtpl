@@ -3,6 +3,6 @@ INSERT INTO main.{{ .NombreRepo }} (
   {{ .CamposAsSnakeList ",\n  " }}
 ) SELECT
   {{ .CamposAsSnakeList ",\n  " }}
-  FROM old.{{ .Tabla.NombreRepo }}
+  FROM old_schema.{{ .Tabla.NombreRepo }}
 ;
 {{ end }}
