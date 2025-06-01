@@ -247,6 +247,15 @@ func InsertarCampoQuick(tablaID int, nombreCol string, repo Repositorio) error {
 		}
 	}
 
+	// Poner al final si es un campo nuevo.
+	if cam.Posicion == 0 {
+		campos, err := repo.ListCamposByTablaID(cam.TablaID)
+		if err != nil {
+			return op.Err(err)
+		}
+		cam.Posicion = len(campos) + 1
+	}
+
 	err = InsertarCampo(cam, repo)
 	if err != nil {
 		return op.Err(err)
