@@ -30,14 +30,14 @@ const fromConsulta string = "FROM consultas "
 func (s *Repositorio) InsertConsulta(con ddd.Consulta) error {
 	const op string = "mysqlddd.InsertConsulta"
 	if con.ConsultaID == 0 {
-		return gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if con.NombreItem == "" {
-		return gko.ErrDatoInvalido().Msg("NombreItem sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("NombreItem sin especificar").Ctx(op, "required_sin_valor")
 	}
 	err := con.Validar()
 	if err != nil {
-		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido.Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec("INSERT INTO consultas "+
 		"(consulta_id, paquete_id, tabla_id, nombre_item, nombre_items, abrev, es_femenino, descripcion, directrices) "+
@@ -46,11 +46,11 @@ func (s *Repositorio) InsertConsulta(con ddd.Consulta) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1062 (23000)") {
-			return gko.ErrYaExiste().Err(err).Op(op)
+			return gko.ErrYaExiste.Err(err).Op(op)
 		} else if strings.HasPrefix(err.Error(), "Error 1452 (23000)") {
-			return gko.ErrDatoInvalido().Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
+			return gko.ErrDatoInvalido.Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
 		} else {
-			return gko.ErrInesperado().Err(err).Op(op)
+			return gko.ErrInesperado.Err(err).Op(op)
 		}
 	}
 	return nil
@@ -63,14 +63,14 @@ func (s *Repositorio) InsertConsulta(con ddd.Consulta) error {
 func (s *Repositorio) UpdateConsulta(con ddd.Consulta) error {
 	const op string = "mysqlddd.UpdateConsulta"
 	if con.ConsultaID == 0 {
-		return gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if con.NombreItem == "" {
-		return gko.ErrDatoInvalido().Msg("NombreItem sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("NombreItem sin especificar").Ctx(op, "required_sin_valor")
 	}
 	err := con.Validar()
 	if err != nil {
-		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido.Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec(
 		"UPDATE consultas SET "+
@@ -80,7 +80,7 @@ func (s *Repositorio) UpdateConsulta(con ddd.Consulta) error {
 		con.ConsultaID,
 	)
 	if err != nil {
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado.Err(err).Op(op)
 	}
 	return nil
 }
@@ -93,7 +93,7 @@ func (s *Repositorio) UpdateConsulta(con ddd.Consulta) error {
 func (s *Repositorio) DeleteConsulta(ConsultaID int) error {
 	const op string = "mysqlddd.DeleteConsulta"
 	if ConsultaID == 0 {
-		return gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	// Verificar que solo se borre un registro.
 	var num int
@@ -102,14 +102,14 @@ func (s *Repositorio) DeleteConsulta(ConsultaID int) error {
 	).Scan(&num)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return gko.ErrNoEncontrado().Err(ddd.ErrConsultaNotFound).Op(op)
+			return gko.ErrNoEncontrado.Err(ddd.ErrConsultaNotFound).Op(op)
 		}
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado.Err(err).Op(op)
 	}
 	if num > 1 {
-		return gko.ErrInesperado().Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
+		return gko.ErrInesperado.Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
 	} else if num == 0 {
-		return gko.ErrNoEncontrado().Err(ddd.ErrConsultaNotFound).Op(op).Msg("cero resultados")
+		return gko.ErrNoEncontrado.Err(ddd.ErrConsultaNotFound).Op(op).Msg("cero resultados")
 	}
 	// Eliminar registro
 	_, err = s.db.Exec(
@@ -118,9 +118,9 @@ func (s *Repositorio) DeleteConsulta(ConsultaID int) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1451 (23000)") {
-			return gko.ErrYaExiste().Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
+			return gko.ErrYaExiste.Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
 		} else {
-			return gko.ErrInesperado().Err(err).Op(op)
+			return gko.ErrInesperado.Err(err).Op(op)
 		}
 	}
 	_, err = s.db.Exec(
@@ -129,9 +129,9 @@ func (s *Repositorio) DeleteConsulta(ConsultaID int) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1451 (23000)") {
-			return gko.ErrYaExiste().Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
+			return gko.ErrYaExiste.Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
 		} else {
-			return gko.ErrInesperado().Err(err).Op(op)
+			return gko.ErrInesperado.Err(err).Op(op)
 		}
 	}
 	_, err = s.db.Exec(
@@ -140,9 +140,9 @@ func (s *Repositorio) DeleteConsulta(ConsultaID int) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1451 (23000)") {
-			return gko.ErrYaExiste().Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
+			return gko.ErrYaExiste.Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
 		} else {
-			return gko.ErrInesperado().Err(err).Op(op)
+			return gko.ErrInesperado.Err(err).Op(op)
 		}
 	}
 	return nil
@@ -159,9 +159,9 @@ func (s *Repositorio) scanRowConsulta(row *sql.Row, con *ddd.Consulta, op string
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return gko.ErrNoEncontrado().Msg("la consulta no se encuentra").Op(op)
+			return gko.ErrNoEncontrado.Msg("la consulta no se encuentra").Op(op)
 		}
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado.Err(err).Op(op)
 	}
 
 	return nil
@@ -175,7 +175,7 @@ func (s *Repositorio) scanRowConsulta(row *sql.Row, con *ddd.Consulta, op string
 func (s *Repositorio) GetConsulta(ConsultaID int) (*ddd.Consulta, error) {
 	const op string = "mysqlddd.GetConsulta"
 	if ConsultaID == 0 {
-		return nil, gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
+		return nil, gko.ErrDatoInvalido.Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	row := s.db.QueryRow(
 		"SELECT "+columnasConsulta+" "+fromConsulta+
@@ -202,7 +202,7 @@ func (s *Repositorio) scanRowsConsulta(rows *sql.Rows, op string) ([]ddd.Consult
 			&con.ConsultaID, &con.PaqueteID, &con.TablaID, &con.NombreItem, &con.NombreItems, &con.Abrev, &con.EsFemenino, &con.Descripcion, &con.Directrices,
 		)
 		if err != nil {
-			return nil, gko.ErrInesperado().Err(err).Op(op)
+			return nil, gko.ErrInesperado.Err(err).Op(op)
 		}
 
 		items = append(items, con)
@@ -217,7 +217,7 @@ func (s *Repositorio) scanRowsConsulta(rows *sql.Rows, op string) ([]ddd.Consult
 func (s *Repositorio) ListConsultasByPaqueteID(PaqueteID int) ([]ddd.Consulta, error) {
 	const op string = "mysqlddd.ListConsultasByPaqueteID"
 	if PaqueteID == 0 {
-		return nil, gko.ErrDatoInvalido().Msg("PaqueteID sin especificar").Ctx(op, "param_indefinido")
+		return nil, gko.ErrDatoInvalido.Msg("PaqueteID sin especificar").Ctx(op, "param_indefinido")
 	}
 	where := "WHERE paquete_id = ?"
 	argumentos := []any{}
@@ -229,7 +229,7 @@ func (s *Repositorio) ListConsultasByPaqueteID(PaqueteID int) ([]ddd.Consulta, e
 		argumentos...,
 	)
 	if err != nil {
-		return nil, gko.ErrInesperado().Err(err).Op(op)
+		return nil, gko.ErrInesperado.Err(err).Op(op)
 	}
 	return s.scanRowsConsulta(rows, op)
 }

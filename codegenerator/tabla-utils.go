@@ -361,7 +361,7 @@ func (tbl *tabla) ScanTempVarsTabla(campos []CampoTabla) string {
 
 		case campo.EsPointer(): //* No reconocido
 			res += "\n\tvar " + "invalid string // No reconocido"
-			gko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
+			gko.LogWarn("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
 		}
 	}
 	return res
@@ -374,7 +374,7 @@ func (tbl *tabla) ScanTempVarsTabla(campos []CampoTabla) string {
 // El itemVar es el nombre de la variable de la estructura. Ej. "usu" para resultar en &usu.UsuarioID, &usu.Nombre
 func (tbl *tabla) ScanArgsTabla(campos []CampoTabla, itemVar string) string {
 	if itemVar == "" {
-		gko.LogWarnf("itemVar indefinida para ScanArgs")
+		gko.LogWarn("itemVar indefinida para ScanArgs")
 	}
 	var args string
 	for _, campo := range campos {
@@ -417,7 +417,7 @@ func (tbl *tabla) ScanArgsTabla(campos []CampoTabla, itemVar string) string {
 
 		case campo.EsPointer():
 			args += "Invalid" // No reconocido
-			gko.LogWarnf("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
+			gko.LogWarn("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
 
 		default:
 			args += itemVar + "." + campo.NombreCampo // ej. &usu.UsuarioID, &usu.Nombre... (int, string)
@@ -434,7 +434,7 @@ func (tbl *tabla) ScanArgsTabla(campos []CampoTabla, itemVar string) string {
 // El itemVar es el nombre de la variable de la estructura. Ej. "usu" para resultar en usu.SetEstatusDB(...), usu.FechaBaja = (...)
 func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 	if itemVar == "" {
-		gko.LogWarnf("itemVar indefinida para ScanSetters")
+		gko.LogWarn("itemVar indefinida para ScanSetters")
 	}
 	var res string
 	for _, c := range campos {
@@ -448,7 +448,7 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 			// ================================================================ //
 
 			// case c.TipoImportado && c.TipoSetter != "": // ej. usu.TipoImportado = importado.SetTipoDB(tipo)
-			// gko.LogWarnf("Usando TipoImportado no implementado")
+			// gko.LogWarn("Usando TipoImportado no implementado")
 			// res += itemVar + "." + c.NombreCampo + " = " + strings.ReplaceAll(c.TipoSetter, "?", c.Variable())
 			// ================================================================ //
 
@@ -458,13 +458,13 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 			if len(%s) == 19 {
 				%s.%s, err = time.Parse(gkt.FormatoFechaHora, %s)
 				if err != nil {
-					gko.ErrInesperado().Op("scanRow%s").Str("%s no tiene formato correcto en db").Err(err).Log()
+					gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
 				}
 			} else {
-				gko.ErrInesperado().Op("scanRow%s").Str("%s no tiene formato correcto en db").Log()
+				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Log()
 			}
 			`, tmpVar, itemVar, c.NombreCampo, tmpVar,
-				tbl.NombreItem(), c.NombreColumna, tbl.NombreItem(), c.NombreColumna)
+				c.NombreColumna, tbl.NombreItem(), c.NombreColumna, tbl.NombreItem())
 
 		case c.TipoGo == "*time.Time" && c.EsPointer(): // ej. if fechaBaja.Valid { apr.FechaBaja = &fechaBaja.Time }
 
@@ -476,7 +476,7 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 			// 	)
 			// default:
 			// 	res += "invalid"
-			// 	gko.LogWarnf("el campo " + c.NombreCampo + " es time.Time pero no se sabe si timestamp|datetime|date|time")
+			// 	gko.LogWarn("el campo " + c.NombreCampo + " es time.Time pero no se sabe si timestamp|datetime|date|time")
 			// }
 			// ================================================================ //
 
@@ -502,7 +502,7 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 
 			res += fmt.Sprintf(
 				"\n if %v.Valid{ \n\t\t"+
-					"if %v.Int64 < 0{\n gko.LogWarnf(fmt.Sprint(\"el campo %v espera número positivo pero obtuvo \",%v.Int64)) \n}\n"+
+					"if %v.Int64 < 0{\n gko.LogWarn(fmt.Sprint(\"el campo %v espera número positivo pero obtuvo \",%v.Int64)) \n}\n"+
 					"num := %v(%v.Int64) \n\t\t"+ // ej. if calificacion.Valid {
 					"%v.%v = &num \n}", // 				num := int(calificacion.Int64)
 				c.Variable(), // 					apr.Calificacion = &num
@@ -557,7 +557,7 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 		case c.EsPointer():
 
 			res += "invalid"
-			gko.LogWarnf("el campo " + c.NombreCampo + " no puede ser " + c.TipoGo + " para generar SQL")
+			gko.LogWarn("el campo " + c.NombreCampo + " no puede ser " + c.TipoGo + " para generar SQL")
 			// ================================================================ //
 
 		default:

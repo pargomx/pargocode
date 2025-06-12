@@ -82,29 +82,29 @@ func ActualizarTabla(tablaID int, new ddd.Tabla, repo Repositorio) error {
 	}
 
 	if old.TablaID != new.TablaID {
-		return gko.ErrDatoInvalido().Msg("No se puede cambiar el ID de la tabla").Ctx("oldID", old.TablaID).Ctx("newID", new.TablaID)
+		return gko.ErrDatoInvalido.Msg("No se puede cambiar el ID de la tabla").Ctx("oldID", old.TablaID).Ctx("newID", new.TablaID)
 	}
 
 	if new.TablaID == 0 {
-		return gko.ErrDatoInvalido().Msg("No se puede quitar el ID")
+		return gko.ErrDatoInvalido.Msg("No se puede quitar el ID")
 	}
 	if new.PaqueteID == 0 {
-		return gko.ErrDatoInvalido().Msg("No se puede quitar el paquete")
+		return gko.ErrDatoInvalido.Msg("No se puede quitar el paquete")
 	}
 	if new.NombreRepo == "" {
-		return gko.ErrDatoInvalido().Msg("El nombre de la tabla no puede estar vacío")
+		return gko.ErrDatoInvalido.Msg("El nombre de la tabla no puede estar vacío")
 	}
 	if new.NombreItem == "" {
-		return gko.ErrDatoInvalido().Msg("El nombre del item no puede estar vacío")
+		return gko.ErrDatoInvalido.Msg("El nombre del item no puede estar vacío")
 	}
 	if new.NombreItems == "" {
-		return gko.ErrDatoInvalido().Msg("El nombre items plural no puede estar vacío")
+		return gko.ErrDatoInvalido.Msg("El nombre items plural no puede estar vacío")
 	}
 	if new.Humano == "" {
-		return gko.ErrDatoInvalido().Msg("El nombre humano no puede estar vacío")
+		return gko.ErrDatoInvalido.Msg("El nombre humano no puede estar vacío")
 	}
 	if new.Abrev == "" {
-		return gko.ErrDatoInvalido().Msg("La abreviatura no puede estar vacía")
+		return gko.ErrDatoInvalido.Msg("La abreviatura no puede estar vacía")
 	}
 
 	old.PaqueteID = new.PaqueteID

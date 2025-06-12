@@ -30,29 +30,29 @@ const fromTabla string = "FROM tablas "
 func (s *Repositorio) InsertTabla(tab ddd.Tabla) error {
 	const op string = "mysqlddd.InsertTabla"
 	if tab.TablaID == 0 {
-		return gko.ErrDatoInvalido().Msg("TablaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("TablaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if tab.NombreRepo == "" {
-		return gko.ErrDatoInvalido().Msg("NombreRepo sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("NombreRepo sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if tab.NombreItem == "" {
-		return gko.ErrDatoInvalido().Msg("NombreItem sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("NombreItem sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if tab.NombreItems == "" {
-		return gko.ErrDatoInvalido().Msg("NombreItems sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("NombreItems sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if tab.Abrev == "" {
-		return gko.ErrDatoInvalido().Msg("Abrev sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("Abrev sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if tab.Humano == "" {
-		return gko.ErrDatoInvalido().Msg("Humano sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("Humano sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if tab.Kebab == "" {
-		return gko.ErrDatoInvalido().Msg("Kebab sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("Kebab sin especificar").Ctx(op, "required_sin_valor")
 	}
 	err := tab.Validar()
 	if err != nil {
-		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido.Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec("INSERT INTO tablas "+
 		"(tabla_id, paquete_id, nombre_repo, nombre_item, nombre_items, abrev, humano, humano_plural, kebab, es_femenino, descripcion, directrices) "+
@@ -61,11 +61,11 @@ func (s *Repositorio) InsertTabla(tab ddd.Tabla) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1062 (23000)") {
-			return gko.ErrYaExiste().Err(err).Op(op)
+			return gko.ErrYaExiste.Err(err).Op(op)
 		} else if strings.HasPrefix(err.Error(), "Error 1452 (23000)") {
-			return gko.ErrDatoInvalido().Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
+			return gko.ErrDatoInvalido.Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
 		} else {
-			return gko.ErrInesperado().Err(err).Op(op)
+			return gko.ErrInesperado.Err(err).Op(op)
 		}
 	}
 	return nil
@@ -78,29 +78,29 @@ func (s *Repositorio) InsertTabla(tab ddd.Tabla) error {
 func (s *Repositorio) UpdateTabla(tab ddd.Tabla) error {
 	const op string = "mysqlddd.UpdateTabla"
 	if tab.TablaID == 0 {
-		return gko.ErrDatoInvalido().Msg("TablaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("TablaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if tab.NombreRepo == "" {
-		return gko.ErrDatoInvalido().Msg("NombreRepo sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("NombreRepo sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if tab.NombreItem == "" {
-		return gko.ErrDatoInvalido().Msg("NombreItem sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("NombreItem sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if tab.NombreItems == "" {
-		return gko.ErrDatoInvalido().Msg("NombreItems sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("NombreItems sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if tab.Abrev == "" {
-		return gko.ErrDatoInvalido().Msg("Abrev sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("Abrev sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if tab.Humano == "" {
-		return gko.ErrDatoInvalido().Msg("Humano sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("Humano sin especificar").Ctx(op, "required_sin_valor")
 	}
 	if tab.Kebab == "" {
-		return gko.ErrDatoInvalido().Msg("Kebab sin especificar").Ctx(op, "required_sin_valor")
+		return gko.ErrDatoInvalido.Msg("Kebab sin especificar").Ctx(op, "required_sin_valor")
 	}
 	err := tab.Validar()
 	if err != nil {
-		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido.Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec(
 		"UPDATE tablas SET "+
@@ -110,7 +110,7 @@ func (s *Repositorio) UpdateTabla(tab ddd.Tabla) error {
 		tab.TablaID,
 	)
 	if err != nil {
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado.Err(err).Op(op)
 	}
 	return nil
 }
@@ -121,7 +121,7 @@ func (s *Repositorio) UpdateTabla(tab ddd.Tabla) error {
 func (s *Repositorio) DeleteTabla(TablaID int) error {
 	const op string = "mysqlddd.DeleteTabla"
 	if TablaID == 0 {
-		return gko.ErrDatoInvalido().Msg("TablaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("TablaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	// Verificar que solo se borre un registro.
 	var num int
@@ -130,14 +130,14 @@ func (s *Repositorio) DeleteTabla(TablaID int) error {
 	).Scan(&num)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return gko.ErrNoEncontrado().Err(ddd.ErrTablaNotFound).Op(op)
+			return gko.ErrNoEncontrado.Err(ddd.ErrTablaNotFound).Op(op)
 		}
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado.Err(err).Op(op)
 	}
 	if num > 1 {
-		return gko.ErrInesperado().Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
+		return gko.ErrInesperado.Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
 	} else if num == 0 {
-		return gko.ErrNoEncontrado().Err(ddd.ErrTablaNotFound).Op(op).Msg("cero resultados")
+		return gko.ErrNoEncontrado.Err(ddd.ErrTablaNotFound).Op(op).Msg("cero resultados")
 	}
 	// Eliminar todo lo relacionado a la tabla.
 	_, err = s.db.Exec(
@@ -145,21 +145,21 @@ func (s *Repositorio) DeleteTabla(TablaID int) error {
 		TablaID,
 	)
 	if err != nil {
-		return gko.ErrInesperado().Err(err).Op(op).Op("delete_valores_enum")
+		return gko.ErrInesperado.Err(err).Op(op).Op("delete_valores_enum")
 	}
 	_, err = s.db.Exec(
 		"DELETE FROM campos WHERE tabla_id = ?",
 		TablaID,
 	)
 	if err != nil {
-		return gko.ErrInesperado().Err(err).Op(op).Op("delete_campos")
+		return gko.ErrInesperado.Err(err).Op(op).Op("delete_campos")
 	}
 	_, err = s.db.Exec(
 		"DELETE FROM tablas WHERE tabla_id = ?",
 		TablaID,
 	)
 	if err != nil {
-		return gko.ErrInesperado().Err(err).Op(op).Op("delete_tabla")
+		return gko.ErrInesperado.Err(err).Op(op).Op("delete_tabla")
 	}
 	return nil
 }
@@ -175,9 +175,9 @@ func (s *Repositorio) scanRowTabla(row *sql.Row, tab *ddd.Tabla, op string) erro
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return gko.ErrNoEncontrado().Msg("Tabla no se encuentra").Op(op)
+			return gko.ErrNoEncontrado.Msg("Tabla no se encuentra").Op(op)
 		}
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado.Err(err).Op(op)
 	}
 
 	return nil
@@ -191,7 +191,7 @@ func (s *Repositorio) scanRowTabla(row *sql.Row, tab *ddd.Tabla, op string) erro
 func (s *Repositorio) GetTabla(TablaID int) (*ddd.Tabla, error) {
 	const op string = "mysqlddd.GetTabla"
 	if TablaID == 0 {
-		return nil, gko.ErrDatoInvalido().Msg("TablaID sin especificar").Ctx(op, "pk_indefinida")
+		return nil, gko.ErrDatoInvalido.Msg("TablaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	row := s.db.QueryRow(
 		"SELECT "+columnasTabla+" "+fromTabla+
@@ -210,7 +210,7 @@ func (s *Repositorio) GetTabla(TablaID int) (*ddd.Tabla, error) {
 func (s *Repositorio) GetTablaByNombreRepo(NombreRepo string) (*ddd.Tabla, error) {
 	const op string = "mysqlddd.GetTablaByNombreRepo"
 	if NombreRepo == "" {
-		return nil, gko.ErrDatoInvalido().Msg("NombreRepo sin especificar").Ctx(op, "param_indefinido")
+		return nil, gko.ErrDatoInvalido.Msg("NombreRepo sin especificar").Ctx(op, "param_indefinido")
 	}
 	row := s.db.QueryRow(
 		"SELECT "+columnasTabla+" "+fromTabla+
@@ -237,7 +237,7 @@ func (s *Repositorio) scanRowsTabla(rows *sql.Rows, op string) ([]ddd.Tabla, err
 			&tab.TablaID, &tab.PaqueteID, &tab.NombreRepo, &tab.NombreItem, &tab.NombreItems, &tab.Abrev, &tab.Humano, &tab.HumanoPlural, &tab.Kebab, &tab.EsFemenino, &tab.Descripcion, &tab.Directrices,
 		)
 		if err != nil {
-			return nil, gko.ErrInesperado().Err(err).Op(op)
+			return nil, gko.ErrInesperado.Err(err).Op(op)
 		}
 
 		items = append(items, tab)
@@ -254,7 +254,7 @@ func (s *Repositorio) ListTablas() ([]ddd.Tabla, error) {
 		"SELECT " + columnasTabla + " " + fromTabla,
 	)
 	if err != nil {
-		return nil, gko.ErrInesperado().Err(err).Op(op)
+		return nil, gko.ErrInesperado.Err(err).Op(op)
 	}
 	return s.scanRowsTabla(rows, op)
 }
@@ -266,7 +266,7 @@ func (s *Repositorio) ListTablas() ([]ddd.Tabla, error) {
 func (s *Repositorio) ListTablasByPaqueteID(PaqueteID int) ([]ddd.Tabla, error) {
 	const op string = "mysqlddd.ListTablasByPaqueteID"
 	if PaqueteID == 0 {
-		return nil, gko.ErrDatoInvalido().Msg("PaqueteID sin especificar").Ctx(op, "param_indefinido")
+		return nil, gko.ErrDatoInvalido.Msg("PaqueteID sin especificar").Ctx(op, "param_indefinido")
 	}
 	where := "WHERE paquete_id = ?"
 	argumentos := []any{}
@@ -278,7 +278,7 @@ func (s *Repositorio) ListTablasByPaqueteID(PaqueteID int) ([]ddd.Tabla, error) 
 		argumentos...,
 	)
 	if err != nil {
-		return nil, gko.ErrInesperado().Err(err).Op(op)
+		return nil, gko.ErrInesperado.Err(err).Op(op)
 	}
 	return s.scanRowsTabla(rows, op)
 }

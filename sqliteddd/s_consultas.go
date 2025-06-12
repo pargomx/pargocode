@@ -16,10 +16,10 @@ import (
 func (s *Repositorio) DeleteRelacionConsulta(ConsultaID int, Posicion int) error {
 	const op string = "mysqlddd.DeleteRelacionConsulta"
 	if ConsultaID == 0 {
-		return gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if Posicion == 0 {
-		return gko.ErrDatoInvalido().Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
 	}
 	// Verificar que solo se borre un registro.
 	var num int
@@ -28,14 +28,14 @@ func (s *Repositorio) DeleteRelacionConsulta(ConsultaID int, Posicion int) error
 	).Scan(&num)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return gko.ErrNoEncontrado().Err(ddd.ErrConsultaRelacionNotFound).Op(op)
+			return gko.ErrNoEncontrado.Err(ddd.ErrConsultaRelacionNotFound).Op(op)
 		}
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado.Err(err).Op(op)
 	}
 	if num > 1 {
-		return gko.ErrInesperado().Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
+		return gko.ErrInesperado.Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
 	} else if num == 0 {
-		return gko.ErrNoEncontrado().Err(ddd.ErrConsultaRelacionNotFound).Op(op).Msg("cero resultados")
+		return gko.ErrNoEncontrado.Err(ddd.ErrConsultaRelacionNotFound).Op(op).Msg("cero resultados")
 	}
 	// Eliminar registro
 	_, err = s.db.Exec(
@@ -44,9 +44,9 @@ func (s *Repositorio) DeleteRelacionConsulta(ConsultaID int, Posicion int) error
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1451 (23000)") {
-			return gko.ErrYaExiste().Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
+			return gko.ErrYaExiste.Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
 		} else {
-			return gko.ErrInesperado().Err(err).Op(op)
+			return gko.ErrInesperado.Err(err).Op(op)
 		}
 	}
 	// Actualizar hermanos
@@ -55,7 +55,7 @@ func (s *Repositorio) DeleteRelacionConsulta(ConsultaID int, Posicion int) error
 		ConsultaID, Posicion,
 	)
 	if err != nil {
-		return gko.ErrInesperado().Err(err).Op(op).Op("actualizar_hermanos")
+		return gko.ErrInesperado.Err(err).Op(op).Op("actualizar_hermanos")
 	}
 	return nil
 }
@@ -68,10 +68,10 @@ func (s *Repositorio) DeleteRelacionConsulta(ConsultaID int, Posicion int) error
 func (s *Repositorio) DeleteConsultaCampo(ConsultaID int, Posicion int) error {
 	const op string = "mysqlddd.DeleteConsultaCampo"
 	if ConsultaID == 0 {
-		return gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if Posicion == 0 {
-		return gko.ErrDatoInvalido().Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
 	}
 	// Verificar que solo se borre un registro.
 	var num int
@@ -80,14 +80,14 @@ func (s *Repositorio) DeleteConsultaCampo(ConsultaID int, Posicion int) error {
 	).Scan(&num)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return gko.ErrNoEncontrado().Err(ddd.ErrConsultaCampoNotFound).Op(op)
+			return gko.ErrNoEncontrado.Err(ddd.ErrConsultaCampoNotFound).Op(op)
 		}
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado.Err(err).Op(op)
 	}
 	if num > 1 {
-		return gko.ErrInesperado().Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
+		return gko.ErrInesperado.Err(nil).Op(op).Msgf("abortado porque serían borrados %v registros", num)
 	} else if num == 0 {
-		return gko.ErrNoEncontrado().Err(ddd.ErrConsultaCampoNotFound).Op(op).Msg("cero resultados")
+		return gko.ErrNoEncontrado.Err(ddd.ErrConsultaCampoNotFound).Op(op).Msg("cero resultados")
 	}
 	// Eliminar registro
 	_, err = s.db.Exec(
@@ -96,9 +96,9 @@ func (s *Repositorio) DeleteConsultaCampo(ConsultaID int, Posicion int) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1451 (23000)") {
-			return gko.ErrYaExiste().Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
+			return gko.ErrYaExiste.Err(err).Op(op).Msg("Este registro es referenciado por otros y no se puede eliminar")
 		} else {
-			return gko.ErrInesperado().Err(err).Op(op)
+			return gko.ErrInesperado.Err(err).Op(op)
 		}
 	}
 	// Actualizar hermanos, volver negativos para no correr riesgo de error por clave duplicada.
@@ -107,7 +107,7 @@ func (s *Repositorio) DeleteConsultaCampo(ConsultaID int, Posicion int) error {
 		ConsultaID, Posicion,
 	)
 	if err != nil {
-		return gko.ErrInesperado().Err(err).Op(op).Op("actualizar_hermanos")
+		return gko.ErrInesperado.Err(err).Op(op).Op("actualizar_hermanos")
 	}
 	// Devolver a positivos
 	_, err = s.db.Exec(
@@ -115,7 +115,7 @@ func (s *Repositorio) DeleteConsultaCampo(ConsultaID int, Posicion int) error {
 		ConsultaID, Posicion,
 	)
 	if err != nil {
-		return gko.ErrInesperado().Err(err).Op(op).Op("actualizar_hermanos")
+		return gko.ErrInesperado.Err(err).Op(op).Op("actualizar_hermanos")
 	}
 	return nil
 }

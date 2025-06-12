@@ -7,7 +7,7 @@ func (s *Repositorio) List{{ .NombreItems }}{{ .CustomList.CompFunc }}({{ .Custo
 		{{ if .CustomList.ArgsSQL }}{{ .CustomList.ArgsSQL }},{{ end }}
 	)
 	if err != nil {
-		return nil, gko.ErrInesperado().Err(err).Op(op)
+		return nil, gko.ErrInesperado.Err(err).Op(op)
 	}
 	return s.scanRows{{ .NombreItem }}(rows, op)
 }

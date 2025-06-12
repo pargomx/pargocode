@@ -199,7 +199,7 @@ func (c CampoTabla) IfZeroReturnNilAndErr(razón string, nombreVariable string) 
 // Ejemplo de resultado:
 //
 //	if enc.OrganizacionID == 0 {
-//		return nil, gko.ErrDatoInvalido().Msg("OrganizacionID sin especificar").Ctx(op, "pk_indefinida")
+//		return nil, gko.ErrDatoInvalido.Msg("OrganizacionID sin especificar").Ctx(op, "pk_indefinida")
 //	}
 //
 // razón que se da como contexto al error. Ejemplos: "pk_indefinida" "fk requerida" "campo requerido"
@@ -254,7 +254,7 @@ func (c CampoTabla) ifZeroReturnErr(razón string, nombreVariable string, return
 		comparacion += "nil, "
 	}
 
-	comparacion += fmt.Sprintf(`gko.ErrDatoIndef().Op(op).Msg("%v sin especificar").Str("%v")`, c.NombreCampo, razón)
+	comparacion += fmt.Sprintf(`gko.ErrDatoIndef.Str("%v").Op(op).Msg("%v sin especificar")`, razón, c.NombreCampo)
 
 	comparacion += "\n}\n"
 

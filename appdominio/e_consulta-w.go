@@ -6,8 +6,8 @@ import (
 	"monorepo/textutils"
 	"strings"
 
-	"github.com/pargomx/gecko"
 	"github.com/pargomx/gecko/gko"
+	"github.com/pargomx/gecko/gkt"
 )
 
 func validarConsulta(con ddd.Consulta, repo Repositorio, op *gko.Error) error {
@@ -237,14 +237,14 @@ func AgregarRelacionConsulta(consultaID int, tipo string, joinTablaID int, fromA
 			}
 		}
 		if cFrom == nil {
-			gko.LogWarnf("ignorando '" + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo + "' porque no comparten PK-FK " + cJoin.NombreColumna)
+			gko.LogWarn("ignorando '" + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo + "' porque no comparten PK-FK " + cJoin.NombreColumna)
 			continue
 		}
 		if !cJoin.ForeignKey && !cJoin.PrimaryKey {
-			gko.LogWarnf("El campo '" + cJoin.NombreColumna + "' de '" + tblJoin.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo)
+			gko.LogWarn("El campo '" + cJoin.NombreColumna + "' de '" + tblJoin.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo)
 		}
 		if !cFrom.ForeignKey && !cFrom.PrimaryKey {
-			gko.LogWarnf("El campo '" + cFrom.NombreColumna + "' de '" + tblFrom.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo)
+			gko.LogWarn("El campo '" + cFrom.NombreColumna + "' de '" + tblFrom.Tabla.NombreRepo + "' no está marcado como FK o PK pero se usa en relación " + tblJoin.Tabla.NombreRepo + "->" + tblFrom.Tabla.NombreRepo)
 		}
 		relacion.JoinOn += fmt.Sprintf("%s.%s = %s.%s AND ",
 			relacion.JoinAs, cJoin.NombreColumna,
@@ -610,7 +610,7 @@ func CampoConsultaModifExpresion(modif CampoConsultaModif, repo Repositorio, txt
 	}
 	campoOld := con.Campos[campo.Posicion-1]
 	oldExpr := campo.Expresion
-	nuevaExpr := gecko.TxtQuitarEspacios(modif.Valor)
+	nuevaExpr := gkt.SinEspaciosExtra(modif.Valor)
 	if oldExpr == nuevaExpr {
 		return campo, nil
 	}
@@ -679,7 +679,7 @@ func CampoConsultaModifAlias(modif CampoConsultaModif, repo Repositorio, txt *te
 		return nil, op.Err(err)
 	}
 	oldAlias := campo.AliasSql
-	nuevoAlias := gecko.TxtLower(modif.Valor)
+	nuevoAlias := gkt.ToLower(modif.Valor)
 	nuevoAlias = strings.ReplaceAll(nuevoAlias, " ", "_")
 	nuevoAlias = strings.ReplaceAll(nuevoAlias, "-", "_")
 	nuevoAlias = strings.ReplaceAll(nuevoAlias, "__", "_")
@@ -724,19 +724,19 @@ func CampoConsultaModifNombre(modif CampoConsultaModif, repo Repositorio, txt *t
 		return nil, op.Err(err)
 	}
 	oldNombre := campo.NombreCampo
-	newNombre := gecko.TxtQuitarEspacios(modif.Valor)
+	newNombre := gkt.SinEspaciosExtra(modif.Valor)
 	newNombre = strings.ReplaceAll(newNombre, " ", "")
 	newNombre = textutils.PrimeraMayusc(newNombre)
 	newNombre = txt.RemoveNonAlphanumeric(newNombre)
 	if newNombre == "" {
-		return nil, op.ErrDatoIndef().Msg("El nombre del campo Go no puede estar vacío")
+		return nil, op.E(gko.ErrDatoIndef).Msg("El nombre del campo Go no puede estar vacío")
 	}
 	if oldNombre == newNombre {
 		return campo, nil
 	}
 	for _, c := range con.Campos {
 		if newNombre == c.NombreCampo {
-			return nil, op.ErrDatoInvalido().Msgf("El nombre '%v' ya está en uso por el campo #%v", newNombre, c.Posicion)
+			return nil, op.E(gko.ErrDatoInvalido).Msgf("El nombre '%v' ya está en uso por el campo #%v", newNombre, c.Posicion)
 		}
 	}
 	campo.NombreCampo = newNombre
@@ -761,10 +761,10 @@ func CampoConsultaModifTipo(modif CampoConsultaModif, repo Repositorio, txt *tex
 		return nil, op.Err(err)
 	}
 	oldTipo := campo.TipoGo
-	newTipo := gecko.TxtQuitarEspacios(modif.Valor)
+	newTipo := gkt.SinEspaciosExtra(modif.Valor)
 	newTipo = strings.ReplaceAll(newTipo, " ", "")
 	if newTipo == "" {
-		return nil, op.ErrDatoIndef().Msg("El tipo de dato Go no puede estar vacío")
+		return nil, op.E(gko.ErrDatoIndef).Msg("El tipo de dato Go no puede estar vacío")
 	}
 	if oldTipo == newTipo {
 		return campo, nil
@@ -791,7 +791,7 @@ func CampoConsultaModifDesc(modif CampoConsultaModif, repo Repositorio, txt *tex
 		return nil, op.Err(err)
 	}
 	oldDesc := campo.Descripcion
-	newDesc := gecko.TxtQuitarEspacios(modif.Valor)
+	newDesc := gkt.SinEspaciosExtra(modif.Valor)
 	if oldDesc == newDesc {
 		return campo, nil
 	}

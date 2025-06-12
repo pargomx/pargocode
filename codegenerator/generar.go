@@ -197,7 +197,7 @@ func NuevoDePaquete(repo Repositorio, paqueteID int) (Generadores, error) {
 // al lugar adecuado. Pueden ser diferentes archivos o buffers de destino.
 func (c *generador) PrepararJob(tipo string) *generador {
 	if tipo == "" {
-		c.addErr(gko.ErrDatoIndef().Str("tipo de trabajo indefinido").Op("PrepararJob"))
+		c.addErr(gko.ErrDatoIndef.Str("tipo de trabajo indefinido").Op("PrepararJob"))
 		return c
 	}
 	switch tipo {
@@ -318,7 +318,7 @@ func (c *generador) addDestino(filename string) (int, error) {
 	filename = strings.TrimSuffix(filename, "/") // debe ser un archivo
 	filename = strings.TrimPrefix(filename, "/") // debe ser relativa desde workdir
 	if filename == "" {
-		return 0, gko.ErrDatoIndef().Str("filename es vacío").Op("nuevoDestino")
+		return 0, gko.ErrDatoIndef.Str("filename es vacío").Op("nuevoDestino")
 	}
 	for i, dest := range c.destinos {
 		if dest.filename == filename {
@@ -334,7 +334,7 @@ func (c *generador) addDestino(filename string) (int, error) {
 	}
 	c.destinos = append(c.destinos, dest)
 	if len(c.destinos) == 0 {
-		return 0, gko.ErrInesperado().Str("no se agregó destino").Op("nuevoDestino")
+		return 0, gko.ErrInesperado.Str("no se agregó destino").Op("nuevoDestino")
 	}
 	return len(c.destinos) - 1, nil
 }
@@ -769,6 +769,6 @@ func oldFilename(oldFilename, newFilename string) {
 	gko.LogWarn("Renombrando archivo antiguo: " + oldFilename)
 	err := exec.Command("git", "mv", oldFilename, newFilename).Run()
 	if err != nil {
-		gko.FatalError(err)
+		gko.LogError(err)
 	}
 }

@@ -7,14 +7,14 @@ func (s *Repositorio) Existe{{ .Tabla.NombreItem }}({{ .Tabla.PrimaryKeysAsFuncP
 	).Scan(&num)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return gko.ErrNoEncontrado().Msg("{{ .Tabla.Tabla.Humano }} no encontrado").Op(op)
+			return gko.ErrNoEncontrado.Msg("{{ .Tabla.Tabla.Humano }} no encontrado").Op(op)
 		}
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado.Err(err).Op(op)
 	}
 	if num > 1 {
-		return gko.ErrInesperado().Err(nil).Op(op).Str("existen más de un registro para la pk").Ctx("registros", num)
+		return gko.ErrInesperado.Err(nil).Op(op).Str("existen más de un registro para la pk").Ctx("registros", num)
 	} else if num == 0 {
-		return gko.ErrNoEncontrado().Msg("{{ .Tabla.Tabla.Humano }} no encontrado").Op(op)
+		return gko.ErrNoEncontrado.Msg("{{ .Tabla.Tabla.Humano }} no encontrado").Op(op)
 	}
 	return nil
 }

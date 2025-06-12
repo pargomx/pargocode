@@ -31,7 +31,7 @@ func (s *Repositorio) List{{ .NombreItems }}({{ if .CamposFiltro }}filtros *Filt
 		{{- end }},
 	)
 	if err != nil {
-		return nil, gko.ErrInesperado().Err(err).Op(op)
+		return nil, gko.ErrInesperado.Err(err).Op(op)
 	}
 	return s.scanRows{{ .NombreItem }}(rows, op)
 }

@@ -100,7 +100,7 @@ func main() {
 				fmt.Println("sqliteDB.Close: ", err.Error())
 			}
 			fmt.Println("")
-			gko.LogInfof("servidor terminado: " + sig.String())
+			gko.LogInfo("servidor terminado: " + sig.String())
 			os.Exit(0)
 		}
 	}()

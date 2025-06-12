@@ -66,7 +66,7 @@ func (s *servidor) eliminarTabla(c *gecko.Context) error {
 		return err
 	}
 	if c.PromptVal() != "ok" {
-		return gko.ErrDatoInvalido().Msg("Para eliminarlo escribe el 'ok' en el campo de confirmación")
+		return gko.ErrDatoInvalido.Msg("Para eliminarlo escribe el 'ok' en el campo de confirmación")
 	}
 	err = s.ddd.DeleteTabla(tbl.TablaID)
 	if err != nil {

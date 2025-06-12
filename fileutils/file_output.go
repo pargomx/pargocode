@@ -23,7 +23,7 @@ func GuardarGoCodeConfirm(filename string, codigo string) error {
 func GuardarGoCode(filename string, codigo string) error {
 	op := gko.Op("GuardarGoCode")
 	if !OuptutToConsole && !OutputToFile {
-		gko.ErrNoDisponible().Msg("No se especificó a donde mandar el resultado: fileutils.OuptutToConsole/OutputToFile es false")
+		gko.ErrNoDisponible.Msg("No se especificó a donde mandar el resultado: fileutils.OuptutToConsole/OutputToFile es false")
 	}
 	if OuptutToConsole {
 		gko.LogEventof("Imprimiendo:")
@@ -33,7 +33,7 @@ func GuardarGoCode(filename string, codigo string) error {
 		return nil
 	}
 	if !Existe("go.mod") {
-		return op.ErrNoDisponible().Str("Pargo no parece estar en la raíz de un proyecto Go")
+		return op.E(gko.ErrNoDisponible).Str("Pargo no parece estar en la raíz de un proyecto Go")
 	}
 
 	fileOut, err := os.Create(filename)
@@ -59,7 +59,7 @@ func GuardarGoCode(filename string, codigo string) error {
 func GuardarPlainText(filename string, txt string) error {
 	op := gko.Op("GuardarPlainText")
 	if !OuptutToConsole && !OutputToFile {
-		gko.ErrNoDisponible().Msg("No se especificó a donde mandar el resultado: fileutils.OuptutToConsole/OutputToFile es false")
+		gko.ErrNoDisponible.Msg("No se especificó a donde mandar el resultado: fileutils.OuptutToConsole/OutputToFile es false")
 	}
 	if OuptutToConsole {
 		gko.LogEventof("Imprimiendo:")
@@ -69,7 +69,7 @@ func GuardarPlainText(filename string, txt string) error {
 		return nil
 	}
 	if !Existe("go.mod") {
-		return op.ErrNoDisponible().Str("Pargo no parece estar en la raíz de un proyecto Go")
+		return op.E(gko.ErrNoDisponible).Str("Pargo no parece estar en la raíz de un proyecto Go")
 	}
 
 	fileOut, err := os.Create(filename)

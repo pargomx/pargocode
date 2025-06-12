@@ -6,12 +6,13 @@ import (
 	"monorepo/textutils"
 
 	"github.com/pargomx/gecko"
+	"github.com/pargomx/gecko/gkt"
 )
 
 func (s *servidor) agregarPaquete(c *gecko.Context) error {
 	paq := ddd.Paquete{
 		PaqueteID: ddd.NewPaqueteID(),
-		Nombre:    textutils.QuitarAcentos(c.PromptLower()),
+		Nombre:    textutils.QuitarAcentos(gkt.ToLower(c.PromptVal())),
 	}
 	err := appdominio.AgregarPaquete(paq, s.ddd)
 	if err != nil {

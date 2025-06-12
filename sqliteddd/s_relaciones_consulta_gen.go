@@ -29,14 +29,14 @@ const fromConsultaRelacion string = "FROM consulta_relaciones "
 func (s *Repositorio) InsertConsultaRelacion(rel ddd.ConsultaRelacion) error {
 	const op string = "mysqlddd.InsertConsultaRelacion"
 	if rel.ConsultaID == 0 {
-		return gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if rel.Posicion == 0 {
-		return gko.ErrDatoInvalido().Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
 	}
 	err := rel.Validar()
 	if err != nil {
-		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido.Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec("INSERT INTO consulta_relaciones "+
 		"(consulta_id, posicion, tipo_join, join_tabla_id, join_as, join_on, from_tabla_id) "+
@@ -45,11 +45,11 @@ func (s *Repositorio) InsertConsultaRelacion(rel ddd.ConsultaRelacion) error {
 	)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Error 1062 (23000)") {
-			return gko.ErrYaExiste().Err(err).Op(op)
+			return gko.ErrYaExiste.Err(err).Op(op)
 		} else if strings.HasPrefix(err.Error(), "Error 1452 (23000)") {
-			return gko.ErrDatoInvalido().Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
+			return gko.ErrDatoInvalido.Err(err).Op(op).Msg("No se puede insertar la información porque el registro asociado no existe")
 		} else {
-			return gko.ErrInesperado().Err(err).Op(op)
+			return gko.ErrInesperado.Err(err).Op(op)
 		}
 	}
 	return nil
@@ -62,14 +62,14 @@ func (s *Repositorio) InsertConsultaRelacion(rel ddd.ConsultaRelacion) error {
 func (s *Repositorio) UpdateConsultaRelacion(rel ddd.ConsultaRelacion) error {
 	const op string = "mysqlddd.UpdateConsultaRelacion"
 	if rel.ConsultaID == 0 {
-		return gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("ConsultaID sin especificar").Ctx(op, "pk_indefinida")
 	}
 	if rel.Posicion == 0 {
-		return gko.ErrDatoInvalido().Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
+		return gko.ErrDatoInvalido.Msg("Posicion sin especificar").Ctx(op, "pk_indefinida")
 	}
 	err := rel.Validar()
 	if err != nil {
-		return gko.ErrDatoInvalido().Err(err).Op(op).Msg(err.Error())
+		return gko.ErrDatoInvalido.Err(err).Op(op).Msg(err.Error())
 	}
 	_, err = s.db.Exec(
 		"UPDATE consulta_relaciones SET "+
@@ -79,7 +79,7 @@ func (s *Repositorio) UpdateConsultaRelacion(rel ddd.ConsultaRelacion) error {
 		rel.ConsultaID, rel.Posicion,
 	)
 	if err != nil {
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado.Err(err).Op(op)
 	}
 	return nil
 }
@@ -100,7 +100,7 @@ func (s *Repositorio) scanRowsConsultaRelacion(rows *sql.Rows, op string) ([]ddd
 			&rel.ConsultaID, &rel.Posicion, &tipoJoin, &rel.JoinTablaID, &rel.JoinAs, &rel.JoinOn, &rel.FromTablaID,
 		)
 		if err != nil {
-			return nil, gko.ErrInesperado().Err(err).Op(op)
+			return nil, gko.ErrInesperado.Err(err).Op(op)
 		}
 		rel.TipoJoin = ddd.SetTipoJoinDB(tipoJoin)
 		items = append(items, rel)
@@ -115,7 +115,7 @@ func (s *Repositorio) scanRowsConsultaRelacion(rows *sql.Rows, op string) ([]ddd
 func (s *Repositorio) ListConsultaRelacionesByConsultaID(ConsultaID int) ([]ddd.ConsultaRelacion, error) {
 	const op string = "mysqlddd.ListConsultaRelacionesByConsultaID"
 	if ConsultaID == 0 {
-		return nil, gko.ErrDatoInvalido().Msg("ConsultaID sin especificar").Ctx(op, "param_indefinido")
+		return nil, gko.ErrDatoInvalido.Msg("ConsultaID sin especificar").Ctx(op, "param_indefinido")
 	}
 	where := "WHERE consulta_id = ?"
 	argumentos := []any{}
@@ -127,7 +127,7 @@ func (s *Repositorio) ListConsultaRelacionesByConsultaID(ConsultaID int) ([]ddd.
 		argumentos...,
 	)
 	if err != nil {
-		return nil, gko.ErrInesperado().Err(err).Op(op)
+		return nil, gko.ErrInesperado.Err(err).Op(op)
 	}
 	return s.scanRowsConsultaRelacion(rows, op)
 }

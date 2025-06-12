@@ -13,7 +13,7 @@ func (s *Repositorio) Update{{ .Tabla.NombreItem }}({{ .Tabla.NombreAbrev }} {{ 
 		{{ .Tabla.PrimaryKeysAsArguments .Tabla.NombreAbrev }},
 	)
 	if err != nil {
-		return gko.ErrInesperado().Err(err).Op(op)
+		return gko.ErrInesperado.Err(err).Op(op)
 	}
 	return nil
 }
