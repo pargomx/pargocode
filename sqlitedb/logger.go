@@ -31,7 +31,14 @@ func ArgToText(arg any) string {
 	}
 }
 
-func logSQL(qry string, args ...any) {
+const (
+	tipoQuery uint8 = iota
+	tipoQueryRow
+	tipoExec
+	tipoTX
+)
+
+func logSQL(tipo uint8, qry string, args ...any) {
 	const reset = "\033[0m"
 	const color = "\033[36m"
 	const bold = "\033[1;34m"
@@ -42,5 +49,12 @@ func logSQL(qry string, args ...any) {
 	for _, arg := range args {
 		qry = strings.Replace(qry, "?", color+ArgToText(arg)+reset, 1)
 	}
-	fmt.Println(bold + "[QUERY]" + reset + " " + qry + ";")
+	switch tipo {
+	case tipoQuery:
+		fmt.Println(bold + "[QRY]" + reset + " " + qry + ";")
+	case tipoQueryRow:
+		fmt.Println(bold + "[ROW]" + reset + " " + qry + ";")
+	case tipoExec:
+		fmt.Println(bold + "[EXE]" + reset + " " + qry + ";")
+	}
 }
