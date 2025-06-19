@@ -1,5 +1,5 @@
 // Update{{ .Tabla.NombreItem }} valida y sobreescribe el registro en la base de datos.
-func (s *Repositorio) Update{{ .Tabla.NombreItem }}({{ .Tabla.NombreAbrev }} {{ .Tabla.Paquete.Nombre }}.{{ .Tabla.NombreItem }}) error {
+func (s *Repositorio) Update{{ .Tabla.NombreItem }}({{ .Tabla.PrimaryKeysAsFuncParams }}, {{ .Tabla.NombreAbrev }} {{ .Tabla.Paquete.Nombre }}.{{ .Tabla.NombreItem }}) error {
 	const op string = "Update{{ .Tabla.NombreItem }}"
 	{{ range .Tabla.CamposRequeridosOrPK -}}
 		{{ if .PrimaryKey }}{{ .IfZeroReturnErr "pk_indefinida" $.Tabla.NombreAbrev -}}
@@ -10,7 +10,7 @@ func (s *Repositorio) Update{{ .Tabla.NombreItem }}({{ .Tabla.NombreAbrev }} {{ 
 		"{{ .Tabla.CamposEditablesAsSnakeEqPlaceholder }} " +
 		"{{ .Tabla.PrimaryKeysAsSqlWhere }}",
 		{{ .Tabla.CamposEditablesAsArguments .Tabla.NombreAbrev }},
-		{{ .Tabla.PrimaryKeysAsArguments .Tabla.NombreAbrev }},
+		{{ .Tabla.PrimaryKeysAsArguments "" }},
 	)
 	if err != nil {
 		return gko.ErrInesperado.Err(err).Op(op)

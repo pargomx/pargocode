@@ -636,7 +636,7 @@ func (c *generador) Generar() (err error) {
 			return op.Msg("debe haber al menos una columna")
 		}
 		if len(c.tbl.PrimaryKeys()) == 0 {
-			return op.Msg("debe haber al menos una clave primaria")
+			// return op.Msg("debe haber al menos una clave primaria")
 		}
 	}
 
