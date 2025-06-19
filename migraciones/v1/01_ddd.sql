@@ -1,4 +1,4 @@
-INSERT INTO migraciones VALUES (01, CURRENT_TIMESTAMP, "Esquema: domain driven design");
+INSERT INTO migraciones VALUES (1,1, CURRENT_TIMESTAMP, "Esquema: domain driven design");
 
 CREATE TABLE paquetes (
   paquete_id INT NOT NULL,

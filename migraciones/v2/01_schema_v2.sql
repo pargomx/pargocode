@@ -23,8 +23,8 @@ CREATE TABLE tablas (
   descripcion TEXT NOT NULL DEFAULT '',
   directrices TEXT NOT NULL DEFAULT '',
   PRIMARY KEY (tabla_id),
-  UNIQUE (nombre_repo),
-  UNIQUE (abrev),
+  UNIQUE (paquete_id, nombre_repo),
+  UNIQUE (paquete_id, abrev),
   FOREIGN KEY (paquete_id) REFERENCES paquetes (paquete_id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -56,6 +56,8 @@ CREATE TABLE campos (
   descripcion TEXT NOT NULL DEFAULT '',
   posicion INT NOT NULL,
   PRIMARY KEY (campo_id),
+  UNIQUE (tabla_id, nombre_campo),
+  UNIQUE (tabla_id, nombre_columna),
   FOREIGN KEY (tabla_id) REFERENCES tablas (tabla_id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 

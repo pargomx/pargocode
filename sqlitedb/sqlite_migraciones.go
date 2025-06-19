@@ -18,7 +18,7 @@ import (
 // ========== INICIALIZAR ========================================= //
 
 // Hay configuraciones PRAGMA que aplican para cada conexión y se ponen en el DSN.
-const configPragmaSQL = `PRAGMA journal_mode = WAL;`
+const configPragmaSQL = `PRAGMA journal_mode = DELETE;`
 
 const createTableMigraciones = `
 CREATE TABLE migraciones (
