@@ -67,6 +67,8 @@ func (s *servidor) getMapaEntidadRelacion(c *gecko.Context) error {
 	return c.StatusOk(mermaid)
 }
 
+// https://mermaid.js.org/
+// https://mermaid.live/
 func (s *servidor) getMapaEntidadRelacionPaquete(c *gecko.Context) error {
 	tablas, err := s.ddd.ListTablasByPaqueteID(c.PathInt("paquete_id"))
 	if err != nil {
@@ -97,5 +99,9 @@ func (s *servidor) getMapaEntidadRelacionPaquete(c *gecko.Context) error {
 		mermaid += "}\n"
 	}
 	mermaid += relaciones
+	return c.RenderOk("diagrama", map[string]any{
+		"Title":       "Diagrama del paquete",
+		"MermaidCode": mermaid,
+	})
 	return c.StatusOk(mermaid)
 }
