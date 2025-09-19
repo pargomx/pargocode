@@ -267,6 +267,8 @@ func (tbl tabla) CamposTablaAsArguments(campos []CampoTabla, nombreVariable stri
 		for _, campo := range campos {
 			if campo.EsPropiedadExtendida() {
 				s += nombreVariable + "." + campo.NombreCampo + ".String, "
+			} else if tbl.Sqlite && campo.EsFecha() { // TODO: tratar otros tipos de tiempo de maneras diferentes.
+				s += nombreVariable + "." + campo.NombreCampo + ".Format(gkt.FormatoFecha), "
 			} else if tbl.Sqlite && campo.EsTiempo() { // TODO: tratar otros tipos de tiempo de maneras diferentes.
 				s += nombreVariable + "." + campo.NombreCampo + ".Format(gkt.FormatoFechaHora), "
 			} else if campo.ZeroIsNull && campo.EsString() {
@@ -452,19 +454,25 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 			// res += itemVar + "." + c.NombreCampo + " = " + strings.ReplaceAll(c.TipoSetter, "?", c.Variable())
 			// ================================================================ //
 
+		case tbl.Sqlite && c.EsFecha():
+			tmpVar := c.Variable()
+			res += fmt.Sprintf(`
+			%s.%s, err = time.Parse(gkt.FormatoFecha, %s)
+			if err != nil {
+				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
+			}
+			`, itemVar, c.NombreCampo, tmpVar,
+				c.NombreColumna, tbl.NombreItem())
+
 		case tbl.Sqlite && c.EsTiempo():
 			tmpVar := c.Variable()
 			res += fmt.Sprintf(`
-			if len(%s) == 19 {
-				%s.%s, err = time.Parse(gkt.FormatoFechaHora, %s)
-				if err != nil {
-					gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
-				}
-			} else {
-				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Log()
+			%s.%s, err = time.Parse(gkt.FormatoFechaHora, %s)
+			if err != nil {
+				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
 			}
-			`, tmpVar, itemVar, c.NombreCampo, tmpVar,
-				c.NombreColumna, tbl.NombreItem(), c.NombreColumna, tbl.NombreItem())
+			`, itemVar, c.NombreCampo, tmpVar,
+				c.NombreColumna, tbl.NombreItem())
 
 		case c.TipoGo == "*time.Time" && c.EsPointer(): // ej. if fechaBaja.Valid { apr.FechaBaja = &fechaBaja.Time }
 

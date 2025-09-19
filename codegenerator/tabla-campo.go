@@ -139,6 +139,17 @@ func (c CampoTabla) EsTiempo() bool {
 	return c.TipoGo == "time.Time"
 }
 
+// Retorna si es fecha
+func (c CampoTabla) EsFecha() bool {
+	return c.TipoSql == "date"
+}
+
+// Retorna si es datetime
+func (c CampoTabla) EsDatetime() bool {
+	return c.TipoSql == "datetime" ||
+		c.TipoSql == "timestamp"
+}
+
 // Compara si el tipo definido en el modelo
 // coincide con el nombre de una propiedad
 // extendida declarada en la semilla.csv
