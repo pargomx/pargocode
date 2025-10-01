@@ -457,7 +457,7 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 		case tbl.Sqlite && c.EsFecha():
 			tmpVar := c.Variable()
 			res += fmt.Sprintf(`
-			%s.%s, err = time.Parse(gkt.FormatoFecha, %s)
+			%s.%s, err = gkt.ToFecha(%s)
 			if err != nil {
 				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
 			}
@@ -467,7 +467,7 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 		case tbl.Sqlite && c.EsTiempo():
 			tmpVar := c.Variable()
 			res += fmt.Sprintf(`
-			%s.%s, err = time.Parse(gkt.FormatoFechaHora, %s)
+			%s.%s, err = gkt.ToFechaHora(%s)
 			if err != nil {
 				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
 			}
