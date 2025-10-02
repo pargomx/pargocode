@@ -1,15 +1,13 @@
 module monorepo
 
-go 1.24.1
-
-toolchain go1.24.2
+go 1.24.2
 
 require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/glebarez/go-sqlite v1.22.0
 	github.com/manifoldco/promptui v0.9.0
-	github.com/pargomx/gecko v0.0.0-20250611172834-d12df8a03b8d
-	golang.org/x/text v0.26.0
+	github.com/pargomx/gecko v0.0.0-20250920064431-20fd0365bbad
+	golang.org/x/text v0.29.0
 )
 
 require (
@@ -20,10 +18,10 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	golang.org/x/exp v0.0.0-20250606033433-dcc06ee1d476 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	modernc.org/libc v1.65.10 // indirect
+	golang.org/x/exp v0.0.0-20251002181428-27f1f14c8bb9 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	modernc.org/libc v1.66.10 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
-	modernc.org/sqlite v1.38.0 // indirect
+	modernc.org/sqlite v1.39.0 // indirect
 )
