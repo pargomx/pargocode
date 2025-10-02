@@ -1,7 +1,7 @@
 {{ if .Tabla }}
 <header class="flex gap-4 p-2 pb-4">
 	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
-	<h2 class="flex-grow text-2xl font-bold text-center">Nueva tabla {{ .Tabla.Nombre.Humano }}</h2>
+	<h2 class="grow text-2xl font-bold text-center">Nueva tabla {{ .Tabla.Nombre.Humano }}</h2>
 	<a class="inline-block text-2xl whitespace-nowrap" href="/">❌</a>
 </header>
 
@@ -10,7 +10,7 @@
 	<section id="nombre" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
 		{{ with $.Tabla -}}
 		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
-			<h3 class="flex-grow text-xl font-bold">
+			<h3 class="grow text-xl font-bold">
 				Nombre y propiedades de la tabla
 			</h3>
 		</header>

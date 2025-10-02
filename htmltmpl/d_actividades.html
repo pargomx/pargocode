@@ -1,7 +1,7 @@
 
 <header class="flex gap-3 pb-6">
 	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
-	<h2 class="flex-grow text-2xl font-bold text-center">Proceso</h2>
+	<h2 class="grow text-2xl font-bold text-center">Proceso</h2>
 	<a class="inline-block text-2xl whitespace-nowrap" href="/dominios">❌</a>
 </header>
 <header class="mb-4 space-y-1">
@@ -31,7 +31,7 @@
 	</h5>
 </header>
 
-<main id="actividades" class="flex items-start flex-grow gap-4 pb-2 overflow-x-auto">
+<main id="actividades" class="flex items-start grow gap-4 pb-2 overflow-x-auto">
 
 	{{ define "d_actividad_card" -}}
 	<article gk-dominio="{{ .DominioID }}" gk-epica="{{ .EpicaID }}" gk-proceso="{{ .ProcesoID }}" gk-actividad="{{ .ActividadID }}" class="relative flex flex-col max-h-full p-1 bg-cyan-900 rounded-md shadow-lg min-w-64 max-w-96">
@@ -44,7 +44,7 @@
 			<span class="absolute top-0 right-0 px-1 text-xs bg-black opacity-40 rounded-tr-md rounded-bl-md">A</span>
 		</header>
 
-		<div tipo="tareas" id="tareas{{ .ActividadID }}" class="flex flex-col flex-grow gap-3 p-1 overflow-x-hidden overflow-y-auto">
+		<div tipo="tareas" id="tareas{{ .ActividadID }}" class="flex flex-col grow gap-3 p-1 overflow-x-hidden overflow-y-auto">
 			{{ range .Tareas -}}
 				{{ template "d_tarea_card" . }}
 			{{ end }}
@@ -69,7 +69,7 @@
 <!-- EDITAR PROCESO -->
 <dialog id="dialogEdit" class="p-3 rounded-lg">
 	<header class="flex flex-wrap items-center gap-3 pb-2">
-		<h2 class="flex-grow w-full text-xl text-center sm:w-auto sm:text-left">Proceso</h2>
+		<h2 class="grow w-full text-xl text-center sm:w-auto sm:text-left">Proceso</h2>
 		<button type="button" class="w-10 py-1 text-xl text-slate-200 bg-slate-600 rounded-lg" onclick="this.closest('dialog').close()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
 	</header>
 	{{ with .Proceso }}

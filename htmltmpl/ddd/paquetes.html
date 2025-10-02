@@ -4,7 +4,7 @@
 	<input id="filtroEntidades" type="search" class="form-control" oninput="filtrarEntidades(this.value)" placeholder="Buscar entidad...">
 </header>
 
-<main class="flex flex-wrap items-center justify-center flex-grow gap-6">
+<main class="flex flex-wrap items-center justify-center grow gap-6">
 	{{ range .PaquetesConEntidades }}
 	<article tipo="paquete" class="p-4 text-center bg-cyan-900 rounded-lg">
 		<h2 class="pb-4 font-bold">
@@ -82,7 +82,7 @@
 {{ range .PaquetesConEntidades }}{{ with .Paquete }}
 <dialog id="paquete{{ .PaqueteID }}" class="p-3 rounded-lg">
 	<header class="flex flex-wrap items-center gap-3 pb-2">
-		<h2 class="flex-grow w-full text-xl text-center sm:w-auto sm:text-left">Paquete {{ .Nombre }}</h2>
+		<h2 class="grow w-full text-xl text-center sm:w-auto sm:text-left">Paquete {{ .Nombre }}</h2>
 		<button type="button" class="w-10 py-1 text-xl text-slate-200 bg-slate-600 rounded-lg" onclick="this.closest('dialog').close()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
 	</header>
 	<form hx-put="/paquetes/{{ .PaqueteID }}">
@@ -114,7 +114,7 @@
 {{ range .PaquetesConEntidades }}{{ with .Paquete }}
 <dialog id="generar{{ .PaqueteID }}" class="p-3 rounded-lg">
 	<header class="flex flex-wrap items-center gap-3 pb-2">
-		<h2 class="flex-grow w-full text-xl text-center sm:w-auto sm:text-left">Generar código para paquete {{ .Nombre }}</h2>
+		<h2 class="grow w-full text-xl text-center sm:w-auto sm:text-left">Generar código para paquete {{ .Nombre }}</h2>
 		<button type="button" class="w-10 py-1 text-xl text-slate-200 bg-slate-600 rounded-lg" onclick="this.closest('dialog').close()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
 	</header>
 	<div class="flex flex-wrap items-center justify-center gap-4">

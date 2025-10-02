@@ -1,14 +1,14 @@
 
 <header class="flex gap-3 pb-6">
 	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
-	<h2 class="flex-grow text-2xl font-bold text-center">Tableros</h2>
+	<h2 class="grow text-2xl font-bold text-center">Tableros</h2>
 	<a class="inline-block text-2xl whitespace-nowrap" href="/dominios">❌</a>
 </header>
 <header class="mb-4 space-y-1">
 	
 </header>
 
-<main id="actividades" class="flex items-start flex-grow gap-4 pb-2 overflow-x-auto">
+<main id="actividades" class="flex items-start grow gap-4 pb-2 overflow-x-auto">
 	{{ range .Historias -}}
 	<article gk-dominio="{{ .ID }}" class="relative flex flex-col max-h-full p-1 bg-cyan-900 rounded-md shadow-lg min-w-64 max-w-96">
 		<header class="p-1">
@@ -20,7 +20,7 @@
 			<span class="absolute top-0 right-0 px-1 text-xs bg-black opacity-40 rounded-tr-md rounded-bl-md">A</span>
 		</header>
 
-		<div tipo="tareas"  class="flex flex-col flex-grow gap-3 p-1 overflow-x-hidden overflow-y-auto">
+		<div tipo="tareas"  class="flex flex-col grow gap-3 p-1 overflow-x-hidden overflow-y-auto">
 			{{ range .Historias -}}
 			<div tipo="tarea" class="relative p-3 bg-slate-800 rounded-md shadow-lg">
 				<span class="mr-1 cursor-pointer handle1">⣿</span>

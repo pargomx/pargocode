@@ -1,6 +1,6 @@
 <header class="flex flex-wrap items-center gap-3 px-4 py-3">
-	<h2 class="flex-grow w-full text-xl text-center sm:w-auto sm:text-left">{{ $.Tabla.Nombre.HumanoPlural }}</h2>
-	<input class="flex-grow px-3 py-1 rounded sm:flex-grow-0 text-slate-900" type="search" oninput="filtrarTabla(this.value)" placeholder="Buscar en tabla...">
+	<h2 class="grow w-full text-xl text-center sm:w-auto sm:text-left">{{ $.Tabla.Nombre.HumanoPlural }}</h2>
+	<input class="grow px-3 py-1 rounded sm:grow-0 text-slate-900" type="search" oninput="filtrarTabla(this.value)" placeholder="Buscar en tabla...">
 	<button type="button" class="w-10 py-1 text-2xl rounded-lg text-slate-200 bg-slate-600" hx-get="/" title="Recargar"><i class="fa-solid fa-rotate-right"></i></button>
 	<button type="button" class="w-10 py-1 text-2xl rounded-lg text-slate-200 bg-slate-600" hx-get="/" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
 	<button type="button" class="w-10 py-1 text-2xl bg-teal-700 rounded-lg text-slate-200" hx-get="/" title="Agregar"><i class="fa-solid fa-plus"></i></button>

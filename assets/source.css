@@ -1,6 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss' layer(base);
+@import 'tailwindcss';
+
+@layer utilities {
+	.cursor-edit {
+		cursor: url("/assets/img/pen.svg"), pointer;
+	}
+}
 
 @layer components {
 	.form-control {

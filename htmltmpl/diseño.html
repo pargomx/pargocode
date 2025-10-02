@@ -1,7 +1,7 @@
 {{ with $.Diseño }}
 <header class="flex gap-3 pb-6">
 	<a class="inline-block text-2xl whitespace-nowrap" href="/">🏠</a>
-	<h2 class="flex-grow text-2xl font-bold text-center">Diseño</h2>
+	<h2 class="grow text-2xl font-bold text-center">Diseño</h2>
 	<a class="inline-block text-2xl whitespace-nowrap" href="/">❌</a>
 </header>
 <main class="container flex flex-col gap-4 mx-auto">
@@ -18,7 +18,7 @@
 	{{ range $id, $d := .Dominios }}
 	<div class="p-3 space-y-3 bg-stone-950 rounded-md shadow-lg">
 		<header class="flex items-center gap-3">
-			<h3 class="flex-grow text-xl">Como <span class="font-bold">{{ .Persona }}</span> quiero...</h3>
+			<h3 class="grow text-xl">Como <span class="font-bold">{{ .Persona }}</span> quiero...</h3>
 			{{ .Contexto }}
 			<span class="px-2 bg-black bg-opacity-40 rounded-md">Dominio {{ .Tipo }}</span>
 		</header>
@@ -26,7 +26,7 @@
 		{{ range $ie, $e := .Epicas }}
 		<div class="p-3 space-y-3 bg-cyan-900 rounded-md shadow-lg">
 			<header class="flex items-center gap-3">
-				<h3 class="flex-grow text-xl">{{ .Epica }}</h3>
+				<h3 class="grow text-xl">{{ .Epica }}</h3>
 				<span class="px-2 bg-black rounded-md bg-opacity-">Epica</span>
 			</header>
 			<div class="flex flex-col gap-3">
@@ -34,7 +34,7 @@
 				{{ range $ip, $p := .Procesos }}
 				<div class="p-3 space-y-3 bg-lime-900 rounded-md shadow-lg">
 					<header class="flex items-center gap-3">
-						<h3 class="flex-grow text-lg">{{ .Proceso }}</h3>
+						<h3 class="grow text-lg">{{ .Proceso }}</h3>
 						<span class="px-2 bg-black bg-opacity-40 rounded-md">Proceso</span>
 					</header>
 					<div class="grid grid-cols-4 gap-3">

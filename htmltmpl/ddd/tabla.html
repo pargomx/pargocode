@@ -5,7 +5,7 @@
 
 	<section id="nombre" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
 		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
-			<h3 class="flex-grow text-xl font-bold">
+			<h3 class="grow text-xl font-bold">
 				<span class="p-1 font-mono text-white bg-teal-700 rounded">tabla</span>
 				{{ .Paquete.Nombre }}.{{ .Tabla.NombreItem }}
 			</h3>
@@ -84,7 +84,7 @@
 
 	<section id="tabla" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
 		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
-			<h3 class="flex-grow text-xl font-bold">
+			<h3 class="grow text-xl font-bold">
 				Campos
 			</h3>
 
@@ -219,7 +219,7 @@
 
 	<section id="generar" class="mb-6 bg-cyan-900 rounded-lg shadow-lg">
 		<header class="flex items-center gap-4 p-4 bg-cyan-800 rounded-t-lg">
-			<h3 class="flex-grow text-xl font-bold">
+			<h3 class="grow text-xl font-bold">
 				Generar código
 			</h3>
 			<button type="button" class="w-10 py-1 text-xl bg-cyan-900 rounded-lg hover:bg-cyan-950" onclick="helpDirectrices.showModal()" title="Ayuda"><i class="fa-solid fa-question"></i></button>
@@ -261,7 +261,7 @@
 
 	<dialog id="campoEditDialog" class="p-3 rounded-lg">
 		<header class="flex flex-wrap items-center gap-3 pb-2">
-			<h2 class="flex-grow w-full text-xl text-center sm:w-auto sm:text-left">Modificar campo</h2>
+			<h2 class="grow w-full text-xl text-center sm:w-auto sm:text-left">Modificar campo</h2>
 			<button type="button" class="w-10 py-1 text-xl text-slate-200 bg-slate-600 rounded-lg" onclick="this.closest('dialog').close()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
 		</header>
 		<div id="campoEditForm">
@@ -361,7 +361,7 @@
 
 <dialog id="helpDirectrices" class="p-3 rounded-lg">
 	<header class="flex flex-wrap items-center gap-3 pb-2">
-		<h2 class="flex-grow w-full text-xl text-center sm:w-auto sm:text-left">Directrices disponibles</h2>
+		<h2 class="grow w-full text-xl text-center sm:w-auto sm:text-left">Directrices disponibles</h2>
 		<button type="button" class="w-10 py-1 text-xl text-slate-200 bg-slate-600 rounded-lg" onclick="this.closest('dialog').close()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
 	</header>
 	<div class="p-4 text-white bg-cyan-800">
