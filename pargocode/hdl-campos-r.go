@@ -1,7 +1,7 @@
 package main
 
 import (
-	"monorepo/appdominio"
+	"github.com/pargomx/pargocode/appdominio"
 
 	"github.com/pargomx/gecko"
 )

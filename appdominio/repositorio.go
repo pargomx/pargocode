@@ -1,6 +1,6 @@
 package appdominio
 
-import "monorepo/ddd"
+import "github.com/pargomx/pargocode/ddd"
 
 type Repositorio interface {
 	GetPaquete(paqueteID int) (*ddd.Paquete, error)

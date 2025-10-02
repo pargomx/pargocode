@@ -1,9 +1,9 @@
 package main
 
 import (
-	"monorepo/appdominio"
-	"monorepo/ddd"
-	"monorepo/textutils"
+	"github.com/pargomx/pargocode/appdominio"
+	"github.com/pargomx/pargocode/ddd"
+	"github.com/pargomx/pargocode/textutils"
 
 	"github.com/pargomx/gecko"
 	"github.com/pargomx/gecko/gkt"

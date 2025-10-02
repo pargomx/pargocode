@@ -2,7 +2,8 @@ package appdominio
 
 import (
 	"errors"
-	"monorepo/ddd"
+
+	"github.com/pargomx/pargocode/ddd"
 )
 
 type Paquete struct {

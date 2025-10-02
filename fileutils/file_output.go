@@ -48,7 +48,7 @@ func GuardarGoCode(filename string, codigo string) error {
 	if _, err := cmd.CombinedOutput(); err != nil {
 		op.Err(err).Log()
 	}
-	cmd = exec.Command("goimports-reviser", "-project-name", "monorepo", "-file-path", filename)
+	cmd = exec.Command("goimports-reviser", "-project-name", "github.com/pargomx/pargocode", "-file-path", filename)
 	if _, err := cmd.CombinedOutput(); err != nil {
 		op.Err(err).Log()
 	}

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"monorepo/assets"
+	"github.com/pargomx/pargocode/assets"
 
 	"github.com/pargomx/gecko"
 )

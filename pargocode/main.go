@@ -3,14 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
-	"monorepo/htmltmpl"
-	"monorepo/migraciones"
-	"monorepo/sqlitedb"
-	"monorepo/sqliteddd"
-	"monorepo/textutils"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/pargomx/pargocode/htmltmpl"
+	"github.com/pargomx/pargocode/migraciones"
+	"github.com/pargomx/pargocode/sqlitedb"
+	"github.com/pargomx/pargocode/sqliteddd"
+	"github.com/pargomx/pargocode/textutils"
 
 	"github.com/pargomx/gecko"
 	"github.com/pargomx/gecko/gko"

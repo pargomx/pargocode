@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"monorepo/appdominio"
-	"monorepo/ddd"
-	"monorepo/textutils"
 	"time"
+
+	"github.com/pargomx/pargocode/appdominio"
+	"github.com/pargomx/pargocode/ddd"
+	"github.com/pargomx/pargocode/textutils"
 
 	"github.com/pargomx/gecko"
 	"github.com/pargomx/gecko/gko"

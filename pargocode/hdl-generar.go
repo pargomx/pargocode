@@ -2,8 +2,9 @@ package main
 
 import (
 	"html"
-	"monorepo/codegenerator"
 	"strings"
+
+	"github.com/pargomx/pargocode/codegenerator"
 
 	"github.com/pargomx/gecko"
 	"github.com/pargomx/gecko/gko"

@@ -5,7 +5,7 @@ import (
 	"text/template"
 	"time"
 
-	"monorepo/textutils"
+	"github.com/pargomx/pargocode/textutils"
 
 	"github.com/pargomx/gecko/gko"
 )

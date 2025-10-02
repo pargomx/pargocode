@@ -1,4 +1,4 @@
-module monorepo
+module github.com/pargomx/pargocode
 
 go 1.24.2
 

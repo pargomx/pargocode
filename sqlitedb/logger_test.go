@@ -1,8 +1,9 @@
 package sqlitedb_test
 
 import (
-	"monorepo/sqlitedb"
 	"testing"
+
+	"github.com/pargomx/pargocode/sqlitedb"
 )
 
 func TestLogSQLArg(t *testing.T) {

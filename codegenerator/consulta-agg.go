@@ -1,7 +1,7 @@
 package codegenerator
 
 import (
-	"monorepo/ddd"
+	"github.com/pargomx/pargocode/ddd"
 )
 
 type Relacion struct {

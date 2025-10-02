@@ -1,7 +1,7 @@
 package appdominio
 
 import (
-	"monorepo/ddd"
+	"github.com/pargomx/pargocode/ddd"
 )
 
 type Consulta struct {

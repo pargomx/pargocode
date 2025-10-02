@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"monorepo/gkfmt/gkfmt"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/pargomx/pargocode/gkfmt/gkfmt"
 
 	"github.com/pargomx/gecko/gko"
 )

@@ -6,7 +6,7 @@ import (
 
 	"github.com/pargomx/gecko/gko"
 
-	"monorepo/ddd"
+	"github.com/pargomx/pargocode/ddd"
 )
 
 //  ================================================================  //

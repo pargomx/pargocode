@@ -2,8 +2,9 @@ package ddd
 
 import (
 	"errors"
-	"monorepo/textutils"
 	"strings"
+
+	"github.com/pargomx/pargocode/textutils"
 )
 
 // ValorEnum corresponde a un elemento de la tabla 'valores_enum'.

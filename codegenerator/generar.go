@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
-	"monorepo/ddd"
-	"monorepo/fileutils"
-	"monorepo/textutils"
-	"monorepo/tmplutils"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/pargomx/pargocode/ddd"
+	"github.com/pargomx/pargocode/fileutils"
+	"github.com/pargomx/pargocode/textutils"
+	"github.com/pargomx/pargocode/tmplutils"
 
 	"github.com/pargomx/gecko/gko"
 )

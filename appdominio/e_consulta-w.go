@@ -2,9 +2,10 @@ package appdominio
 
 import (
 	"fmt"
-	"monorepo/ddd"
-	"monorepo/textutils"
 	"strings"
+
+	"github.com/pargomx/pargocode/ddd"
+	"github.com/pargomx/pargocode/textutils"
 
 	"github.com/pargomx/gecko/gko"
 	"github.com/pargomx/gecko/gkt"

@@ -1,7 +1,7 @@
 package sqliteddd
 
 import (
-	"monorepo/sqlitedb"
+	"github.com/pargomx/pargocode/sqlitedb"
 )
 
 // ================================================================ //

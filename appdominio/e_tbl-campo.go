@@ -1,8 +1,9 @@
 package appdominio
 
 import (
-	"monorepo/ddd"
 	"strings"
+
+	"github.com/pargomx/pargocode/ddd"
 )
 
 type CampoTabla struct {

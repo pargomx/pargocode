@@ -1,10 +1,11 @@
 package main
 
 import (
-	"monorepo/appdominio"
-	"monorepo/ddd"
-	"monorepo/textutils"
 	"strings"
+
+	"github.com/pargomx/pargocode/appdominio"
+	"github.com/pargomx/pargocode/ddd"
+	"github.com/pargomx/pargocode/textutils"
 
 	"github.com/pargomx/gecko"
 )

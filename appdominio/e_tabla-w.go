@@ -3,7 +3,8 @@ package appdominio
 import (
 	"errors"
 	"fmt"
-	"monorepo/ddd"
+
+	"github.com/pargomx/pargocode/ddd"
 
 	"github.com/pargomx/gecko/gko"
 

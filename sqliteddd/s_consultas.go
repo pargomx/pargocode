@@ -2,8 +2,9 @@ package sqliteddd
 
 import (
 	"database/sql"
-	"monorepo/ddd"
 	"strings"
+
+	"github.com/pargomx/pargocode/ddd"
 
 	"github.com/pargomx/gecko/gko"
 )
