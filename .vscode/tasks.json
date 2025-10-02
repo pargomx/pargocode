@@ -15,7 +15,7 @@
 		{
 			"label": "Ejecutar",
 			"detail": "Ejecutar aplicación en ambiente de desarrollo.",
-			"command": "pargocode -src=$(realpath .) -dir $(realpath ../_tdataPargoCode) -p 5053",
+			"command": "mkdir -p $(realpath ./_testdata); pargocode -src=$(realpath .) -dir=$(realpath ./_testdata) -p 5053",
 			"dependsOn": ["Instalar"], "dependsOrder": "sequence",
 			"isBackground": true,
 		},
