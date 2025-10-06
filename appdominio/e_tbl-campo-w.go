@@ -207,7 +207,7 @@ func InsertarCampoQuick(tablaID int, nombreCol string, repo Repositorio) error {
 		cam.Uns = true
 		cam.PrimaryKey = true
 		cam.Nullable = false
-		cam.TipoGo = "uint64"
+		cam.TipoGo = "gkoid.Decimal"
 	}
 
 	// Default para fechas
