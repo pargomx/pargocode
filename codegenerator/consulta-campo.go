@@ -45,6 +45,11 @@ func (con CampoConsulta) EsTiempo() bool {
 	return strings.Contains(con.TipoGo, "time.")
 }
 
+// Retorna si es fecha
+func (c CampoConsulta) EsFecha() bool {
+	return c.OrigenCampo.TipoSql == "date"
+}
+
 func (cam CampoConsulta) EsPropiedadExtendida() bool {
 	if cam.OrigenCampo == nil {
 		return false
@@ -210,6 +215,12 @@ func ScanTempVars(campos []CampoConsulta) string {
 		// case campo.TipoImportado && campo.TipoSetter != "":
 		// res += "\n\tvar " + campo.Variable() + " string" // ej. var tipoImportado string
 
+		case campo.Consulta.Sqlite && campo.EsTiempo():
+			res += "\n\tvar " + campo.Variable() + " string" // ej. var fechaModif string
+
+		case campo.Consulta.Sqlite && campo.TipoGo == "*time.Time":
+			res += "\n\tvar " + campo.Variable() + " string" // ej. var fechaModif string
+
 		case campo.TipoGo == "*time.Time" && campo.EsPointer():
 			res += "\n\tvar " + campo.Variable() + " sql.NullTime" // ej. var fechaModif sql.NullTime
 
@@ -249,8 +260,11 @@ func ScanArgs(campos []CampoConsulta, itemVar string) string {
 		case campo.EsPropiedadExtendida():
 			args += campo.Variable() // ej. &tipo
 
-			// case campo.TipoImportado && campo.TipoSetter != "":
-			// args += campo.Variable() // ej. &tipoImportado
+		// case campo.TipoImportado && campo.TipoSetter != "":
+		// args += campo.Variable() // ej. &tipoImportado
+
+		case campo.Consulta.Sqlite && campo.EsTiempo():
+			args += campo.Variable() // ej. &fechaModif
 
 		case campo.TipoGo == "time.Time" && !campo.EsPointer():
 			args += itemVar + "." + campo.NombreCampo // ej. &usu.FechaRegistro. // time.Time es soportado por el driver si se pone "?parseTime=true"
@@ -310,6 +324,46 @@ func ScanSetters(campos []CampoConsulta, itemVar string) string {
 		// gko.LogWarn("Usando TipoImportado no implementado")
 		// res += itemVar + "." + c.NombreCampo + " = " + strings.ReplaceAll(c.TipoSetter, "?", c.Variable())
 		// ================================================================ //
+
+		case c.Consulta.Sqlite && c.EsFecha() && c.EsNullable():
+			tmpVar := c.Variable()
+			res += fmt.Sprintf(`
+			%s.%s, err = gkt.ToFechaNullable(%s)
+			if err != nil {
+				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
+			}
+			`, itemVar, c.NombreCampo, tmpVar,
+				c.Variable(), c.Consulta.NombreItem())
+
+		case c.Consulta.Sqlite && c.EsFecha():
+			tmpVar := c.Variable()
+			res += fmt.Sprintf(`
+			%s.%s, err = gkt.ToFecha(%s)
+			if err != nil {
+				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
+			}
+			`, itemVar, c.NombreCampo, tmpVar,
+				c.Variable(), c.Consulta.NombreItem())
+
+		case c.Consulta.Sqlite && c.EsTiempo() && c.EsNullable():
+			tmpVar := c.Variable()
+			res += fmt.Sprintf(`
+			%s.%s, err = gkt.ToFechaHoraNullable(%s)
+			if err != nil {
+				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
+			}
+			`, itemVar, c.NombreCampo, tmpVar,
+				c.Variable(), c.Consulta.NombreItem())
+
+		case c.Consulta.Sqlite && c.EsTiempo():
+			tmpVar := c.Variable()
+			res += fmt.Sprintf(`
+			%s.%s, err = gkt.ToFechaHora(%s)
+			if err != nil {
+				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
+			}
+			`, itemVar, c.NombreCampo, tmpVar,
+				c.Variable(), c.Consulta.NombreItem())
 
 		case c.TipoGo == "*time.Time" && c.EsPointer(): // ej. if fechaBaja.Valid { apr.FechaBaja = &fechaBaja.Time }
 
