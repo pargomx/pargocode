@@ -268,10 +268,16 @@ func (tbl tabla) CamposTablaAsArguments(campos []CampoTabla, nombreVariable stri
 		for _, campo := range campos {
 			if campo.EsPropiedadExtendida() {
 				s += nombreVariable + "." + campo.NombreCampo + ".String, "
-			} else if tbl.Sqlite && campo.EsFecha() { // TODO: tratar otros tipos de tiempo de maneras diferentes.
+
+			} else if tbl.Sqlite && campo.EsFecha() && campo.Nullable {
+				s += "gkt.TimeToStringOrEmpty(" + nombreVariable + "." + campo.NombreCampo + ", gkt.FormatoFecha), "
+			} else if tbl.Sqlite && campo.EsTiempo() && campo.Nullable {
+				s += "gkt.TimeToStringOrEmpty(" + nombreVariable + "." + campo.NombreCampo + ", gkt.FormatoFechaHora), "
+			} else if tbl.Sqlite && campo.EsFecha() {
 				s += nombreVariable + "." + campo.NombreCampo + ".Format(gkt.FormatoFecha), "
-			} else if tbl.Sqlite && campo.EsTiempo() { // TODO: tratar otros tipos de tiempo de maneras diferentes.
+			} else if tbl.Sqlite && campo.EsTiempo() {
 				s += nombreVariable + "." + campo.NombreCampo + ".Format(gkt.FormatoFechaHora), "
+
 			} else if campo.ZeroIsNull && campo.EsString() {
 				s += fmt.Sprintf("sql.NullString{String: %v.%v, Valid: %v.%v != \"\"}, ", nombreVariable, campo.NombreCampo, nombreVariable, campo.NombreCampo)
 			} else if campo.ZeroIsNull && campo.EsNumero() {
@@ -339,6 +345,9 @@ func (tbl *tabla) ScanTempVarsTabla(campos []CampoTabla) string {
 		// res += "\n\tvar " + campo.Variable() + " string" // ej. var tipoImportado string
 
 		case tbl.Sqlite && campo.EsTiempo():
+			res += "\n\tvar " + campo.Variable() + " string" // ej. var fechaModif string
+
+		case tbl.Sqlite && campo.TipoGo == "*time.Time":
 			res += "\n\tvar " + campo.Variable() + " string" // ej. var fechaModif string
 
 		case campo.TipoGo == "*time.Time" && campo.EsPointer():
@@ -448,17 +457,37 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 
 			res += itemVar + "." + c.NombreCampo + " = " + c.Paquete.Nombre + ".Set" + c.TipoGo + "DB(" + c.Variable() + ")"
 
-			// ================================================================ //
+		// ================================================================ //
 
-			// case c.TipoImportado && c.TipoSetter != "": // ej. usu.TipoImportado = importado.SetTipoDB(tipo)
-			// gko.LogWarn("Usando TipoImportado no implementado")
-			// res += itemVar + "." + c.NombreCampo + " = " + strings.ReplaceAll(c.TipoSetter, "?", c.Variable())
-			// ================================================================ //
+		// case c.TipoImportado && c.TipoSetter != "": // ej. usu.TipoImportado = importado.SetTipoDB(tipo)
+		// gko.LogWarn("Usando TipoImportado no implementado")
+		// res += itemVar + "." + c.NombreCampo + " = " + strings.ReplaceAll(c.TipoSetter, "?", c.Variable())
+		// ================================================================ //
+
+		case tbl.Sqlite && c.EsFecha() && c.EsNullable():
+			tmpVar := c.Variable()
+			res += fmt.Sprintf(`
+			%s.%s, err = gkt.ToFechaNullable(%s)
+			if err != nil {
+				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
+			}
+			`, itemVar, c.NombreCampo, tmpVar,
+				c.NombreColumna, tbl.NombreItem())
 
 		case tbl.Sqlite && c.EsFecha():
 			tmpVar := c.Variable()
 			res += fmt.Sprintf(`
 			%s.%s, err = gkt.ToFecha(%s)
+			if err != nil {
+				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
+			}
+			`, itemVar, c.NombreCampo, tmpVar,
+				c.NombreColumna, tbl.NombreItem())
+
+		case tbl.Sqlite && c.EsTiempo() && c.EsNullable():
+			tmpVar := c.Variable()
+			res += fmt.Sprintf(`
+			%s.%s, err = gkt.ToFechaHoraNullable(%s)
 			if err != nil {
 				gko.ErrInesperado.Str("%s no tiene formato correcto en db").Op("scanRow%s").Err(err).Log()
 			}
