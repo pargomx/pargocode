@@ -52,6 +52,10 @@ func (cam CampoConsulta) EsPropiedadExtendida() bool {
 	return cam.OrigenCampo.Especial
 }
 
+func (cam CampoConsulta) EsGkoid() bool {
+	return strings.Contains(cam.TipoGo, "gkoid.")
+}
+
 // ================================================================ //
 // ================================================================ //
 
@@ -118,6 +122,9 @@ func (cam CampoConsulta) ifZeroReturnErr(razón string, nombreVariable string, r
 
 	case cam.EsPropiedadExtendida():
 		comparacion += ".EsIndefinido() "
+
+	case cam.EsGkoid():
+		comparacion += ".Uint64() == 0 "
 
 	default:
 		gko.LogWarnf("cam.NombreCampo: No se verificará que %v no sea Zero value", cam.NombreCampo)

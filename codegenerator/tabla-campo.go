@@ -189,6 +189,10 @@ func (cam CampoTabla) NotNull() bool {
 // 	return !c.Nullable
 // }
 
+func (cam CampoTabla) EsGkoid() bool {
+	return strings.Contains(cam.TipoGo, "gkoid.")
+}
+
 // ================================================================ //
 // ========== Code gen ============================================ //
 
@@ -251,6 +255,9 @@ func (c CampoTabla) ifZeroReturnErr(razón string, nombreVariable string, return
 
 	case c.EsPropiedadExtendida():
 		comparacion += ".EsIndefinido() "
+
+	case c.EsGkoid():
+		comparacion += ".Uint64() == 0 "
 
 	case c.EsBool() && !c.Nullable:
 		return "" // No se verifica que un bool sea zero value
