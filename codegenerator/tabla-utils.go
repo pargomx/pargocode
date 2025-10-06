@@ -282,6 +282,8 @@ func (tbl tabla) CamposTablaAsArguments(campos []CampoTabla, nombreVariable stri
 				s += fmt.Sprintf("sql.NullString{String: %v.%v, Valid: %v.%v != \"\"}, ", nombreVariable, campo.NombreCampo, nombreVariable, campo.NombreCampo)
 			} else if campo.ZeroIsNull && campo.EsNumero() {
 				s += fmt.Sprintf("sql.NullInt64{Int64: int64(%v.%v), Valid: %v.%v != 0}, ", nombreVariable, campo.NombreCampo, nombreVariable, campo.NombreCampo)
+			} else if campo.ZeroIsNull && campo.EsGkoid() {
+				s += fmt.Sprintf("sql.NullInt64{Int64: int64(%v.%v), Valid: %v.%v.Uint64() != 0}, ", nombreVariable, campo.NombreCampo, nombreVariable, campo.NombreCampo)
 			} else {
 				s += nombreVariable + "." + campo.NombreCampo + ", "
 			}
@@ -371,6 +373,9 @@ func (tbl *tabla) ScanTempVarsTabla(campos []CampoTabla) string {
 		case campo.ZeroIsNull && campo.EsNumero():
 			res += "\n\tvar " + campo.Variable() + " sql.NullInt64"
 
+		case campo.ZeroIsNull && campo.EsGkoid():
+			res += "\n\tvar " + campo.Variable() + " sql.NullInt64"
+
 		case campo.EsPointer(): //* No reconocido
 			res += "\n\tvar " + "invalid string // No reconocido"
 			gko.LogWarn("el campo " + campo.NombreCampo + " no puede ser " + campo.TipoGo + " para generar SQL")
@@ -425,6 +430,8 @@ func (tbl *tabla) ScanArgsTabla(campos []CampoTabla, itemVar string) string {
 		case campo.ZeroIsNull && campo.EsString():
 			args += campo.Variable()
 		case campo.ZeroIsNull && campo.EsNumero():
+			args += campo.Variable()
+		case campo.ZeroIsNull && campo.EsGkoid():
 			args += campo.Variable()
 
 		case campo.EsPointer():
@@ -583,6 +590,15 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 
 		case c.ZeroIsNull && c.EsNumero():
 			// ej. if calificacion.Valid { apr.Calificacion = int(calificacion.Int64) }
+			res += fmt.Sprintf(
+				" if %v.Valid{ \n\t\t"+
+					"%v.%v = %v(%v.Int64) \n}",
+				c.Variable(),
+				itemVar, c.NombreCampo, c.TipoGo, c.Variable(),
+			)
+
+		case c.ZeroIsNull && c.EsGkoid():
+			// ej. if calificacion.Valid { apr.Calificacion = gkoid.Hex(calificacion.Int64) }
 			res += fmt.Sprintf(
 				" if %v.Valid{ \n\t\t"+
 					"%v.%v = %v(%v.Int64) \n}",

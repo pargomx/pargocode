@@ -115,6 +115,9 @@ func (consulta *consulta) camposAsSnakeList(campos []CampoConsulta, separador st
 		case c.EsNumero():
 			res += fmt.Sprintf("coalesce(%s, 0)", c.Expresion)
 
+		case c.EsGkoid():
+			res += fmt.Sprintf("coalesce(%s, 0)", c.Expresion)
+
 		default:
 			res += fmt.Sprintf("coalesce(%s, '')", c.Expresion)
 		}
