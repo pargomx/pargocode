@@ -1,4 +1,3 @@
-@import 'tailwindcss' layer(base);
 @import 'tailwindcss';
 
 @layer utilities {
@@ -19,45 +18,45 @@
 /* Orden de tablas por columnas. Ver JS. */
 .th-sort-asc::after {
 	content: "\25b4";
-	margin-left: 5px;
+	margin-left: 0.3125rem; /* 5px */
 }
 .th-sort-desc::after {
 	content: "\25be";
-	margin-left: 5px;
+	margin-left: 0.3125rem; /* 5px */
 }
 
 table > tbody > tr > td {
-	@apply px-2 py-1
+	@apply px-2 py-1;
 }
 table > thead > tr > th {
-	@apply px-2 py-1
+	@apply px-2 py-1;
 }
 
 dialog {
-	@apply bg-cyan-600
+	@apply bg-cyan-600;
 }
 
 select option {
-	@apply text-black bg-cyan-100/50
+	@apply text-black bg-cyan-100/50;
 }
 
 select optgroup {
-	@apply text-white bg-cyan-950/70
+	@apply text-white bg-cyan-950/70;
 }
 
 /* Scrollbar agradable */
 ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-    background: #61616473;
-    border-radius: 10px;
+	width: 0.625rem; /* 10px */
+	height: 0.625rem; /* 10px */
+	background: #61616473;
+	border-radius: 0.625rem; /* 10px */
 }
 ::-webkit-scrollbar-track {
-    border-radius: 10px;
+	border-radius: 0.625rem; /* 10px */
 }
 ::-webkit-scrollbar-thumb {
-    background: #ffffff92;
-    border-radius: 10px;
+	background: #ffffff92;
+	border-radius: 0.625rem; /* 10px */
 }
 
 .scrollbar-stable {
