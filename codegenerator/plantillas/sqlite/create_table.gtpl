@@ -1,7 +1,7 @@
 CREATE TABLE {{ .Tabla.NombreRepo }} (
 {{- range .Tabla.Campos }}
   {{ .NombreColumna }}
-  	{{- if .EsString }} TEXT{{ else if or .EsNumero .EsBool }} INT{{ end }}
+  	{{- if .EsString }} TEXT{{ else if or .EsNumero .EsBool .EsGkoid }} INT{{ end }}
 	{{- if .Null}}{{ else }} NOT NULL{{ end }}
 	{{- if .DefaultSql }} {{ .DefaultSql }}{{ end -}}
 	,
