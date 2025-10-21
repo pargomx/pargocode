@@ -1,4 +1,4 @@
-package main
+package pargocode
 
 import (
 	"flag"
@@ -41,7 +41,7 @@ type configs struct {
 	sourceDir    string // Directorio con assets y htmltmpl para no usar embeded
 }
 
-func main() {
+func Run() {
 	gko.LogInfof("Versión:%s:%s", BUILD_INFO, AMBIENTE)
 	s := servidor{}
 	var err error

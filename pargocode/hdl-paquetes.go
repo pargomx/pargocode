@@ -1,4 +1,4 @@
-package main
+package pargocode
 
 import (
 	"github.com/pargomx/pargocode/appdominio"
@@ -103,5 +103,5 @@ func (s *servidor) getMapaEntidadRelacionPaquete(c *gecko.Context) error {
 		"Title":       "Diagrama del paquete",
 		"MermaidCode": mermaid,
 	})
-	return c.StatusOk(mermaid)
+	// return c.StatusOk(mermaid)
 }
