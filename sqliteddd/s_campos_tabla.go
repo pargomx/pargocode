@@ -57,7 +57,7 @@ func (s *Repositorio) GetCampoByNombre(nombre string) (*ddd.Campo, error) {
 	cam := &ddd.Campo{}
 	err := s.scanRowCampo(row, cam)
 	if err != nil {
-		return nil, op.Err(err)
+		return nil, op.Err(err).Key(gko.ErrNoEncontrado)
 	}
 	return cam, nil
 }

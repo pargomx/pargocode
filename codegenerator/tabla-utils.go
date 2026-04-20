@@ -346,6 +346,9 @@ func (tbl *tabla) ScanTempVarsTabla(campos []CampoTabla) string {
 		// case campo.TipoImportado && campo.TipoSetter != "":
 		// res += "\n\tvar " + campo.Variable() + " string" // ej. var tipoImportado string
 
+		case tbl.Sqlite && campo.EsDatetime() && campo.EsNullable():
+			res += "\n\tvar " + campo.Variable() + " sql.NullString" // ej. var fechaModif sql.NullString
+
 		case tbl.Sqlite && campo.EsTiempo():
 			res += "\n\tvar " + campo.Variable() + " string" // ej. var fechaModif string
 
@@ -470,6 +473,19 @@ func (tbl *tabla) ScanSettersTabla(campos []CampoTabla, itemVar string) string {
 		// gko.LogWarn("Usando TipoImportado no implementado")
 		// res += itemVar + "." + c.NombreCampo + " = " + strings.ReplaceAll(c.TipoSetter, "?", c.Variable())
 		// ================================================================ //
+
+		case tbl.Sqlite && c.EsDatetime() && c.EsNullable():
+			tmpVar := c.Variable()
+			res += fmt.Sprintf(
+				"\n if %s.Valid{ \n\t\t"+
+					"%s.%s, err = gkt.ToFechaHoraNullable(%s.String)\n"+
+					"if err != nil {\n"+
+					"gko.ErrInesperado.Str(\"%s no tiene formato correcto en db\").Op(\"scanRow%s\").Err(err).Log()\n"+
+					"}}\n",
+				tmpVar,                         // ej. if fechaRevision.Valid {
+				itemVar, c.NombreCampo, tmpVar, // apr.FechaRev, err = gkt.ToFechaNullable(fechaRevision.String)
+				c.NombreColumna, tbl.NombreItem(),
+			)
 
 		case tbl.Sqlite && c.EsFecha() && c.EsNullable():
 			tmpVar := c.Variable()

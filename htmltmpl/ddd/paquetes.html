@@ -17,7 +17,7 @@
 			{{ range .Tablas -}}
 			<div tipo="entidad" class="flex justify-between gap-2 p-2 bg-cyan-950 rounded-md">
 				<span class="p-1 font-mono text-xs text-white bg-teal-700 rounded">tbl</span>
-				<a href="/tablas/{{ .TablaID }}">{{ .NombreItem }}</a>
+				<a href="/tablas/{{ .TablaID }}">{{ .Humano }}</a>
 				<button type="button" hx-delete="/tablas/{{ .TablaID }}" hx-prompt="¿Eliminar tabla {{ .NombreRepo }}? Se borrarán todos los campos. Introduzca 'ok' para confirmar.">🚮</button>
 			</div>
 			{{ end }}

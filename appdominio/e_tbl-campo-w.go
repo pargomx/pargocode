@@ -220,7 +220,9 @@ func InsertarCampoQuick(tablaID int, nombreCol string, repo Repositorio) error {
 	// Default basado en un campo con el mismo nombre
 	similar, err := repo.GetCampoByNombre(nombreCol)
 	if err != nil {
-		gko.LogError(err)
+		if !gko.EsErrNotFound(err) {
+			gko.LogError(err)
+		}
 	} else {
 		cam.NombreCampo = similar.NombreCampo
 		cam.NombreColumna = similar.NombreColumna
