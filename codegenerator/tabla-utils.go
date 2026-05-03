@@ -153,8 +153,16 @@ func (tbl *tabla) CamposRequeridosOrPK() []CampoTabla {
 //
 //	"usuario_id, programa_id, estatus"
 func TablaCamposAsSnakeList(campos []CampoTabla, separador string) (s string) {
-	for _, campo := range campos {
-		s += campo.NombreColumna + separador
+	if separador == "prefijoTabla" {
+		separador = ", "
+		s = ""
+		for _, campo := range campos {
+			s += campo.Tabla.Abrev + "." + campo.NombreColumna + separador
+		}
+	} else {
+		for _, campo := range campos {
+			s += campo.NombreColumna + separador
+		}
 	}
 	return strings.TrimSuffix(s, separador)
 }
@@ -314,7 +322,7 @@ func (tbl tabla) CamposSeleccionadosAsArguments(nombreVariable string) (lista st
 // ================================================================ //
 
 func (tbl *tabla) SqlFromClause(separador string) string {
-	return "FROM " + tbl.Tabla.NombreRepo + " "
+	return "FROM " + tbl.Tabla.NombreRepo + " " + tbl.Tabla.Abrev + " "
 }
 
 // compatibilidad con mysql-scan

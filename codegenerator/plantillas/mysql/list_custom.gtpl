@@ -2,7 +2,7 @@
 func (s *Repositorio) List{{ .NombreItems }}{{ .CustomList.CompFunc }}({{ .CustomList.ArgsFunc }}) ([]{{ .Paquete.Nombre }}.{{ .NombreItem }}, error) {
 	const op string = "List{{ .NombreItems }}{{ .CustomList.CompFunc }}"
 	rows, err := s.db.Query(
-		"SELECT " + columnas{{ .NombreItem }} + " " + from{{ .NombreItem }}+
+		"SELECT " + "{{ .CamposAsSnakeList "prefijoTabla" }}" + " " + from{{ .NombreItem }}+
 			"{{ .CustomList.CompSQL }}",
 		{{ if .CustomList.ArgsSQL }}{{ .CustomList.ArgsSQL }},{{ end }}
 	)
