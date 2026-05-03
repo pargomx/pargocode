@@ -18,13 +18,6 @@ import (
 	"github.com/pargomx/gecko/plantillas"
 )
 
-// Información de compilación establecida con:
-//
-//	BUILD_INFO="$(date -I):$(git log --format="%H" -n 1)"
-//	go build -ldflags "-X main.BUILD_INFO=$BUILD_INFO -X main.AMBIENTE=DEV"
-var BUILD_INFO string // Información de compilación [ fecha:commit_hash ]
-var AMBIENTE string   // Ambiente de ejecución [ DEV / PROD ]
-
 type servidor struct {
 	cfg   configs
 	gecko *gecko.Gecko
@@ -42,7 +35,6 @@ type configs struct {
 }
 
 func Run() {
-	gko.LogInfof("Versión:%s:%s", BUILD_INFO, AMBIENTE)
 	s := servidor{}
 	var err error
 
@@ -76,7 +68,7 @@ func Run() {
 	s.gecko = gecko.New()
 	if s.cfg.sourceDir != "" {
 		gko.LogInfo("Usando plantillas en " + s.cfg.sourceDir + "/htmltmpl")
-		s.gecko.Renderer, err = plantillas.NuevoServicioPlantillas(s.cfg.sourceDir+"/htmltmpl", AMBIENTE == "DEV")
+		s.gecko.Renderer, err = plantillas.NuevoServicioPlantillas(s.cfg.sourceDir+"/htmltmpl", true)
 	} else {
 		s.gecko.Renderer, err = plantillas.NuevoServicioPlantillasEmbebidas(htmltmpl.PlantillasFS, "")
 	}

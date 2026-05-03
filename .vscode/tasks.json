@@ -39,7 +39,7 @@
 		{
 			"label": "Instalar",
 			"detail": "Instalar pargocode.",
-			"command": "CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=pargocode:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=PROD\" ./ && echo '[✔] App instalada' $(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)",
+			"command": "GOBIN=$HOME/go/bin CGO_ENABLED=0 go install -ldflags \"-X main.BUILD_INFO=pargocode:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD) -X main.AMBIENTE=PROD\" ./main.go && echo '[✔] App instalada' $(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)",
 		},
 
 
@@ -50,12 +50,12 @@
 		},
 		{
 			"label": "Try gkfmt", "detail": "Ejecutar en archivo de prueba",
-			"command": "CGO_ENABLED=0 go run -ldflags \"-X main.BUILD_INFO=gkfmt:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)\" ./gkfmt -i gkfmt/input.html -o gkfmt/output.html ",
+			"command": "CGO_ENABLED=0 go run -ldflags \"-X pargocode.BUILD_INFO=gkfmt:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)\" ./gkfmt -i gkfmt/input.html -o gkfmt/output.html ",
 			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "showReuseMessage": false }, "isBackground": true,
 		},
 		{
 			"label": "Debug gkfmt", "detail": "Ejecutar en archivo de prueba",
-			"command": "CGO_ENABLED=0 go run -ldflags \"-X main.BUILD_INFO=gkfmt:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)\" ./gkfmt -i gkfmt/input.html -o gkfmt/output.html -d 2>&1 | grep --color=always -B 6 -A 6 '${input:debugSearch}'",
+			"command": "CGO_ENABLED=0 go run -ldflags \"-X pargocode.BUILD_INFO=gkfmt:$(date '+%Y-%m-%d%n'):$(git rev-parse --short HEAD)\" ./gkfmt -i gkfmt/input.html -o gkfmt/output.html -d 2>&1 | grep --color=always -B 6 -A 6 '${input:debugSearch}'",
 			"type": "shell", "presentation": { "echo": false, "reveal": "always", "focus": false, "clear": true, "showReuseMessage": false }, "isBackground": true,
 		},
 
