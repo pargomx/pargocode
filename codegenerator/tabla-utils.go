@@ -277,6 +277,8 @@ func (tbl tabla) CamposTablaAsArguments(campos []CampoTabla, nombreVariable stri
 			if campo.EsPropiedadExtendida() {
 				s += nombreVariable + "." + campo.NombreCampo + ".String, "
 
+			} else if tbl.Sqlite && campo.EsDatetime() && campo.Nullable {
+				s += "gkt.TimeToNullString(" + nombreVariable + "." + campo.NombreCampo + ", gkt.FormatoFechaHora), "
 			} else if tbl.Sqlite && campo.EsFecha() && campo.Nullable {
 				s += "gkt.TimeToStringOrEmpty(" + nombreVariable + "." + campo.NombreCampo + ", gkt.FormatoFecha), "
 			} else if tbl.Sqlite && campo.EsTiempo() && campo.Nullable {
